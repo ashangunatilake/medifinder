@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "296079288919",
+    "project_id": "medifinder-564fa",
+    "storage_bucket": "medifinder-564fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296079288919:android:5f3daf027c4686e4b25112",
+        "android_client_info": {
+          "package_name": "com.group1.medifinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHPCNDG83KRYE4qNeo-y7100MFaVFmgqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
