@@ -19,12 +19,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Medi Finder',
         theme: ThemeData(
-        fontFamily: "Poppins",
-      ),
-      home: const LoginPage()
-    );
+          fontFamily: "Poppins",
+        ),
+        home: const LoginPage());
   }
 }
-
-
-
