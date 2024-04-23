@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
@@ -110,8 +111,8 @@ Widget content() {
                 height: 53.0,
               ),
               Container(
-                margin:const EdgeInsets.fromLTRB(10.0, 0, 10.0, 10.0),
-                width: double.infinity,
+                margin: EdgeInsets.only(left: 10.0),
+                width: MediaQuery.of(context).size.width - 20.0,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -185,7 +186,7 @@ Widget content() {
                                     child: Icon(
                                       Icons.email_outlined,
                                       color: Color(0xFFC4C4C4),
-          
+
                                     ),
                                   ),
                                 ],
@@ -233,7 +234,7 @@ Widget content() {
                                     child: Icon(
                                       Icons.lock_outline,
                                       color: Color(0xFFC4C4C4),
-          
+
                                     ),
                                   ),
                                 ],
@@ -262,23 +263,23 @@ Widget content() {
                                               //onTap logic
                               }
                               )),
-          
+
                                 ],
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             ElevatedButton(
                               onPressed: ()
                               {
-          
+
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF12E7C0),
-                                padding: const EdgeInsets.fromLTRB(54.0, 13.0, 54.0, 11.0)
+                                padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0)
                               ),
                               child: const Text(
                                 "Login",
@@ -294,7 +295,7 @@ Widget content() {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFFFFFF),
-                              padding: const EdgeInsets.fromLTRB(54.0, 13.0, 54.0, 11.0),
+                              padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
                               side: const BorderSide(color: Color(0xFF12E7C0))
                             ),
                             child: const Text(
@@ -304,7 +305,7 @@ Widget content() {
                                 ),
                             ),
                         )
-          
+
                         ],
                         ),
                       ),
@@ -314,8 +315,8 @@ Widget content() {
                     ],
                   ),
                 ),
-          
-          
+
+
 
                   ),
 
