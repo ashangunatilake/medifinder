@@ -50,6 +50,8 @@ class _HomeState extends State<Home> {
               zoom: 18,
             ),
             myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
             markers: _markers,
             onTap: (LatLng latLng) {
               setState(() {
@@ -95,7 +97,7 @@ class _HomeState extends State<Home> {
                     ),
                     Text("Select location by tapping on the map",
                         style: TextStyle(
-                          fontSize: 10.0,
+                          fontSize: 12.0,
                         )),
                     SizedBox(
                       height: 5.0,
@@ -146,6 +148,24 @@ class _HomeState extends State<Home> {
         child: const Icon(
           Icons.my_location_outlined,
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Home",
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: "Orders",
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: "Profile"
+          )
+        ],
+        currentIndex: 0,
+        selectedItemColor: const Color(0xFF12E7C0),
       ),
     );
   }
