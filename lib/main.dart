@@ -1,7 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:medifinder/pages/activities.dart';
+import 'package:medifinder/pages/addreview.dart';
 import 'package:medifinder/pages/home.dart';
 import 'package:medifinder/pages/login.dart';
+import 'package:medifinder/pages/order.dart';
+import 'package:medifinder/pages/pharamacydetails.dart';
+import 'package:medifinder/pages/profile.dart';
+import 'package:medifinder/pages/reviews.dart';
+import 'package:medifinder/pages/search.dart';
 import 'package:medifinder/pages/signup.dart';
 
 void main() async {
@@ -17,11 +24,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Medi Finder',
-        theme: ThemeData(
-          fontFamily: "Poppins",
-        ),
-        home: const LoginPage());
+      debugShowCheckedModeBanner: false,
+      title: 'Medi Finder',
+      theme: ThemeData(
+        fontFamily: "Poppins",
+      ),
+      home: const Home(),
+      routes: {
+        '/home' : (context) => const Home(),
+        '/search' : (context) => const Search(),
+        '/pharmacydetails' : (context) => const PharmacyDetails(),
+        '/reviews' : (context) => const Reviews(),
+        '/addreview' : (context) => const AddReview(),
+        '/order' : (context) => const Order(),
+        '/profile' : (context) => const Profile(),
+        '/activities' : (context) => const Activities()
+      },
+
+    );
   }
 }
