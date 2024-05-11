@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:medifinder/pages/loading.dart';
+import 'package:medifinder/services/database_services.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key});
@@ -11,6 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final DatabaseServices _databaseServices = DatabaseServices();
   Location _locationController = Location();
   LatLng? currentP;
   LatLng? source;
@@ -30,6 +33,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return currentP == null ? const Loading() : buildMap();
   }
+
+  // child:StreamBuilder(
+  //     stream: _databaseServices.getUsers(),
+  //     builder: (context, snapshot) {
+  //       List users = snapshot.data?docs ?? [];
+  //       return ListView();
+  //      }
+  // )
 
   Widget buildMap() {
     _markers.add(

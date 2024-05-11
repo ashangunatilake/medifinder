@@ -1,5 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:medifinder/models/user_model.dart';
+import 'package:medifinder/services/database_services.dart';
+import 'package:medifinder/pages/home.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -9,7 +14,7 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  String name = "", email = "", password = "", mobilenum = "";
+  final DatabaseServices _databaseServices = DatabaseServices();
   bool isPressedUser = false;
   bool isPressedPharmacy = false;
   TextEditingController namecontroller = TextEditingController();
@@ -18,6 +23,98 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController passwordcontroller = TextEditingController();
   TextEditingController confirmpasswordcontroller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+
+  userSignUp() async {
+    String name = namecontroller.text;
+    String email = emailcontroller.text;
+    String mobile = mobilecontroller.text;
+    String password = passwordcontroller.text;
+    String confirmpassword = confirmpasswordcontroller.text;
+
+    if (password != confirmpassword)
+    {
+      print("Passwords not same");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
+                child: Text(
+                    "Error",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    )
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
+                child: Text(
+                  "The password and confirm password fields do not match",
+                  style: TextStyle(
+                      fontSize: 16.0
+                  ),
+                ),
+              )
+            ],
+          )
+      )
+      );
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      UserModel user = UserModel(name: name, email: email, mobile: mobile);
+      _databaseServices.addUser(user);
+      print("User account created");
+      Navigator.pushNamed(context, "/login");
+    } on FirebaseAuthException catch(e) {
+      print(e.code);
+      if (e.code == "email-already-in-use") {
+        print("User not found");
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
+                  child: Text(
+                      "Error",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                      )
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
+                  child: Text(
+                    "Email already in use",
+                    style: TextStyle(
+                        fontSize: 16.0
+                    ),
+                  ),
+                )
+              ],
+            )
+        )
+        );
+      }
+    }
+  }
+
+  Future addUser() async {
+    await FirebaseFirestore.instance.collection('Users').add({});
+  }
+
+  @override
+  void dispose() {
+    emailcontroller.dispose();
+    passwordcontroller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +167,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     Container(
                       margin:const EdgeInsets.fromLTRB(10.0, 0, 10.0, 10.0),
-                      width: double.infinity,
+                      width: MediaQuery.of(context).size.width - 20.0,
                       decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -114,7 +211,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 30.0),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ElevatedButton(
                                     onPressed: () {
@@ -149,9 +246,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       ],
                                     )
                                 ),
-                                const SizedBox(
-                                  width: 51.0,
-                                ),
+                                // const SizedBox(
+                                //   width: 51.0,
+                                // ),
                                 ElevatedButton(
                                     onPressed: () {
                                       setState(() {
@@ -482,7 +579,21 @@ class _SignUpPageState extends State<SignUpPage> {
                               ElevatedButton(
                                 onPressed: ()
                                 {
-
+                                  userSignUp();
+                                  /////
+                                  // if(formkey.currentState!.validate()) {
+                                  //
+                                  //
+                                  //
+                                  //   ///// get user and pass it to controller
+                                  //   final user = UserModel(
+                                  //     email: emailcontroller.text.trim(),
+                                  //     password: passwordcontroller.text.trim(),
+                                  //     fullname: namecontroller.text.trim(),
+                                  //     mobilenum: mobilecontroller.text.trim(),
+                                  //   );
+                                  //
+                                  // }
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF12E7C0),
