@@ -34,18 +34,10 @@ class _HomeState extends State<Home> {
     return currentP == null ? const Loading() : buildMap();
   }
 
-  // child:StreamBuilder(
-  //     stream: _databaseServices.getUsers(),
-  //     builder: (context, snapshot) {
-  //       List users = snapshot.data?docs ?? [];
-  //       return ListView();
-  //      }
-  // )
-
   Widget buildMap() {
     _markers.add(
       Marker(
-        markerId: MarkerId('current_location'),
+        markerId: MarkerId('1'),
         position: currentP!,
       ),
     );
@@ -64,24 +56,36 @@ class _HomeState extends State<Home> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             markers: _markers,
-            onTap: (LatLng latLng) {
+            onCameraMove: (CameraPosition _position){
+              currentP = LatLng(_position.target.latitude, _position.target.longitude);
               setState(() {
-                currentP = latLng;
                 _markers.clear();
                 _markers.add(
-                  Marker(
-                    markerId: MarkerId('marker_id'),
-                    position: latLng,
-                    draggable: true,
-                    onDragEnd: (LatLng newP) {
-                      setState(() {
-                        currentP = newP;
-                      });
-                    },
-                  ),
+                    Marker(
+                        markerId: MarkerId('marker_id'),
+                        position: currentP!
+                    )
                 );
               });
-            },
+            } ,
+            // onTap: (LatLng latLng) {
+            //   setState(() {
+            //     currentP = latLng;
+            //     _markers.clear();
+            //     _markers.add(
+            //       Marker(
+            //         markerId: MarkerId('marker_id'),
+            //         position: latLng,
+            //         draggable: true,
+            //         onDragEnd: (LatLng newP) {
+            //           setState(() {
+            //             currentP = newP;
+            //           });
+            //         },
+            //       ),
+            //     );
+            //   });
+            // },
           ),
           Positioned(
             top: 10.0,
@@ -106,7 +110,7 @@ class _HomeState extends State<Home> {
                     SizedBox(
                       height: 5.0,
                     ),
-                    Text("Select location by tapping on the map",
+                    Text("Set location on map",
                         style: TextStyle(
                           fontSize: 12.0,
                         )),
@@ -122,7 +126,9 @@ class _HomeState extends State<Home> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/search');
+                          },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF12E7C0),
                               padding: const EdgeInsets.fromLTRB(
@@ -168,7 +174,7 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.shopping_cart),
-              label: "Orders",
+              label: "Activities",
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.person),
@@ -176,6 +182,10 @@ class _HomeState extends State<Home> {
           )
         ],
         currentIndex: 0,
+        onTap: (int n) {
+          if (n == 1) Navigator.pushNamed(context, '/activities');
+          if (n == 2) Navigator.pushNamed(context, '/profile');
+        },
         selectedItemColor: const Color(0xFF12E7C0),
       ),
     );
@@ -221,3 +231,5 @@ String locationString(LatLng pos) {
   String longitude = pos.longitude.toStringAsFixed(6);
   return "($latitude , $longitude)";
 }
+
+
