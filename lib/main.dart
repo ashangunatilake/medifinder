@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:medifinder/pages/home.dart';
 import 'package:medifinder/pages/login.dart';
 import 'package:medifinder/pages/signup.dart';
+import 'package:medifinder/pages/PharmacyRegister.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: "Poppins",
         ),
-        home: const LoginPage());
+        //home: const LoginPage());
+        home: RegisterPage());
   }
 }
