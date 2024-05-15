@@ -1,13 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:medifinder/pages/inventory.dart';
 
 class RegisterPage extends StatelessWidget {
   double _deviceHeight = 0;
   double _deviceWidth = 0;
   int _selectIndex = 0;
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(BuildContext context, int index) {
     //Implement logic to navigate different pages.
+    if (index == 0) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Inventory()));
+    }
   }
 
   @override
@@ -30,8 +35,10 @@ class RegisterPage extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectIndex,
-        onTap: _onItemTapped,
+        onTap: (index) =>
+            _onItemTapped(context, index), // Pass the context here,
         selectedItemColor: const Color.fromRGBO(62, 221, 170, 1),
+
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

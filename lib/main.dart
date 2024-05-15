@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:medifinder/pages/drugs_stock.dart';
 import 'package:medifinder/pages/home.dart';
 import 'package:medifinder/pages/login.dart';
 import 'package:medifinder/pages/signup.dart';
 import 'package:medifinder/pages/PharmacyRegister.dart';
+import 'package:medifinder/pages/inventory.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: "Poppins",
         ),
-        //home: const LoginPage());
+        //home: const LoginPage())
         home: RegisterPage());
   }
 }
