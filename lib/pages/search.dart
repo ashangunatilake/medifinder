@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:medifinder/models/pharmacy_model.dart';
 
 import '../services/pharmacy_database_services.dart';
 
@@ -14,7 +16,11 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   final DatabaseServices _databaseServices = DatabaseServices();
+  Stream<QuerySnapshot> _pharmacyStream = Stream.empty();
+  bool searched = false;
   @override
+
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -88,12 +94,21 @@ class _SearchState extends State<Search> {
                           ),
                         ),
                       ),
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                        child: Icon(
-                          Icons.search,
-                          color: Color(0xFFC4C4C4),
+                        child: GestureDetector(
+                          onTap: ()
+                          {
+                            setState(() {
+                              searched = true;
+                              _pharmacyStream = _databaseServices.getPharmacies();
+                            });
+                          },
+                          child: Icon(
+                            Icons.search,
+                            color: Color(0xFFC4C4C4),
 
+                          ),
                         ),
                       ),
                     ]
@@ -124,378 +139,125 @@ class _SearchState extends State<Search> {
                 ),
               ),
             ),
-            Expanded(
-              child: ListView(
-                reverse: false,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/pharmacydetails');
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(left:10.0, right: 10.0),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0x40FFFFFF),
-                                blurRadius: 4.0,
-                                offset: Offset(0, 4)
-                            )
-                          ]
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // we need to take the names of the pharmacies from the api or the database
-                                //only the list of nearby pharmacies must be displayed
-                                //therefore the display need to be adjusted for that
-
-                                // child:StreamBuilder(
-                                //     stream: _databaseServices.getPharmaciess(),
-                                //     builder: (context, snapshot) {
-                                //       List users = snapshot.data?docs ?? [];
-                                //       return ListView();
-                                //     }
-                                // )
-
-                                Text(
-                                  "Pharmacy 1",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                Container(
-                                  width: 47.0,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "4.6",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
+            (searched) ? StreamBuilder(
+              stream: _pharmacyStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator()); // Show a loading indicator while waiting for data.
+                }
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return Text('No data available');
+                }
+                else {
+                  var docs = snapshot.data!.docs;
+                  print(docs.length);
+                  return Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: docs.length,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushNamed(context, '/pharmacydetails');
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Color(0x40FFFFFF),
+                                                blurRadius: 4.0,
+                                                offset: Offset(0, 4)
+                                            )
+                                          ]
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                // we need to take the names of the pharmacies from the api or the database
+                                                //only the list of nearby pharmacies must be displayed
+                                                //therefore the display need to be adjusted for that
+                          
+                                                // child:StreamBuilder(
+                                                //     stream: _databaseServices.getPharmaciess(),
+                                                //     builder: (context, snapshot) {
+                                                //       List users = snapshot.data?docs ?? [];
+                                                //       return ListView();
+                                                //     }
+                                                // )
+                          
+                                                Text(
+                                                  docs[index]['Name'],
+                                                  style: TextStyle(
+                                                    fontSize: 20.0,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: 47.0,
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "4.6",
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                        ),
+                                                      ),
+                                                      Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                        size: 24.0,
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 20.0,
+                                            ),
+                                            Text(
+                                              docs[index]['ContactNo'],
+                                              style: TextStyle(
+                                                  fontSize: 20.0
+                                              ),
+                                            )
+                          
+                                          ],
                                         ),
                                       ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                        size: 24.0,
-                                      )
-                                    ],
+                                    ),
                                   ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Text(
-                              "Price 1",
-                              style: TextStyle(
-                                fontSize: 20.0
-                              ),
-                            )
-
-                          ],
+                                  SizedBox(
+                                    height: 7.0,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 7.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(left:10.0, right: 10.0),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0x40FFFFFF),
-                                blurRadius: 4.0,
-                                offset: Offset(0, 4)
-                            )
-                          ]
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Pharmacy 1",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                Container(
-                                  width: 47.0,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "4.6",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                        size: 24.0,
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Text(
-                              "Price 1",
-                              style: TextStyle(
-                                  fontSize: 20.0
-                              ),
-                            )
-
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 7.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(left:10.0, right: 10.0),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0x40FFFFFF),
-                                blurRadius: 4.0,
-                                offset: Offset(0, 4)
-                            )
-                          ]
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Pharmacy 1",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                Container(
-                                  width: 47.0,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "4.6",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                        size: 24.0,
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Text(
-                              "Price 1",
-                              style: TextStyle(
-                                  fontSize: 20.0
-                              ),
-                            )
-
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 7.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(left:10.0, right: 10.0),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0x40FFFFFF),
-                                blurRadius: 4.0,
-                                offset: Offset(0, 4)
-                            )
-                          ]
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Pharmacy 2",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                Container(
-                                  width: 47.0,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "4.7",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                        size: 24.0,
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Text(
-                              "Price 2",
-                              style: TextStyle(
-                                  fontSize: 20.0
-                              ),
-                            )
-
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 7.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(left:10.0, right: 10.0),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Color(0x40FFFFFF),
-                                blurRadius: 4.0,
-                                offset: Offset(0, 4)
-                            )
-                          ]
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Pharmacy 1",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                Container(
-                                  width: 47.0,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "4.6",
-                                        style: TextStyle(
-                                          fontSize: 15.0,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                        size: 24.0,
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Text(
-                              "Price 1",
-                              style: TextStyle(
-                                  fontSize: 20.0
-                              ),
-                            )
-
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-            )
+                  );
+                }
+              },
+            ) : Expanded(child: SizedBox())
           ],
 
         ),
