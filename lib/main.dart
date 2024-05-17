@@ -11,6 +11,7 @@ import 'package:medifinder/pages/reviews.dart';
 import 'package:medifinder/pages/search.dart';
 import 'package:medifinder/pages/signup.dart';
 import 'package:medifinder/pages/login.dart';
+import 'package:medifinder/pages/splashscreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
       ),
-      home: const Home(),
+      home: const SplashScreen(),
       routes: {
         '/home': (context) => const Home(),
         '/search': (context) => const Search(),

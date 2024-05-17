@@ -232,6 +232,35 @@ class _ProfileState extends State<Profile> {
                               ],
                             ),
                           ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFFFFFFF),
+                                        padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                        side: const BorderSide(
+                                            color: Color(0xFF12E7C0))
+                                    ),
+                                    child: const Text(
+                                      "Log out",
+                                      style: TextStyle(
+                                        color: Color(0xFF12E7C0),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
 
                         ],
                       ) :
