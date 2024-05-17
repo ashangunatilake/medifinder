@@ -1,10 +1,13 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/pages/reviews.dart';
+
+import '../models/pharmacy_model.dart';
 
 class PharmacyDetails extends StatefulWidget {
   const PharmacyDetails({super.key});
@@ -16,6 +19,7 @@ class PharmacyDetails extends StatefulWidget {
 class _PharmacyDetailsState extends State<PharmacyDetails> {
   @override
   Widget build(BuildContext context) {
+    final pharmacy = ModalRoute.of(context)!.settings.arguments as PharmacyModel;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -76,7 +80,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Pharmacy 1",
+                        pharmacy.name, //"Pharmacy 1"
                         style: TextStyle(
                           fontSize: 20.0,
                         ),
@@ -87,7 +91,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              "4.6",
+                              pharmacy.ratings.toString(),
                               style: TextStyle(
                                 fontSize: 15.0,
                               ),
@@ -350,7 +354,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  continueDialog(context);
+                                  continueDialog(context, pharmacy);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -376,7 +380,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/addreview');
+                                  Navigator.pushNamed(context, '/addreview', arguments: pharmacy,);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -431,7 +435,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context) async {
+Future<void> continueDialog(context, PharmacyModel pharmacy) async {
   return showDialog(
   context: context,
   barrierDismissible: false,
@@ -447,13 +451,22 @@ Future<void> continueDialog(context) async {
               fontSize: 20.0,
             ),
           ),
-          Text(
-            "Available",
-            style: TextStyle(
-              fontSize: 16.0,
-              color: Color(0xFF008000)
+          if(pharmacy.isDeliveryAvailable)
+            Text(
+              "Available",
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Color(0xFF008000)
+              ),
             ),
-          ),
+          if(!pharmacy.isDeliveryAvailable)
+            Text(
+              "Not-Available",
+              style: TextStyle(
+                  fontSize: 16.0,
+                  color: Color(0xFF008000)
+              ),
+            ),
           SizedBox(
             height: 10.0,
           ),
@@ -490,7 +503,7 @@ Future<void> continueDialog(context) async {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/order');
+                  Navigator.pushNamed(context, '/order', arguments: pharmacy,);
 
                 },
                 style: ElevatedButton.styleFrom(

@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:medifinder/pages/loading.dart';
 import 'package:medifinder/services/database_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/user_model.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key});
@@ -14,12 +19,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final DatabaseServices _databaseServices = DatabaseServices();
+  late SharedPreferences sharedPreferences;
+  late UserModel? user;
   Location _locationController = Location();
   LatLng? currentP;
   LatLng? source;
   GoogleMapController? _controller;
   Set<Marker> _markers = {};
-  String user = "Ashan";
   bool markerPlaced = false;
   bool mapLoaded = false; // To track whether map is loaded
 
@@ -27,6 +33,13 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     getLocationUpdates();
+    initGetSavedUserData();
+  }
+
+  void initGetSavedUserData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    Map<String, dynamic> jsonUserdata = jsonDecode(sharedPreferences.getString('userdata')!);
+    user = UserModel.fromJson(jsonUserdata);
   }
 
   @override
@@ -102,7 +115,7 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Welcome $user",
+                      "Welcome ${user!.name}",
                       style: TextStyle(
                         fontSize: 20.0,
                       ),
@@ -127,7 +140,7 @@ class _HomeState extends State<Home> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/search');
+                            Navigator.pushNamed(context, '/search', arguments: user);
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF12E7C0),
@@ -184,7 +197,7 @@ class _HomeState extends State<Home> {
         currentIndex: 0,
         onTap: (int n) {
           if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
+          if (n == 2) Navigator.pushNamed(context, '/profile', arguments: user);
         },
         selectedItemColor: const Color(0xFF12E7C0),
       ),

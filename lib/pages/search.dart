@@ -3,13 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
-
+import '../models/user_model.dart';
 import '../services/pharmacy_database_services.dart';
 
 
 class Search extends StatefulWidget {
   const Search({super.key});
-
   @override
   State<Search> createState() => _SearchState();
 }
@@ -22,6 +21,7 @@ class _SearchState extends State<Search> {
 
 
   Widget build(BuildContext context) {
+    final user = ModalRoute.of(context)!.settings.arguments as UserModel;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -121,11 +121,11 @@ class _SearchState extends State<Search> {
               padding: const EdgeInsets.fromLTRB(24.0,0,0,0),
               child: ElevatedButton(
                 onPressed: () {
-                  _databaseServices.getPharmacies().listen((QuerySnapshot snapshot) {
-                    snapshot.docs.forEach((DocumentSnapshot doc) {
-                      print('Pharmacy Name: ${doc['Name']}');
-                    });
-                  });
+                  // _databaseServices.getPharmacies().listen((QuerySnapshot snapshot) {
+                  //   snapshot.docs.forEach((DocumentSnapshot doc) {
+                  //     print('Pharmacy Name: ${doc['Name']}');
+                  //   });
+                  // });
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -165,7 +165,8 @@ class _SearchState extends State<Search> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.pushNamed(context, '/pharmacydetails');
+
+                                      Navigator.pushNamed(context, '/pharmacydetails', arguments: docs[index].data(),); //send the pharmacy model and the user model along
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -193,15 +194,6 @@ class _SearchState extends State<Search> {
                                                 // we need to take the names of the pharmacies from the api or the database
                                                 //only the list of nearby pharmacies must be displayed
                                                 //therefore the display need to be adjusted for that
-                          
-                                                // child:StreamBuilder(
-                                                //     stream: _databaseServices.getPharmaciess(),
-                                                //     builder: (context, snapshot) {
-                                                //       List users = snapshot.data?docs ?? [];
-                                                //       return ListView();
-                                                //     }
-                                                // )
-                          
                                                 Text(
                                                   docs[index]['Name'],
                                                   style: TextStyle(
@@ -214,7 +206,7 @@ class _SearchState extends State<Search> {
                                                     mainAxisAlignment: MainAxisAlignment.start,
                                                     children: [
                                                       Text(
-                                                        "4.6",
+                                                        docs[index]['Ratings'].toString(),
                                                         style: TextStyle(
                                                           fontSize: 15.0,
                                                         ),

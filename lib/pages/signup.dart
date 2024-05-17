@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/services/database_services.dart';
-import 'package:medifinder/pages/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -106,6 +108,13 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future addUser() async {
     await FirebaseFirestore.instance.collection('Users').add({});
+  }
+
+  void storeUserData() async {
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    UserModel user = UserModel(name: namecontroller.text, email: emailcontroller.text, mobile: mobilecontroller.text);
+    String userdata = jsonEncode(user);
+    sharedPreferences.setString('userdata', userdata);
   }
 
   @override
@@ -580,20 +589,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 onPressed: ()
                                 {
                                   userSignUp();
-                                  /////
-                                  // if(formkey.currentState!.validate()) {
-                                  //
-                                  //
-                                  //
-                                  //   ///// get user and pass it to controller
-                                  //   final user = UserModel(
-                                  //     email: emailcontroller.text.trim(),
-                                  //     password: passwordcontroller.text.trim(),
-                                  //     fullname: namecontroller.text.trim(),
-                                  //     mobilenum: mobilecontroller.text.trim(),
-                                  //   );
-                                  //
-                                  // }
+                                  storeUserData();
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF12E7C0),

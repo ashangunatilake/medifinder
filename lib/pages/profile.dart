@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../models/user_model.dart';
+
 class Profile extends StatefulWidget {
   const Profile({super.key});
 
@@ -10,13 +12,17 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  TextEditingController nameController = TextEditingController(text: "Ashan Gunatilake");
-  TextEditingController emailController = TextEditingController(text: "manuruddhaashan@gmail.com");
-  TextEditingController numberController = TextEditingController(text: "0718764732");
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController numberController;
   bool readonly = true;
 
   @override
   Widget build(BuildContext context) {
+    final user = ModalRoute.of(context)!.settings.arguments as UserModel;
+    nameController = TextEditingController(text: user.name);
+    emailController = TextEditingController(text: user.email);
+    numberController = TextEditingController(text: user.mobile);
     return Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,

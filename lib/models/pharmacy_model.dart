@@ -8,6 +8,7 @@ class PharmacyModel {
   final String name;
   final String address;
   final String contact;
+  final double ratings;
   final bool isDeliveryAvailable;
   final String operationHours;
   final GeoPoint location;
@@ -18,6 +19,7 @@ class PharmacyModel {
     required this.name,
     required this.address,
     required this.contact,
+    required this.ratings,
     required this.isDeliveryAvailable,
     required this.operationHours,
     required this.location,
@@ -36,6 +38,7 @@ class PharmacyModel {
       name: json['Name']! as String,
       address: json['Address']! as String,
       contact: json['ContactNo']! as String,
+      ratings: json['Ratings']! as double,
       isDeliveryAvailable: json['DeliveryServiceAvailability']! as bool,
       operationHours: json['HoursOfOperation']! as String,
       location: json['Location']! as GeoPoint,
@@ -49,13 +52,14 @@ class PharmacyModel {
     String? name,
     String? address,
     String? contact,
+    double? ratings,
     bool? isDeliveryAvailable,
     String? operationHours,
     GeoPoint? location,
     // List<UserOrder>? orders,
     // List<UserReview>? reviews,
   }) {
-    return PharmacyModel(name: name ?? this.name, address: address ?? this.address, contact: contact ?? this.contact, isDeliveryAvailable: isDeliveryAvailable ?? this.isDeliveryAvailable, operationHours: operationHours ?? this.operationHours, location: location ?? this.location,);
+    return PharmacyModel(name: name ?? this.name, address: address ?? this.address, contact: contact ?? this.contact, ratings: ratings ?? this.ratings, isDeliveryAvailable: isDeliveryAvailable ?? this.isDeliveryAvailable, operationHours: operationHours ?? this.operationHours, location: location ?? this.location,);
   }
 
   // create a json object of a UserModel instance
@@ -64,6 +68,7 @@ class PharmacyModel {
       'Name': name,
       'Address': address,
       'ContactNo': contact,
+      'Ratings': ratings,
       'DeliveryServiceAvailability': isDeliveryAvailable,
       'HoursOfOperation': operationHours,
       'Location': location,

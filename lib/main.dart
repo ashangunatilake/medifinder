@@ -36,8 +36,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
       ),
-      home: const Home(),
+      home: const LoginPage(),
       routes: {
+        '/login': (context) => const LoginPage(),
         '/home': (context) => const Home(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),

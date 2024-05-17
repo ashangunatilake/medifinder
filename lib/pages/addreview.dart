@@ -8,8 +8,6 @@ import '../models/pharmacy_model.dart';
 import '../services/database_services.dart';
 
 class AddReview extends StatefulWidget {
-  //final PharmacyModel pharmcayModele;
-  //const AddReview({Key? key, required this.PharmacyModel}) : super(key: key);
   const AddReview({super.key});
 
   @override
@@ -31,40 +29,10 @@ class _AddReviewState extends State<AddReview> {
 
       UserReview review = UserReview(pid: pid, rating: rating, comment: comment);
       _databaseServices.addUserReview(userid, review);
-      print("User account created");
-      Navigator.pushNamed(context, "/login");
+      // print("User account created");
+      // Navigator.pushNamed(context, "/login");
     } on FirebaseAuthException catch(e) {
       print(e.code);
-      if (e.code == "email-already-in-use") {
-        print("User not found");
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                  child: Text(
-                      "Error",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                  child: Text(
-                    "Email already in use",
-                    style: TextStyle(
-                        fontSize: 16.0
-                    ),
-                  ),
-                )
-              ],
-            )
-        )
-        );
-      }
     }
   }
 
@@ -74,6 +42,7 @@ class _AddReviewState extends State<AddReview> {
 
   @override
   Widget build(BuildContext context) {
+    final pharmacy = ModalRoute.of(context)!.settings.arguments as PharmacyModel;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -134,7 +103,7 @@ class _AddReviewState extends State<AddReview> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Pharmacy 1",
+                          pharmacy.name,
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -145,7 +114,7 @@ class _AddReviewState extends State<AddReview> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                "4.6",
+                                pharmacy.ratings.toString(),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),

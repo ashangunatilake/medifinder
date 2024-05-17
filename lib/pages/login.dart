@@ -3,7 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
+import 'package:medifinder/pages/home.dart';
 import 'package:medifinder/pages/signup.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+//String finalEmail;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,6 +63,26 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+
+  //to keep the user logged in, this is used in the splash screen before the log in screen to directly move onto the home screen
+  // void initState() {
+  //   getValidationData().whenComplete(() async {
+  //     Timer(Duration(seconds: 2), () => Get.to(finalEmail == null ? LoginPage() : Home()));
+  //   });
+  //   super.initState();
+  // }
+
+  // Future getValidationData() async {
+  //   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   sharedPreferences.remove('email');
+  //   var obtainedEmail = sharedPreferences.getString('email');
+  //   setState(() {
+  //     finalEmail = obtainedEmail;
+  //
+  //   });
+  //   print(finalEmail);
+  // }
+
   @override
   void dispose() {
     emailcontroller.dispose();
@@ -283,8 +307,9 @@ class _LoginPageState extends State<LoginPage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   ElevatedButton(
-                                    onPressed: ()
-                                    {
+                                    onPressed: () async { //to keep the user logged in, I made this function to an async to do that
+                                      // final SharedPreferences sharedPreferences = await  SharedPreferences.getInstance();
+                                      // sharedPreferences.setString('email', emailcontroller.text);
                                       print("pressed");
                                       userLogin();
                                     },
