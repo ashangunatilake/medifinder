@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           fontFamily: "Poppins",
         ),
-        //home: const LoginPage())
+        //home: const LoginPage());
         home: RegisterPage());
   }
 }
