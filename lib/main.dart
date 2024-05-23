@@ -6,6 +6,8 @@ import 'package:medifinder/pages/login.dart';
 import 'package:medifinder/pages/signup.dart';
 import 'package:medifinder/pages/PharmacyRegister.dart';
 import 'package:medifinder/pages/inventory.dart';
+import 'package:medifinder/pages/orders.dart';
+import 'package:medifinder/pages/orderDetails.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -258,6 +258,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:medifinder/pages/inventory.dart';
+import 'package:medifinder/pages/orders.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -287,9 +288,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _onItemTapped(int index) {
     // Implement logic to navigate different pages.
+    setState(() {
+      _selectedIndex = index;
+    });
+
     if (index == 0) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => Inventory()));
+    } else if (index == 1) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Orders()));
     }
   }
 
@@ -322,10 +330,17 @@ class _RegisterPageState extends State<RegisterPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        //There's a little issue in changing the color of the icon. Check it******
         selectedItemColor: const Color.fromRGBO(62, 221, 170, 1),
-        items: const [
+        unselectedItemColor: Colors.grey,
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(
+              Icons.home,
+              color: _selectedIndex == 0
+                  ? const Color.fromRGBO(62, 221, 170, 1)
+                  : Colors.grey,
+            ),
             label: "Inventory",
           ),
           BottomNavigationBarItem(
