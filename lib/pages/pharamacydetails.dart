@@ -1,13 +1,10 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:medifinder/pages/reviews.dart';
 
-import '../models/pharmacy_model.dart';
+
 
 class PharmacyDetails extends StatefulWidget {
   const PharmacyDetails({super.key});
@@ -19,7 +16,18 @@ class PharmacyDetails extends StatefulWidget {
 class _PharmacyDetailsState extends State<PharmacyDetails> {
   @override
   Widget build(BuildContext context) {
-    final pharmacy = ModalRoute.of(context)!.settings.arguments as PharmacyModel;
+    late DocumentSnapshot pharmacyDoc;
+    late Map<String, dynamic> data;
+    late String drugName;
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    if (args != null) {
+      pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
+      data = pharmacyDoc.data() as Map<String, dynamic>;
+      drugName = args['searchedDrug'] as String;
+    } else {
+      // Handle the case where args are null (optional)
+      // You might want to throw an error or use default values
+    }
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -80,7 +88,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        pharmacy.name, //"Pharmacy 1"
+                        data['Name'], //"Pharmacy 1"
                         style: TextStyle(
                           fontSize: 20.0,
                         ),
@@ -91,7 +99,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              pharmacy.ratings.toString(),
+                              data['Rating'].toString(),
                               style: TextStyle(
                                 fontSize: 15.0,
                               ),
@@ -354,7 +362,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  continueDialog(context, pharmacy);
+                                  continueDialog(context, pharmacyDoc, drugName);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -380,7 +388,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/addreview', arguments: pharmacy,);
+                                  Navigator.pushNamed(context, '/addreview', arguments: pharmacyDoc);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -435,7 +443,8 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context, PharmacyModel pharmacy) async {
+Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName) async {
+  Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
   return showDialog(
   context: context,
   barrierDismissible: false,
@@ -451,7 +460,7 @@ Future<void> continueDialog(context, PharmacyModel pharmacy) async {
               fontSize: 20.0,
             ),
           ),
-          if(pharmacy.isDeliveryAvailable)
+          if(data['DeliveryServiceAvailability'])
             Text(
               "Available",
               style: TextStyle(
@@ -459,7 +468,7 @@ Future<void> continueDialog(context, PharmacyModel pharmacy) async {
                 color: Color(0xFF008000)
               ),
             ),
-          if(!pharmacy.isDeliveryAvailable)
+          if(!data['DeliveryServiceAvailability'])
             Text(
               "Not-Available",
               style: TextStyle(
@@ -503,7 +512,7 @@ Future<void> continueDialog(context, PharmacyModel pharmacy) async {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/order', arguments: pharmacy,);
+                  Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName});
 
                 },
                 style: ElevatedButton.styleFrom(
