@@ -51,6 +51,7 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   image_picker: ^1.1.1
   shared_preferences: ^2.2.3
+  geoflutterfire2: ^2.3.15
 #>>>>>>> b96531b6defded7e38a360d73d3995994aef4aee
 
 dev_dependencies:

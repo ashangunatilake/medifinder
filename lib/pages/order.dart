@@ -19,6 +19,7 @@ class _OrderState extends State<Order> {
   String deliver = "Meet at pharmacy";
   XFile? _image;
   final picker = ImagePicker();
+  int quantity = 0;
 
   //Image Picker function to get image from gallery
   Future getImageFromGallery() async {
@@ -268,6 +269,66 @@ class _OrderState extends State<Order> {
                   SizedBox(
                     height: 19.0,
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Quantity",
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF9F9F9),
+                          border: Border.all(color: Color(0xFFC4C4C4)),
+                          borderRadius: BorderRadius.all(Radius.circular(9)),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Color(0x40FFFFFF),
+                                blurRadius: 4.0,
+                                offset: Offset(0, 4))
+                          ]),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                if(quantity != 0)
+                                  {
+                                    setState(() {
+                                      --quantity;
+                                    });
+                                  }
+                              },
+                              icon: Icon(
+                                Icons.remove,
+                                color: Colors.black,
+                              )
+                            ),
+                            Text(
+                              "$quantity",
+                              style: TextStyle(
+                                fontSize: 14.0
+                              ),
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    ++quantity;
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Colors.black,
+                                )
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 19.0,
+                  ),
                   Text(
                     "Prescription",
                     style: TextStyle(fontSize: 18.0),
@@ -276,8 +337,7 @@ class _OrderState extends State<Order> {
                   GestureDetector(
                     onTap: showOptions,
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                       decoration: BoxDecoration(
                           color: Color(0xFFF9F9F9),
                           border: Border.all(color: Color(0xFFC4C4C4)),
