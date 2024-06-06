@@ -1,56 +1,37 @@
-// // lib/pages/order_details_page.dart
-
-// import 'package:flutter/material.dart';
-// import 'package:medifinder/models/order_model.dart';
-
-// class OrderDetails extends StatelessWidget {
-//   final Order order;
-
-//   OrderDetails({required this.order});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(
-//             '${order.customerName}\'s Order'), // Correctly displaying the customer name
-//       ),
-//       body: Stack(
-//         children: [
-//           Container(
-//             decoration: BoxDecoration(
-//               image: DecorationImage(
-//                   image: AssetImage('assets/images/add_bg.png'),
-//                   fit: BoxFit.cover),
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: ListView.builder(
-//               itemCount: order.items.length,
-//               itemBuilder: (context, index) {
-//                 final item = order.items[index];
-//                 return ListTile(
-//                   title: Text(item.itemName),
-//                   subtitle: Text(
-//                       'Quantity: ${item.quantity}, Price: \$${item.price}'),
-//                 );
-//               },
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:medifinder/models/order_model.dart';
+import 'package:medifinder/pages/full_screen_image.dart';
 
 class OrderDetails extends StatelessWidget {
   final Order order;
 
   OrderDetails({required this.order});
+
+  void _viewFullScreenImage(BuildContext context, String imageUrl) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FullScreenImagePage(imageUrl: imageUrl),
+      ),
+    );
+  }
+
+  Future<void> _acceptOrder() async {
+    //final url = replace the url with actual backend endpoint;
+    //Add http package to make the http request
+    // final response = await //http.post(Uri.parse(url),
+    // body:{'orderId': order.id},);
+    // if (response.statusCode == 200){
+    print('Order Accepted');
+    // }
+    // else{
+    print('Order Accept is Failed. Please Try Again');
+    //}
+  }
+
+  void _cancelOrder() {
+    print('Order Cancelled');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,20 +79,57 @@ class OrderDetails extends StatelessWidget {
                   SizedBox(height: 16.0),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: order.items.length,
+                      itemCount: order.items.length + 1,
                       itemBuilder: (context, index) {
-                        final item = order.items[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: ListTile(
-                            title: Text(item.itemName),
-                            subtitle: Text(
-                                'Quantity: ${item.quantity}, Price: \$${item.price}'),
-                          ),
-                        );
+                        if (index == order.items.length) {
+                          return Card(
+                            color: Color.fromRGBO(8, 253, 228, 1),
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: ListTile(
+                              title: Text('View Prescription'),
+                              trailing: Icon(Icons.picture_as_pdf),
+                              onTap: () => _viewFullScreenImage(
+                                  context, order.prescriptionUrl),
+                            ),
+                          );
+                        } else {
+                          final item = order.items[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: ListTile(
+                              title: Text(item.itemName),
+                              subtitle: Text(
+                                  'Quantity: ${item.quantity}, Price: \$${item.price}'),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),
+                  Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _acceptOrder,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromARGB(255, 69, 255, 236)),
+                        child: Text(
+                          'Accept Order',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: _cancelOrder,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromARGB(245, 72, 70, 70)),
+                        child: Text(
+                          'Cancel Order',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),

@@ -1,5 +1,3 @@
-// lib/models/order_model.dart
-
 class OrderItem {
   final String itemName;
   final int quantity;
@@ -30,8 +28,12 @@ class OrderItem {
 class Order {
   final String customerName;
   final List<OrderItem> items;
+  final String prescriptionUrl;
 
-  Order({required this.customerName, required this.items});
+  Order(
+      {required this.customerName,
+      required this.items,
+      required this.prescriptionUrl});
 
   // Factory constructor to create an instance from JSON
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class Order {
     return Order(
       customerName: json['customerName'],
       items: itemList,
+      prescriptionUrl: '',
     );
   }
 
