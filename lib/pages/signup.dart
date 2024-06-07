@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/user_model.dart';
+import 'package:medifinder/pages/locationpicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/database_services.dart';
 
@@ -16,13 +19,18 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final UserDatabaseServices _databaseServices = UserDatabaseServices();
-  bool isPressedUser = false;
-  bool isPressedPharmacy = false;
+  bool isPressedUser = true;
   TextEditingController namecontroller = TextEditingController();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController mobilecontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   TextEditingController confirmpasswordcontroller = TextEditingController();
+  TimeOfDay openingTime = TimeOfDay.now();
+  TimeOfDay closingTime = TimeOfDay.now();
+  LatLng location = LatLng(0, 0);
+  bool gotOpeningTime = false;
+  bool gotClosingTime = false;
+  bool gotLocation = false;
   final _formkey = GlobalKey<FormState>();
 
   Future<void> storeUserData(String userID) async {
@@ -134,6 +142,55 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
+  void getTime(String time) async{
+    if (time == "Opening Time")
+      {
+        final TimeOfDay? selectedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+          initialEntryMode: TimePickerEntryMode.dial
+        );
+        if (selectedTime != null)
+          {
+            setState(() {
+              openingTime = selectedTime;
+              gotOpeningTime = true;
+            });
+          }
+      }
+    else if (time == "Closing Time")
+      {
+        final TimeOfDay? selectedTime = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+            initialEntryMode: TimePickerEntryMode.dial
+        );
+        if (selectedTime != null)
+        {
+          setState(() {
+            closingTime = selectedTime;
+            gotClosingTime = true;
+          });
+        }
+      }
+  }
+
+  Future<void> selectLocation(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LocationPicker(),
+      ),
+    );
+
+    if (result != null && result is LatLng) {
+      setState(() {
+        location = result;
+        gotLocation = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,8 +292,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ElevatedButton(
                                     onPressed: () {
                                       setState(() {
-                                        isPressedUser = !isPressedUser;
-                                        isPressedPharmacy = false;
+                                        isPressedUser = true;
                                       });
                                     },
                                     style: ButtonStyle(
@@ -271,13 +327,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ElevatedButton(
                                     onPressed: () {
                                       setState(() {
-                                        isPressedPharmacy = !isPressedPharmacy;
                                         isPressedUser = false;
                                       });
                                     },
                                     style: ButtonStyle(
                                       overlayColor: MaterialStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
-                                      backgroundColor: MaterialStateProperty.all<Color>(isPressedPharmacy ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
+                                      backgroundColor: MaterialStateProperty.all<Color>(!isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
                                       shape: MaterialStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(10.0),
@@ -336,25 +391,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Name';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: namecontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Name",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter Name';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: namecontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Name",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
                                               ),
                                             ),
@@ -390,25 +442,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Email Address';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: emailcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Email Address",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter Email Address';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: emailcontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Email Address",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
                                               ),
                                             ),
@@ -424,6 +473,143 @@ class _SignUpPageState extends State<SignUpPage> {
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
+                                      if (!isPressedUser) Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Opening Time",
+                                            style: TextStyle(
+                                              fontSize: 15.0
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          GestureDetector(
+                                            onTap: () {
+                                              getTime("Opening Time");
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                                              decoration: BoxDecoration(
+                                                  color: const Color(0xFFF9F9F9),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                  border: Border.all(
+                                                    color: const Color(0xFFCCC9C9),
+                                                  )
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    (!gotOpeningTime) ? "Opening Time" : "${openingTime.hour.toString()}:${openingTime.minute.toString().padLeft(2, "0")}",
+                                                    style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: (!gotOpeningTime) ? const Color(0xFFC4C4C4) : Colors.black,
+                                                      fontWeight: (!gotOpeningTime) ? FontWeight.w500 : FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
+                                                    child: Icon(
+                                                      Icons.timelapse,
+                                                      color: Color(0xFFC4C4C4),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          const Text(
+                                            "Closing Time",
+                                            style: TextStyle(
+                                                fontSize: 15.0
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          GestureDetector(
+                                            onTap: () {
+                                              getTime("Closing Time");
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                                              decoration: BoxDecoration(
+                                                  color: const Color(0xFFF9F9F9),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                  border: Border.all(
+                                                    color: const Color(0xFFCCC9C9),
+                                                  )
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    (!gotClosingTime) ? "Closing Time" : "${closingTime.hour.toString()}:${closingTime.minute.toString().padLeft(2, "0")}",
+                                                    style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: (!gotClosingTime) ? const Color(0xFFC4C4C4) : Colors.black,
+                                                      fontWeight: (!gotClosingTime) ? FontWeight.w500 : FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
+                                                    child: Icon(
+                                                      Icons.timelapse,
+                                                      color: Color(0xFFC4C4C4),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          const Text(
+                                            "Location",
+                                            style: TextStyle(
+                                                fontSize: 15.0
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          GestureDetector(
+                                            onTap: () {
+                                              selectLocation(context);
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+                                              decoration: BoxDecoration(
+                                                  color: const Color(0xFFF9F9F9),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                  border: Border.all(
+                                                    color: const Color(0xFFCCC9C9),
+                                                  )
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    (!gotLocation) ? "Location" : "(${location.latitude.toStringAsFixed(4)},${location.longitude.toStringAsFixed(4)})",
+                                                    style: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: (!gotLocation) ? const Color(0xFFC4C4C4) : Colors.black,
+                                                      fontWeight: (!gotLocation) ? FontWeight.w500 : FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
+                                                    child: Icon(
+                                                      Icons.location_on,
+                                                      color: Color(0xFFC4C4C4),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                        ],
+                                      ),
                                       const Text(
                                         "Mobile Number",
                                         style: TextStyle(
@@ -444,25 +630,22 @@ class _SignUpPageState extends State<SignUpPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Mobile Number';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: mobilecontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Mobile Number",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter Mobile Number';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: mobilecontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Mobile Number",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
                                               ),
                                             ),
@@ -498,27 +681,24 @@ class _SignUpPageState extends State<SignUpPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Password';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: passwordcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Password",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
-                                                  obscureText: true,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter Password';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: passwordcontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Password",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
+                                                obscureText: true,
                                               ),
                                             ),
                                             const Padding(
@@ -553,27 +733,24 @@ class _SignUpPageState extends State<SignUpPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Password';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: confirmpasswordcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Password",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
-                                                  obscureText: true,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter Password';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: confirmpasswordcontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Password",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
+                                                obscureText: true,
                                               ),
                                             ),
                                             const Padding(

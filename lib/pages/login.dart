@@ -174,25 +174,22 @@ class _LoginPageState extends State<LoginPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter E-mail';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: emailcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Email Address",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter E-mail';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: emailcontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Email Address",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
                                               ),
                                             ),
@@ -221,27 +218,24 @@ class _LoginPageState extends State<LoginPage> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Password';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: passwordcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Password",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
-                                                  obscureText: true,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null || value.isEmpty) {
+                                                    return 'Please Enter Password';
+                                                  }
+                                                  return null;
+                                                },
+                                                controller: passwordcontroller,
+                                                decoration: const InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: "Password",
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: "Poppins",
+                                                      fontSize: 15.0,
+                                                      color: Color(0xFFC4C4C4),
+                                                    )
                                                 ),
+                                                obscureText: true,
                                               ),
                                             ),
                                             const Padding(
