@@ -1,10 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medifinder/models/user_model.dart';
-import 'package:medifinder/services/database_services.dart';
-import 'package:medifinder/pages/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/database_services.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -14,7 +15,7 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final DatabaseServices _databaseServices = DatabaseServices();
+  final UserDatabaseServices _databaseServices = UserDatabaseServices();
   bool isPressedUser = false;
   bool isPressedPharmacy = false;
   TextEditingController namecontroller = TextEditingController();
@@ -24,6 +25,18 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController confirmpasswordcontroller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
+  Future<void> storeUserData(String userID) async {
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    UserModel user = UserModel(
+      id: userID,
+      name: namecontroller.text,
+      email: emailcontroller.text,
+      mobile: mobilecontroller.text,
+    );
+    String userdata = jsonEncode(user);
+    sharedPreferences.setString('userdata', userdata);
+  }
+
   userSignUp() async {
     String name = namecontroller.text;
     String email = emailcontroller.text;
@@ -31,21 +44,20 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = passwordcontroller.text;
     String confirmpassword = confirmpasswordcontroller.text;
 
-    if (password != confirmpassword)
-    {
+    if (password != confirmpassword) {
       print("Passwords not same");
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-
             children: [
               Padding(
                 padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
                 child: Text(
-                    "Error",
-                    style: TextStyle(
-                      fontSize: 20.0,
-                    )
+                  "Error",
+                  style: TextStyle(
+                    fontSize: 20.0,
+                  ),
                 ),
               ),
               Padding(
@@ -53,38 +65,49 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Text(
                   "The password and confirm password fields do not match",
                   style: TextStyle(
-                      fontSize: 16.0
+                    fontSize: 16.0,
                   ),
                 ),
               )
             ],
-          )
-      )
+          ),
+        ),
       );
       return;
     }
+
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-      UserModel user = UserModel(name: name, email: email, mobile: mobile);
-      _databaseServices.addUser(user);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      UserModel user = UserModel(
+        id: userCredential.user!.uid,
+        name: name,
+        email: email,
+        mobile: mobile,
+      );
+
+      print(userCredential.user!.uid);
+      _databaseServices.addUser(userCredential.user!.uid, user);
+      storeUserData(userCredential.user!.uid);
       print("User account created");
       Navigator.pushNamed(context, "/login");
-    } on FirebaseAuthException catch(e) {
+    } on FirebaseAuthException catch (e) {
       print(e.code);
       if (e.code == "email-already-in-use") {
-        print("User not found");
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        print("Email already in use");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
                   child: Text(
-                      "Error",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      )
+                    "Error",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
                   ),
                 ),
                 Padding(
@@ -92,20 +115,16 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: Text(
                     "Email already in use",
                     style: TextStyle(
-                        fontSize: 16.0
+                      fontSize: 16.0,
                     ),
                   ),
-                )
+                ),
               ],
-            )
-        )
+            ),
+          ),
         );
       }
     }
-  }
-
-  Future addUser() async {
-    await FirebaseFirestore.instance.collection('Users').add({});
   }
 
   @override
@@ -580,20 +599,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                 onPressed: ()
                                 {
                                   userSignUp();
-                                  /////
-                                  // if(formkey.currentState!.validate()) {
-                                  //
-                                  //
-                                  //
-                                  //   ///// get user and pass it to controller
-                                  //   final user = UserModel(
-                                  //     email: emailcontroller.text.trim(),
-                                  //     password: passwordcontroller.text.trim(),
-                                  //     fullname: namecontroller.text.trim(),
-                                  //     mobilenum: mobilecontroller.text.trim(),
-                                  //   );
-                                  //
-                                  // }
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF12E7C0),

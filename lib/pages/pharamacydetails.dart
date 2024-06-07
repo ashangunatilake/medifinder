@@ -1,10 +1,12 @@
-import 'dart:math';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:medifinder/pages/reviews.dart';
+import 'package:medifinder/models/user_review_model.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/pages/launcher.dart';
+
 
 class PharmacyDetails extends StatefulWidget {
   const PharmacyDetails({super.key});
@@ -14,8 +16,21 @@ class PharmacyDetails extends StatefulWidget {
 }
 
 class _PharmacyDetailsState extends State<PharmacyDetails> {
+  final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   @override
   Widget build(BuildContext context) {
+    late DocumentSnapshot pharmacyDoc;
+    late Map<String, dynamic> data;
+    late String drugName;
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    if (args != null) {
+      pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
+      data = pharmacyDoc.data() as Map<String, dynamic>;
+      drugName = args['searchedDrug'] as String;
+    } else {
+      // Handle the case where args are null (optional)
+      // You might want to throw an error or use default values
+    }
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -76,7 +91,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Pharmacy 1",
+                        data['Name'], //"Pharmacy 1"
                         style: TextStyle(
                           fontSize: 20.0,
                         ),
@@ -87,7 +102,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              "4.6",
+                              data['Ratings'].toString(),
                               style: TextStyle(
                                 fontSize: 15.0,
                               ),
@@ -149,7 +164,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.pushNamed(context, '/reviews');
+                                Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyDoc});
                               },
                               child: const Text(
                                 "See all reviews",
@@ -176,117 +191,90 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                               color: Color(0xFFF8F8F8),
                               borderRadius: BorderRadius.all(Radius.circular(10))
                           ),
-                          child: ListView(
-                            reverse: false,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 9.0, top: 9.0),
-                                    child: Text(
-                                      "Name",
-                                      style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold
-                                      ),
-                                    ),
-                                  ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 4,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 5.0
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 9.0),
-                                child: Text(
-                                  "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                                  style: TextStyle(
-                                    fontSize: 14.0
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 5.0,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 9.0, top: 9.0),
-                                    child: Text(
-                                      "Name",
-                                      style: TextStyle(
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold
-                                      ),
-                                    ),
-                                  ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 3,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                  height: 5.0
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 9.0),
-                                child: Text(
-                                  "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                                  style: TextStyle(
-                                      fontSize: 14.0
-                                  ),
-                                ),
-                              ),
-                            ],
+                          child: StreamBuilder(
+                              stream: _databaseServices.getOnlyThreePharmacyReviews(pharmacyDoc.id),
+                              builder: (context, AsyncSnapshot<QuerySnapshot<UserReview>> snapshot) {
+                                if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                }
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Center(child: CircularProgressIndicator());
+                                }
+                                if (!snapshot.hasData || snapshot.data == null) {
+                                  return Text('No data available');
+                                }
+                                else {
+                                  List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
+                                  return ListView.builder(
+                                    itemCount: reviews.length,
+                                    itemBuilder: (context, index) {
+                                      UserReview review = reviews[index];
+                                      print(review.comment);
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(left: 9.0, top: 9.0),
+                                                child: Text(
+                                                  "Name",
+                                                  style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      fontWeight: FontWeight.bold
+                                                  ),
+                                                ),
+                                              ),
+                                              RatingBar(
+                                                ignoreGestures: true,
+                                                initialRating: review.rating,
+                                                direction: Axis.horizontal,
+                                                itemCount: 5,
+                                                itemSize: 24.0,
+                                                itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                                                ratingWidget: RatingWidget(
+                                                  full: Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  half: Icon(
+                                                    Icons.star,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  empty: Icon(
+                                                    Icons.star,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                                onRatingUpdate: (rating) {
+                                                  print(rating);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                              height: 5.0
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 9.0),
+                                            child: Text(
+                                              review.comment,
+                                              style: TextStyle(
+                                                  fontSize: 14.0
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 5.0,
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  );
+                                }
+                              }
                           ),
                         ),
                         const SizedBox(
@@ -298,7 +286,10 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-
+                                  GeoPoint geopoint = data['Position']['geopoint'];
+                                  Launcher.openMap(geopoint);
+                                  // GeoPoint geoPoint = data['Position'];
+                                  // print(geoPoint.latitude);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -324,7 +315,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-
+                                  Launcher.openDialler(data['ContactNo']);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -350,7 +341,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  continueDialog(context);
+                                  continueDialog(context, pharmacyDoc, drugName);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -376,7 +367,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/addreview');
+                                  Navigator.pushNamed(context, '/addreview', arguments: pharmacyDoc);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -431,7 +422,8 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context) async {
+Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName) async {
+  Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
   return showDialog(
   context: context,
   barrierDismissible: false,
@@ -447,13 +439,22 @@ Future<void> continueDialog(context) async {
               fontSize: 20.0,
             ),
           ),
-          Text(
-            "Available",
-            style: TextStyle(
-              fontSize: 16.0,
-              color: Color(0xFF008000)
+          if(data['DeliveryServiceAvailability'])
+            Text(
+              "Available",
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Color(0xFF008000)
+              ),
             ),
-          ),
+          if(!data['DeliveryServiceAvailability'])
+            Text(
+              "Not-Available",
+              style: TextStyle(
+                  fontSize: 16.0,
+                  color: Color(0xFFFF0F0F)
+              ),
+            ),
           SizedBox(
             height: 10.0,
           ),
@@ -490,7 +491,7 @@ Future<void> continueDialog(context) async {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/order');
+                  Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName});
 
                 },
                 style: ElevatedButton.styleFrom(

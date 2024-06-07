@@ -3,10 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:medifinder/models/pharmacy_model.dart';
-
+import 'package:medifinder/services/pharmacy_database_services.dart';
 import '../models/user_model.dart';
-import '../services/pharmacy_database_services.dart';
 
 
 class Search extends StatefulWidget {
@@ -17,7 +15,7 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  final DatabaseServices _databaseServices = DatabaseServices();
+  final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   List<DocumentSnapshot> filteredPharmacies = [];
   bool searched = false;
   bool waiting = false;
@@ -114,7 +112,7 @@ class _SearchState extends State<Search> {
                             setState(() {
                               waiting = true;
                             });
-                            filteredPharmacies = await _databaseServices.getNearbyPharmacies(LatLng(7.494161, 80.367921), searchController.text);
+                            filteredPharmacies = await _databaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
                             setState(() {
                               searched = true;
                               waiting = false;
@@ -136,10 +134,7 @@ class _SearchState extends State<Search> {
               padding: const EdgeInsets.fromLTRB(24.0, 0, 0, 0),
               child: ElevatedButton(
                 onPressed: () async {
-                    filteredPharmacies = await _databaseServices.getNearbyPharmacies(location, searchController.text);
-                    filteredPharmacies.forEach((DocumentSnapshot doc) {
-                      print('Pharmacy Name: ${doc['Name']}');
-                    });
+                    Navigator.pushNamed(context, '/mapview', arguments: {'location': location, 'pharmacies': filteredPharmacies});
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -161,7 +156,7 @@ class _SearchState extends State<Search> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushNamed(context, '/pharmacydetails', arguments: filteredPharmacies[index].data());
+                                  Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': filteredPharmacies[index], 'searchedDrug': searchController.text.trim().toLowerCase()});
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -197,7 +192,7 @@ class _SearchState extends State<Search> {
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "4.6",
+                                                    filteredPharmacies[index]['Ratings'].toString(),
                                                     style: TextStyle(
                                                       fontSize: 15.0,
                                                     ),

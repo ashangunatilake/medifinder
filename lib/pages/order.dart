@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
-
+import 'package:medifinder/services/pharmacy_database_services.dart';
 import '../services/database_services.dart';
 
 class Order extends StatefulWidget {
@@ -15,55 +14,109 @@ class Order extends StatefulWidget {
 }
 
 class _OrderState extends State<Order> {
-  final DatabaseServices _databaseServices = DatabaseServices();
-  String deliver = "Meet at pharmacy";
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  bool deliver = false;
   XFile? _image;
   final picker = ImagePicker();
-  int quantity = 0;
+  double quantity = 0;
+  late String _imageUrl;
+  late String userUid;
+  late DocumentSnapshot userDoc;
+  late Map<String, dynamic> userData;
+  late DocumentSnapshot pharmacyDoc;
+  late Map<String, dynamic> pharmacyData;
+  late String drugName;
+  late Map<String, dynamic> drugData;
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeUserData();
+  }
+
+  Future<void> initializeUserData() async {
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      userUid = await _userDatabaseServices.getCurrentUserUid() as String;
+      userDoc = await _userDatabaseServices.getCurrentUserDoc();
+      userData = userDoc!.data() as Map<String, dynamic>;
+      final args = ModalRoute.of(context)!.settings.arguments as Map?;
+      if (args != null)
+        {
+          pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
+          pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
+          drugName = args['searchedDrug'] as String;
+          DocumentSnapshot drugDoc = await _pharmacyDatabaseServices.getDrugByName(drugName, pharmacyDoc.id);
+          drugData = drugDoc.data() as Map<String, dynamic>;
+        }
+      else {
+        throw Exception("Arguments are missing");
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 
   //Image Picker function to get image from gallery
-  Future getImageFromGallery() async {
+  Future<void> getImageFromGalleryAndSave(String pName, String uName) async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       if (pickedFile != null) {
-        _image = XFile(pickedFile.name);
+        _image = XFile(pickedFile.path);
       }
     });
+
+    if (_image != null) {
+      _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
+    }
   }
 
   //Image Picker function to get image from camera
-  Future getImageFromCamera() async {
+  Future<void> getImageFromCameraAndSave(String pName, String uName) async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
       if (pickedFile != null) {
-        _image = XFile(pickedFile.name);
+        _image = XFile(pickedFile.path);
       }
     });
+
+    if (_image != null) {
+      _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
+    }
   }
 
-  Future showOptions() async {
+  Future<void> showOptions(String pName, String uName) async {
     showCupertinoModalPopup(
       context: context,
       builder: (context) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
-            child: Text("Gallery"),
+            child: const Text("Gallery"),
             onPressed: () {
               // close the options modal
               Navigator.of(context).pop();
               // get image from gallery
-              getImageFromGallery();
+              getImageFromGalleryAndSave(pName, uName);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text("Camera"),
+            child: const Text("Camera"),
             onPressed: () {
               // close the options modal
               Navigator.of(context).pop();
               // get image from camera
-              getImageFromCamera();
+              getImageFromCameraAndSave(pName, uName);
             },
           ),
         ],
@@ -71,64 +124,30 @@ class _OrderState extends State<Order> {
     );
   }
 
-  userAddOrder() async {
+  Future<void> userAddOrder(String uid, String pid, String drugName, String imageUrl, double quantity, bool delivery) async {
     try {
-      // need to get the pharmacy id
-      // the user id
-      //the drug id
-      String drugid = "11111";
-      String pid = "11111";
-      String url = "test_url";
-      double quantity = 5.5;
-      String userid = "N9832GM2xMQ9YZxxD2tM";
-
-      UserOrder order = UserOrder(did: drugid, pid: pid, url: url, quantity: quantity);
-      _databaseServices.addUserOrder(userid, order);
-      print("User account created");
+      UserOrder order = UserOrder(
+        id: uid,
+        did: drugName,
+        url: imageUrl,
+        quantity: quantity,
+        delivery: delivery,
+        isAccepted: false,
+        isCompleted: false,
+      );
+      _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
+      print('User order added successfully!');
       Navigator.pushNamed(context, "/login");
-    } on FirebaseAuthException catch(e) {
-      print(e.code);
-      if (e.code == "email-already-in-use") {
-        print("User not found");
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                  child: Text(
-                      "Error",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                  child: Text(
-                    "Email already in use",
-                    style: TextStyle(
-                        fontSize: 16.0
-                    ),
-                  ),
-                )
-              ],
-            )
-        )
-        );
-      }
+    } catch (e) {
+      print("Error adding order: $e");
     }
-  }
-
-  Future addOrder() async {
-    await FirebaseFirestore.instance.collection('Users').add({});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: (loading) ? const Center(child: CircularProgressIndicator())
+      : Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/background.png'),
@@ -184,7 +203,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Medicine Name",
+                          drugName,
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -198,7 +217,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          "Price",
+                          drugData['UnitPrice'].toString(),
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -248,18 +267,23 @@ class _OrderState extends State<Order> {
                           "Meet at pharmacy",
                           style: TextStyle(fontSize: 14.0),
                         ),
-                        value: "Meet at pharmacy",
+                        value: false,
                       ),
                       DropdownMenuItem(
                         child: Text(
                           "Deliver",
-                          style: TextStyle(fontSize: 14.0),
+                          style: pharmacyData['DeliveryServiceAvailability'] ? TextStyle(fontSize: 14.0)
+                          : TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.grey
+                          ),
                         ),
-                        value: "Deliver",
+                        value: true,
+                        enabled: pharmacyData['DeliveryServiceAvailability'],
                       ),
                     ],
                     isExpanded: true,
-                    onChanged: (String? selectedValue) {
+                    onChanged: (bool? selectedValue) {
                       setState(() {
                         deliver = selectedValue!;
                       });
@@ -305,7 +329,7 @@ class _OrderState extends State<Order> {
                               )
                             ),
                             Text(
-                              "$quantity",
+                              "${quantity.toInt()}",
                               style: TextStyle(
                                 fontSize: 14.0
                               ),
@@ -335,7 +359,9 @@ class _OrderState extends State<Order> {
                   ),
                   SizedBox(height: 19.0),
                   GestureDetector(
-                    onTap: showOptions,
+                    onTap: () {
+                      showOptions(pharmacyData['Name'], userData['Name']);
+                    },
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                       decoration: BoxDecoration(
@@ -352,7 +378,7 @@ class _OrderState extends State<Order> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _image == null
-                              ? Text(
+                              ? const Text(
                                   "Upload prescription",
                                   style: TextStyle(
                                     fontSize: 14.0,
@@ -367,7 +393,7 @@ class _OrderState extends State<Order> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                          Icon(
+                          const Icon(
                             Icons.upload,
                           )
                         ],
@@ -385,8 +411,8 @@ class _OrderState extends State<Order> {
                       ),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            userAddOrder();
+                          onPressed: () async {
+                            userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
                             Navigator.pushNamed(context, '/activities');
                           },
                           style: ElevatedButton.styleFrom(

@@ -3,13 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/models/user_review_model.dart';
-import 'package:medifinder/pages/home.dart';
-import '../models/pharmacy_model.dart';
-import '../services/database_services.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
 
 class AddReview extends StatefulWidget {
-  //final PharmacyModel pharmcayModele;
-  //const AddReview({Key? key, required this.PharmacyModel}) : super(key: key);
   const AddReview({super.key});
 
   @override
@@ -17,56 +13,25 @@ class AddReview extends StatefulWidget {
 }
 
 class _AddReviewState extends State<AddReview> {
-  final DatabaseServices _databaseServices = DatabaseServices();
-  double rating = 0;
+  final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
+  User? user = FirebaseAuth.instance.currentUser;
+  double rating = 5;
   TextEditingController reviewcontroller = TextEditingController();
 
-  userAddReview() async {
+  userAddReview(String pid) {
     String comment = reviewcontroller.text;
-
     try {
-      // need to get the pharmacy id and the user id
-      String pid = "11111";
-      String userid = "N9832GM2xMQ9YZxxD2tM";
-
-      UserReview review = UserReview(pid: pid, rating: rating, comment: comment);
-      _databaseServices.addUserReview(userid, review);
-      print("User account created");
-      Navigator.pushNamed(context, "/login");
-    } on FirebaseAuthException catch(e) {
-      print(e.code);
-      if (e.code == "email-already-in-use") {
-        print("User not found");
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                  child: Text(
-                      "Error",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                  child: Text(
-                    "Email already in use",
-                    style: TextStyle(
-                        fontSize: 16.0
-                    ),
-                  ),
-                )
-              ],
-            )
-        )
-        );
-      }
+      UserReview review = UserReview(id: user!.uid, rating: rating, comment: comment);
+      _databaseServices.addPharmacyReview(pid, user!.uid, review);
+      print('Review added successfully!');
+      // e.g., show a snackbar or toast message.
+    } catch(e) {
+      // Handle errors more effectively, such as displaying an error message to the user.
+      print("Error adding review: $e");
+      // You might also want to re-throw the error or handle it differently based on the type of error.
     }
   }
+
 
   Future addReview() async {
     await FirebaseFirestore.instance.collection('Users').add({});
@@ -74,6 +39,8 @@ class _AddReviewState extends State<AddReview> {
 
   @override
   Widget build(BuildContext context) {
+    final pharmacyDoc = ModalRoute.of(context)!.settings.arguments as DocumentSnapshot;
+    Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -134,7 +101,7 @@ class _AddReviewState extends State<AddReview> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Pharmacy 1",
+                          data['Name'],
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -145,7 +112,7 @@ class _AddReviewState extends State<AddReview> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                "4.6",
+                                data['Ratings'].toString(),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),
@@ -206,7 +173,8 @@ class _AddReviewState extends State<AddReview> {
                         direction: Axis.horizontal,
                         itemCount: 5,
                         itemSize: 30.0,
-                        itemPadding: EdgeInsets.only(right: 15.0),                        ratingWidget: RatingWidget(
+                        itemPadding: EdgeInsets.only(right: 15.0),
+                        ratingWidget: RatingWidget(
                           full: Icon(
                             Icons.star,
                             color: Colors.amber,
@@ -271,8 +239,8 @@ class _AddReviewState extends State<AddReview> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                userAddReview();
-                                Navigator.pushNamed(context, '/reviews');
+                                userAddReview(pharmacyDoc.id);
+                                Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyDoc});
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFFFFFF),

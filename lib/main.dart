@@ -12,6 +12,7 @@ import 'package:medifinder/pages/search.dart';
 import 'package:medifinder/pages/signup.dart';
 import 'package:medifinder/pages/login.dart';
 import 'package:medifinder/pages/splashscreen.dart';
+import 'package:medifinder/pages/mapview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
+        '/login': (context) => const LoginPage(),
         '/home': (context) => const Home(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
@@ -46,7 +48,8 @@ class MyApp extends StatelessWidget {
         '/addreview': (context) => const AddReview(),
         '/order': (context) => const Order(),
         '/profile': (context) => const Profile(),
-        '/activities': (context) => const Activities()
+        '/activities': (context) => const Activities(),
+        '/mapview': (context) => MapView()
       },
     );
   }

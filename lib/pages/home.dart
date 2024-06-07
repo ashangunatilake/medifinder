@@ -1,9 +1,15 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:medifinder/pages/loading.dart';
 import 'package:medifinder/services/database_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/user_model.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key});
@@ -13,20 +19,42 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final DatabaseServices _databaseServices = DatabaseServices();
+  final UserDatabaseServices _databaseServices = UserDatabaseServices();
+  late SharedPreferences sharedPreferences;
+  late String? uid;
+  late UserModel? userModel;
   Location _locationController = Location();
   LatLng? currentP;
   LatLng? source;
   GoogleMapController? _controller;
   Set<Marker> _markers = {};
-  String user = "Ashan";
   bool markerPlaced = false;
   bool mapLoaded = false; // To track whether map is loaded
+  BitmapDescriptor? myLocationIcon;
 
   @override
   void initState() {
     super.initState();
+    loadCustomMarker();
     getLocationUpdates();
+    initGetSavedUserData();
+  }
+
+  Future<void> loadCustomMarker() async {
+    final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(200, 200)),
+      'assets/location-pin.png',
+    );
+    setState(() {
+      myLocationIcon = markerIcon;
+    });
+  }
+
+  void initGetSavedUserData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    uid = await _databaseServices.getCurrentUserUid();
+    Map<String, dynamic> jsonUserdata = jsonDecode(sharedPreferences.getString('userdata')!);
+    userModel = UserModel.fromJson(uid!, jsonUserdata);
   }
 
   @override
@@ -39,6 +67,7 @@ class _HomeState extends State<Home> {
       Marker(
         markerId: MarkerId('1'),
         position: currentP!,
+        icon: myLocationIcon!
       ),
     );
     return Scaffold(
@@ -62,8 +91,9 @@ class _HomeState extends State<Home> {
                 _markers.clear();
                 _markers.add(
                     Marker(
-                        markerId: MarkerId('marker_id'),
-                        position: currentP!
+                      markerId: MarkerId('marker_id'),
+                      position: currentP!,
+                      icon: myLocationIcon!
                     )
                 );
               });
@@ -102,7 +132,7 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Welcome $user",
+                      "Welcome ${userModel!.name}",
                       style: TextStyle(
                         fontSize: 20.0,
                       ),
@@ -127,7 +157,7 @@ class _HomeState extends State<Home> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/search');
+                            Navigator.pushNamed(context, '/search', arguments: {'user': userModel, 'location': currentP});
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF12E7C0),
@@ -184,7 +214,7 @@ class _HomeState extends State<Home> {
         currentIndex: 0,
         onTap: (int n) {
           if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
+          if (n == 2) Navigator.pushNamed(context, '/profile', arguments: userModel);
         },
         selectedItemColor: const Color(0xFF12E7C0),
       ),

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
+import '../services/database_services.dart';
 
 class Activities extends StatefulWidget {
   const Activities({super.key});
@@ -8,7 +12,8 @@ class Activities extends StatefulWidget {
 }
 
 class _ActivitiesState extends State<Activities> {
-
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  User? user = FirebaseAuth.instance.currentUser;
   bool ongoing = true;
 
   @override
@@ -120,360 +125,184 @@ class _ActivitiesState extends State<Activities> {
                 child: Container(
                   margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                   width: MediaQuery.of(context).size.width,
-                  child: ListView(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(10.0),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4)
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Pharmacy Name",
-                              style: TextStyle(
-                                fontSize: 20.0
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5.0,
-                            ),
-                            Text(
-                              "Medicine Name",
-                              style: TextStyle(
-                                fontSize: 16.0
-                              ),
-                            ),
-                            SizedBox(
-                              height: 5.0,
-                            ),
-                            Text(
-                              "Method of Delivery : Deliver",
-                              style: TextStyle(
-                                  fontSize: 16.0
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            Row(
+                  child: StreamBuilder<List<Map<String, dynamic>>>(
+                    stream: ongoing ? _userDatabaseServices.getOngoingUserOrders(user!.uid) : _userDatabaseServices.getCompletedUserOrders(user!.uid),
+                    builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot){
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return Text('No data available');
+                      }
+                      else {
+                        var docs = snapshot.data!;
+                        print(docs.length);
+                        return ListView.builder(
+                          itemCount: docs.length,
+                          itemBuilder: (context, index){
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF12E7C0),
-                                        //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                        side: const BorderSide(color: Color(0xFF12E7C0))
-                                    ),
-                                    child: const Text(
-                                      "Directions",
-                                      style: TextStyle(
+                                Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    decoration: const BoxDecoration(
                                         color: Colors.white,
-                                      ),
+                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: Color(0x40FFFFFF),
+                                              blurRadius: 4.0,
+                                              offset: Offset(0, 4)
+                                          )
+                                        ]
                                     ),
-                                  ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Pharmacy Name",
+                                              style: TextStyle(
+                                                  fontSize: 20.0
+                                              ),
+                                            ),
+                                            if (!docs[index]['Completed']) Container(
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.circle,
+                                                    color: docs[index]['Accepted'] ? Color(0xFF008000) : Colors.grey,
+                                                    size: 8.0,
+                                                  ),
+                                                  Text(
+                                                    docs[index]['Accepted'] ? " Accepted" : " Pending",
+                                                    style: TextStyle(
+                                                      fontSize: 14.0,
+                                                      color: docs[index]['Accepted'] ? Color(0xFF008000) : Colors.grey,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 5.0,
+                                        ),
+                                        Text(
+                                          docs[index]['DrugID'],
+                                          style: TextStyle(
+                                              fontSize: 16.0
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5.0,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Method of Delivery : ",
+                                              style: TextStyle(
+                                                  fontSize: 16.0
+                                              ),
+                                            ),
+                                            Text(
+                                              docs[index]['DeliveryMethod'] ? "Deliver" : "Meet at Pharmacy",
+                                              style: TextStyle(
+                                                fontSize: 16.0
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 20.0,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton(
+                                                onPressed: () {
+
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF12E7C0),
+                                                    //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                    side: const BorderSide(color: Color(0xFF12E7C0))
+                                                ),
+                                                child: const Text(
+                                                  "Directions",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Expanded(
+                                              child: ElevatedButton(
+                                                onPressed: () {
+
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF12E7C0),
+                                                    //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                    side: const BorderSide(color: Color(0xFF12E7C0))
+                                                ),
+                                                child: const Text(
+                                                  "Call",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                            height: 10.0
+                                        ),
+                                        ongoing ? Row(
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  continueDialog(context);
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFFFFFFFF),
+                                                    padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                    side: const BorderSide(color: Color(0xFF12E7C0))
+                                                ),
+                                                child: const Text(
+                                                  "Received",
+                                                  style: TextStyle(
+                                                    color: Color(0xFF12E7C0),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ) : SizedBox(height: 0)
+                                      ],
+                                    )
                                 ),
                                 SizedBox(
-                                  width: 10.0,
-                                ),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF12E7C0),
-                                        //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                        side: const BorderSide(color: Color(0xFF12E7C0))
-                                    ),
-                                    child: const Text(
-                                      "Call",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                                  height: 10.0,
                                 ),
                               ],
-                            ),
-                            SizedBox(
-                              height: 10.0
-                            ),
-                            ongoing ? Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      continueDialog(context);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFFFFFFF),
-                                        padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                        side: const BorderSide(color: Color(0xFF12E7C0))
-                                    ),
-                                    child: const Text(
-                                      "Received",
-                                      style: TextStyle(
-                                        color: Color(0xFF12E7C0),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ) : SizedBox(height: 0)
-                          ],
-                        )
-                      ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Container(
-                          padding: EdgeInsets.all(10.0),
-                          decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color(0x40FFFFFF),
-                                    blurRadius: 4.0,
-                                    offset: Offset(0, 4)
-                                )
-                              ]
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Pharmacy Name",
-                                style: TextStyle(
-                                    fontSize: 20.0
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5.0,
-                              ),
-                              Text(
-                                "Medicine Name",
-                                style: TextStyle(
-                                    fontSize: 16.0
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5.0,
-                              ),
-                              Text(
-                                "Method of Delivery : Meet at pharmacy",
-                                style: TextStyle(
-                                    fontSize: 16.0
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF12E7C0),
-                                          //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                          side: const BorderSide(color: Color(0xFF12E7C0))
-                                      ),
-                                      child: const Text(
-                                        "Directions",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10.0,
-                                  ),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF12E7C0),
-                                          //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                          side: const BorderSide(color: Color(0xFF12E7C0))
-                                      ),
-                                      child: const Text(
-                                        "Call",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                  height: 10.0
-                              ),
-                              ongoing ? Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        continueDialog(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFFFFFFF),
-                                          padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                          side: const BorderSide(color: Color(0xFF12E7C0))
-                                      ),
-                                      child: const Text(
-                                        "Received",
-                                        style: TextStyle(
-                                          color: Color(0xFF12E7C0),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ) : SizedBox(height: 0),
-                            ],
-                          )
-                      ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Container(
-                          padding: EdgeInsets.all(10.0),
-                          decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Color(0x40FFFFFF),
-                                    blurRadius: 4.0,
-                                    offset: Offset(0, 4)
-                                )
-                              ]
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Pharmacy Name",
-                                style: TextStyle(
-                                    fontSize: 20.0
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5.0,
-                              ),
-                              Text(
-                                "Medicine Name",
-                                style: TextStyle(
-                                    fontSize: 16.0
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5.0,
-                              ),
-                              Text(
-                                "Method of Delivery : Meet at pharmacy",
-                                style: TextStyle(
-                                    fontSize: 16.0
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF12E7C0),
-                                          //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                          side: const BorderSide(color: Color(0xFF12E7C0))
-                                      ),
-                                      child: const Text(
-                                        "Directions",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10.0,
-                                  ),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF12E7C0),
-                                          //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                          side: const BorderSide(color: Color(0xFF12E7C0))
-                                      ),
-                                      child: const Text(
-                                        "Call",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                  height: 10.0
-                              ),
-                              ongoing ? Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        continueDialog(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFFFFFFF),
-                                          padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                          side: const BorderSide(color: Color(0xFF12E7C0))
-                                      ),
-                                      child: const Text(
-                                        "Received",
-                                        style: TextStyle(
-                                          color: Color(0xFF12E7C0),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ) : SizedBox(height: 0),
-                            ],
-                          )
-                      ),
-                    ],
+                            );
+                          }
+                        );
+                      }
+                    }
                   ),
                 ),
               )

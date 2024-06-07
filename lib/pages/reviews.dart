@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:medifinder/models/user_review_model.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
 
 class Reviews extends StatefulWidget {
   const Reviews({super.key});
@@ -9,9 +12,20 @@ class Reviews extends StatefulWidget {
 }
 
 class _ReviewsState extends State<Reviews> {
+  final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   int selected = 1;
   @override
   Widget build(BuildContext context) {
+    late DocumentSnapshot pharmacyDoc;
+    late Map<String, dynamic> data;
+    final args = ModalRoute.of(context)!.settings.arguments as Map?;
+    if (args != null) {
+      pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
+      data = pharmacyDoc.data() as Map<String, dynamic>;
+    } else {
+      // Handle the case where args are null (optional)
+      // You might want to throw an error or use default values
+    }
     return Scaffold(
       body:Container(
         decoration: const BoxDecoration(
@@ -72,7 +86,7 @@ class _ReviewsState extends State<Reviews> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Pharmacy 1",
+                          data['Name'],
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -83,7 +97,7 @@ class _ReviewsState extends State<Reviews> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                "4.6",
+                                data['Ratings'].toString(),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),
@@ -189,397 +203,119 @@ class _ReviewsState extends State<Reviews> {
             //   height: 20.0,
             // ),
             Expanded(
-                child: ListView(
-                  reverse: false,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4)
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Name",
-                                    style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold
-                                    ),
+                child: StreamBuilder(
+                  stream: _databaseServices.getPharmacyReviews(pharmacyDoc.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return Text('No data available');
+                    }
+                    else{
+                      List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
+                      if (selected == 2) {
+                        reviews.sort((a, b) => b.rating.compareTo(a.rating));
+                      }
+                      if (selected == 3) {
+                        reviews.sort((a, b) => a.rating.compareTo(b.rating));
+                      }
+                      return ListView.builder(
+                        itemCount: reviews.length,
+                        itemBuilder: (context, index) {
+                          UserReview review = reviews[index];
+                          print(review.comment);
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                  decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Color(0x40FFFFFF),
+                                            blurRadius: 4.0,
+                                            offset: Offset(0, 4)
+                                        )
+                                      ]
                                   ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 4,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 10.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Name",
+                                              style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                            ),
+                                            RatingBar(
+                                              ignoreGestures: true,
+                                              initialRating: review.rating,
+                                              direction: Axis.horizontal,
+                                              itemCount: 5,
+                                              itemSize: 24.0,
+                                              itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                                              ratingWidget: RatingWidget(
+                                                full: Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                                half: Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                                empty: Icon(
+                                                  Icons.star,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              onRatingUpdate: (rating) {
+                                                print(rating);
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
+                                      const SizedBox(
+                                          height: 17.0
                                       ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
+                                      Text(
+                                        review.comment,
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                        ),
                                       ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
+                                      SizedBox(
+                                        height: 20.0,
+                                      )
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                                height: 17.0
-                            ),
-                            Text(
-                              "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                              style: TextStyle(
-                                fontSize: 14.0,
+                              SizedBox(
+                                height: 20.0,
                               ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4)
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Name",
-                                    style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 4,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                                height: 17.0
-                            ),
-                            Text(
-                              "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                              style: TextStyle(
-                                fontSize: 14.0,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4)
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Name",
-                                    style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 4,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                                height: 17.0
-                            ),
-                            Text(
-                              "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                              style: TextStyle(
-                                fontSize: 14.0,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4)
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Name",
-                                    style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 4,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                                height: 17.0
-                            ),
-                            Text(
-                              "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                              style: TextStyle(
-                                fontSize: 14.0,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4)
-                              )
-                            ]
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Name",
-                                    style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                  RatingBar(
-                                    ignoreGestures: true,
-                                    initialRating: 4,
-                                    direction: Axis.horizontal,
-                                    itemCount: 5,
-                                    itemSize: 24.0,
-                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                    ratingWidget: RatingWidget(
-                                      full: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      half: Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      empty: Icon(
-                                        Icons.star,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      print(rating);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                                height: 17.0
-                            ),
-                            Text(
-                              "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
-                              style: TextStyle(
-                                fontSize: 14.0,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
+                            ],
+                          );
+                        },
+                      );
+                    }
+
+                  }
                 )
             ),
             Padding(
@@ -590,7 +326,7 @@ class _ReviewsState extends State<Reviews> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/addreview');
+                        Navigator.pushNamed(context, '/addreview', arguments: pharmacyDoc);
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFFFFF),

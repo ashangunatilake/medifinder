@@ -1,50 +1,51 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:medifinder/models/user_order_model.dart';
-import 'package:medifinder/models/user_review_model.dart';
+
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
+  final String id;
   final String name;
   final String email;
   final String mobile;
-  final List<UserOrder>? orders;
-  final List<UserReview>? reviews;
 
   const UserModel ({
+    required this.id,
     required this.name,
     required this.email,
     required this.mobile,
-    this.orders,
-    this.reviews,
   });
 
-  // create a UserModel instance using a json object
-  factory UserModel.fromJson(Map<String, Object?> json) {
-    final List<UserOrder> orders = (json['Orders'] as List<dynamic>?)
-        ?.map((orderJson) => UserOrder.fromJson(orderJson))
-        .toList() ?? [];
-    final List<UserReview> reviews = (json['Reviews'] as List<dynamic>?)
-        ?.map((reviewJson) => UserReview.fromJson(reviewJson))
-        .toList() ?? [];
+  static UserModel empty() => const UserModel(id: '', name: '', email: '', mobile: '');
 
-    return UserModel(
-      name: json['Name']! as String,
-      email: json['Email']! as String,
-      mobile: json['Mobile']! as String,
-      orders: orders,
-      reviews: reviews,
-    );
+  factory UserModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
+    if(document.data() != null) {
+      final data = document.data()!;
+      return UserModel(
+        id: document.id,
+        name: data['Name'] ?? '',
+        email: data['Email'] ?? '',
+        mobile: data['Mobile'] ?? '',
+      );
+    }
+    else {
+      return UserModel.empty();
+    }
   }
+  UserModel.fromJson(String userID, Map<String, Object?> json)
+      : this(
+    id: userID,
+    name: json['Name']?.toString() ?? '',
+    email: json['Email']?.toString() ?? '',
+    mobile: json['Mobile']?.toString() ?? '',
+  );
 
   // create a new instance of UserModel with modified/updated properties
   UserModel copyWith({
     String? name,
     String? email,
     String? mobile,
-    List<UserOrder>? orders,
-    List<UserReview>? reviews,
-
   }) {
-    return UserModel(name: name ?? this.name, email: email ?? this.email, mobile: mobile ?? this.mobile, reviews: reviews ?? this.reviews, orders: orders ?? this.orders,);
+    return UserModel(id: this.id, name: name ?? this.name, email: email ?? this.email, mobile: mobile ?? this.mobile,);
   }
 
   // create a json object of a UserModel instance
@@ -53,8 +54,6 @@ class UserModel {
       'Name': name,
       'Email': email,
       'Mobile': mobile,
-      'Orders': orders?.map((order) => order.toJson()).toList(),
-      'Reviews': reviews?.map((review) => review.toJson()).toList(),
     };
   }
 }
