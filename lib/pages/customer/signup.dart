@@ -1,11 +1,7 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medifinder/models/user_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../services/database_services.dart';
+import 'package:medifinder/services/database_services.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -24,18 +20,6 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController passwordcontroller = TextEditingController();
   TextEditingController confirmpasswordcontroller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
-
-  Future<void> storeUserData(String userID) async {
-    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    UserModel user = UserModel(
-      id: userID,
-      name: namecontroller.text,
-      email: emailcontroller.text,
-      mobile: mobilecontroller.text,
-    );
-    String userdata = jsonEncode(user);
-    sharedPreferences.setString('userdata', userdata);
-  }
 
   userSignUp() async {
     String name = namecontroller.text;
@@ -86,10 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
         email: email,
         mobile: mobile,
       );
-
-      print(userCredential.user!.uid);
       _databaseServices.addUser(userCredential.user!.uid, user);
-      storeUserData(userCredential.user!.uid);
       print("User account created");
       Navigator.pushNamed(context, "/login");
     } on FirebaseAuthException catch (e) {

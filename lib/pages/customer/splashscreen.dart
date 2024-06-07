@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:medifinder/pages/home.dart';
-import 'package:medifinder/pages/loading.dart';
-import 'package:medifinder/pages/login.dart';
+import 'package:medifinder/pages/customer/home.dart';
+import 'package:medifinder/pages/customer/loading.dart';
+import 'package:medifinder/pages/customer/login.dart';
+import 'package:medifinder/pages/pharmacy/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,12 +24,19 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> checkLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    String role = prefs.getString('role') ?? 'customer';
 
     // Simulate a delay for the splash screen
     await Future.delayed(const Duration(seconds: 2));
 
     if (isLoggedIn) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Home()),);
+      if(role == 'customer') {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CustomerHome()),);
+      }
+      else {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PharmacyHome()),);
+      }
+
     }
     else {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()),);

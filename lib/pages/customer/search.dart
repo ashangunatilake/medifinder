@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
-import '../models/user_model.dart';
-
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -19,7 +15,6 @@ class _SearchState extends State<Search> {
   List<DocumentSnapshot> filteredPharmacies = [];
   bool searched = false;
   bool waiting = false;
-  late UserModel userModel;
   late LatLng location;
   final TextEditingController searchController = TextEditingController();
 
@@ -27,7 +22,6 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
-      userModel = args['user'] as UserModel;
       location = args['location'] as LatLng;
       print(location);
     } else {
@@ -134,10 +128,7 @@ class _SearchState extends State<Search> {
               padding: const EdgeInsets.fromLTRB(24.0, 0, 0, 0),
               child: ElevatedButton(
                 onPressed: () async {
-                    // filteredPharmacies = await _databaseServices.getNearbyPharmacies(location, searchController.text);
-                    // filteredPharmacies.forEach((DocumentSnapshot doc) {
-                    //   print('Pharmacy Name: ${doc['Name']}');
-                    // });
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,

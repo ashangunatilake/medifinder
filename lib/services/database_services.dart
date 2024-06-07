@@ -21,13 +21,13 @@ class UserDatabaseServices {
         toFirestore: (user, _) =>user.toJson());
   }
 
-  Future<String?> getCurrentUserUid() async {
+  Future<String> getCurrentUserUid() async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
+      User? user = await FirebaseAuth.instance.currentUser;
       if (user != null) {
-        return user.uid; // Return the UID if user is not null
+        return user.uid;
       } else {
-        return null; // Return null if no user is logged in
+        throw Exception('No user logged in.');
       }
     } catch (e) {
       throw Exception('Error getting current user UID: $e');
@@ -35,40 +35,74 @@ class UserDatabaseServices {
   }
 
   Future<DocumentSnapshot> getCurrentUserDoc() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String uid = user.uid;
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+    try {
+      User? user = await FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(uid).get();
 
-      if (userDoc.exists) {
-        return userDoc;
+        if (userDoc.exists) {
+          return userDoc;
+        } else {
+          throw Exception('No such document.');
+        }
       } else {
-        throw Exception('No such document!');
+        throw Exception('No user logged in.');
       }
-    } else {
-      throw Exception('No user is signed in.');
+    } catch (e) {
+      throw Exception('Error getting current user document: $e');
     }
+
   }
 
   Stream<QuerySnapshot> getUsers() {
     return _usersRef.snapshots();
   }
 
-  void addUser(String userID, UserModel user) async {
-    await _usersRef.doc(userID).set(user);
+  Future<void> addUser(String userID, UserModel user) async {
+    try {
+      await _usersRef.doc(userID).set(user);
+    } catch (e) {
+      throw Exception('Error adding user: $e');
+    }
+
   }
 
-  void updateUser(String userID, UserModel user) async {
-    await _usersRef.doc(userID).update(user.toJson());
+  Future<void> updateUser(String userID, UserModel user) async {
+    try {
+      await _usersRef.doc(userID).update(user.toJson());
+    } catch (e) {
+      throw Exception('Error updating user: $e');
+    }
   }
 
-  void deleteUser(String userID) async {
-    await _usersRef.doc(userID).delete();
+  Future<void> deleteUser(String userID) async {
+    try {
+      await _usersRef.doc(userID).delete();
+    } catch (e) {
+      throw Exception('Error deleting user: $e');
+    }
   }
 
-  // Stream<QuerySnapshot> getUserReviews(String userID) {
-  //   return _usersRef.doc(userID).collection('Reviews').snapshots();
-  // }
+  Future<String> getUserRole() async {
+    try {
+      String userUid = await getCurrentUserUid();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(userUid).get();
+      if(userDoc.exists) {
+        return 'customer';
+      } else
+        {
+          DocumentSnapshot pharmacyDoc = await FirebaseFirestore.instance.collection('Pharmacies').doc(userUid).get();
+          if(pharmacyDoc.exists) {
+            return 'pharmacy';
+          } else {
+            throw Exception('No user found.');
+          }
+        }
+    } catch (e) {
+      throw Exception('Error getting user role: $e');
+    }
+  }
 
   Stream<QuerySnapshot<UserReview>> getUserReviews(String userID) {
     return _usersRef.doc(userID).collection('Reviews').withConverter<UserReview>(
@@ -77,21 +111,29 @@ class UserDatabaseServices {
     ).snapshots();
   }
 
-  void addUserReview(String userID, UserReview review) async {
-    await _usersRef.doc(userID).collection('Reviews').add(review.toJson());
+  Future<void> addUserReview(String userID, UserReview review) async {
+    try {
+      await _usersRef.doc(userID).collection('Reviews').add(review.toJson());
+    } catch (e) {
+      throw Exception('Error adding user review: $e');
+    }
   }
 
-  void updateUserReview(String userID, String reviewID, UserReview review) async {
-    await _usersRef.doc(userID).collection('Reviews').doc(reviewID).update(review.toJson());
+  Future<void> updateUserReview(String userID, String reviewID, UserReview review) async {
+    try {
+      await _usersRef.doc(userID).collection('Reviews').doc(reviewID).update(review.toJson());
+    } catch (e) {
+      throw Exception('Error updating user review: $e');
+    }
   }
 
-  void deleteUserReview(String userID, String reviewID) async {
-    await _usersRef.doc(userID).collection('Reviews').doc(reviewID).delete();
+  Future<void> deleteUserReview(String userID, String reviewID) async {
+    try {
+      await _usersRef.doc(userID).collection('Reviews').doc(reviewID).delete();
+    } catch (e) {
+      throw Exception('Error deleting user review: $e');
+    }
   }
-
-  // Stream<QuerySnapshot> getUserOrders(String userID) {
-  //   return _usersRef.doc(userID).collection('Orders').snapshots();
-  // }
 
   Stream<QuerySnapshot<UserOrder>> getUserOrders(String userID) {
     return _usersRef.doc(userID).collection('Orders').withConverter<UserOrder>(
@@ -100,16 +142,28 @@ class UserDatabaseServices {
     ).snapshots();
   }
 
-  void addUserOrder(String userID, UserOrder order) async {
-    await _usersRef.doc(userID).collection('Orders').add(order.toJson());
+  Future<void> addUserOrder(String userID, UserOrder order) async {
+    try {
+      await _usersRef.doc(userID).collection('Orders').add(order.toJson());
+    } catch (e) {
+      throw Exception('Error adding user order: $e');
+    }
   }
 
-  void updateUserOrder(String userID, String orderID, UserOrder order) async {
-    await _usersRef.doc(userID).collection('Orders').doc(orderID).update(order.toJson());
+  Future<void> updateUserOrder(String userID, String orderID, UserOrder order) async {
+    try {
+      await _usersRef.doc(userID).collection('Orders').doc(orderID).update(order.toJson());
+    } catch (e) {
+      throw Exception('Error updating user order: $e');
+    }
   }
 
-  void deleteUserOrder(String userID, String orderID) async {
-    await _usersRef.doc(userID).collection('Orders').doc(orderID).delete();
+  Future<void> deleteUserOrder(String userID, String orderID) async {
+    try {
+      await _usersRef.doc(userID).collection('Orders').doc(orderID).delete();
+    } catch (e) {
+      throw Exception('Error deleting user order: $e');
+    }
   }
 
   // Pick/Capture an image
@@ -159,8 +213,7 @@ class UserDatabaseServices {
       return imageUrl;
       // to access the image use Image.network('url');
     } catch (e) {
-      print('Error uploading image: $e');
-      return 'Error uploading image: $e';
+      throw Exception('Error uploading image: $e');
     }
   }
 
@@ -173,52 +226,66 @@ class UserDatabaseServices {
   // }
 
   Stream<List<Map<String, dynamic>>> getOngoingUserOrders(String userID) async* {
-    final pharmaciesSnapshotStream = firestore.collection('Pharmacies').snapshots();
-    await for (var pharmaciesSnapshot in pharmaciesSnapshotStream) {
+    try {
+      // Get all pharmacies
+      final pharmaciesSnapshot = await firestore.collection('Pharmacies').get();
+
+      // Create a list to store all ongoing orders
       List<Map<String, dynamic>> allUserOrders = [];
 
-      // Get the Orders document where the document ID is the same as userID
-      final orderDocSnapshot = await firestore.collection('Orders').doc(userID).get();
+      for (var pharmacyDoc in pharmaciesSnapshot.docs) {
+        // Get all orders for the given user in the current pharmacy
+        final userOrdersSnapshot = await firestore
+            .collection('Pharmacies')
+            .doc(pharmacyDoc.id)
+            .collection('Orders')
+            .doc(userID)
+            .collection('UserOrders')
+            .where('Completed', isEqualTo: false)
+            .get();
 
-      if (orderDocSnapshot.exists) {
-        // Get the UserOrders collection inside the Orders document
-        final userOrdersSnapshot = await orderDocSnapshot.reference.collection('UserOrders').get();
-
-        for (var userOrderDoc in userOrdersSnapshot.docs) {
-          final data = userOrderDoc.data();
-          if (data['isAccepted'] && !data['isCompleted']) {
-            allUserOrders.add(data);
-          }
+        for (var orderDoc in userOrdersSnapshot.docs) {
+          allUserOrders.add(orderDoc.data());
         }
       }
 
-      // Yield the accumulated list of accepted user orders
+      // Yield the list of ongoing orders
       yield allUserOrders;
+    } catch (e) {
+      throw Exception('Error getting ongoing user orders: $e');
     }
   }
 
   Stream<List<Map<String, dynamic>>> getCompletedUserOrders(String userID) async* {
-    final pharmaciesSnapshotStream = firestore.collection('Pharmacies').snapshots();
-    await for (var pharmaciesSnapshot in pharmaciesSnapshotStream) {
+    try {
+      // Get all pharmacies
+      final pharmaciesSnapshot = await firestore.collection('Pharmacies').get();
+
+      // Create a list to store all ongoing orders
       List<Map<String, dynamic>> allUserOrders = [];
 
-      // Get the Orders document where the document ID is the same as userID
-      final orderDocSnapshot = await firestore.collection('Orders').doc(userID).get();
+      for (var pharmacyDoc in pharmaciesSnapshot.docs) {
+        // Get all orders for the given user in the current pharmacy
+        final userOrdersSnapshot = await firestore
+            .collection('Pharmacies')
+            .doc(pharmacyDoc.id)
+            .collection('Orders')
+            .doc(userID)
+            .collection('UserOrders')
+            .where('Completed', isEqualTo: true)
+            .get();
 
-      if (orderDocSnapshot.exists) {
-        // Get the UserOrders collection inside the Orders document
-        final userOrdersSnapshot = await orderDocSnapshot.reference.collection('UserOrders').get();
-
-        for (var userOrderDoc in userOrdersSnapshot.docs) {
-          final data = userOrderDoc.data();
-          if (data['isCompleted']) {
-            allUserOrders.add(data);
-          }
+        for (var orderDoc in userOrdersSnapshot.docs) {
+          allUserOrders.add(orderDoc.data());
         }
       }
 
-      // Yield the accumulated list of accepted user orders
+      // Yield the list of ongoing orders
       yield allUserOrders;
+    } catch (e) {
+      throw Exception('Error getting completed user orders: $e');
     }
   }
+
+  //void showMapView
 }

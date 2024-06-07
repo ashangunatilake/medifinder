@@ -1,33 +1,22 @@
-import 'dart:convert';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:medifinder/pages/loading.dart';
-import 'package:medifinder/services/database_services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:medifinder/pages/customer/loading.dart';
 
-import '../models/user_model.dart';
-
-class Home extends StatefulWidget {
-  const Home({Key? key});
+class PharmacyHome extends StatefulWidget {
+  const PharmacyHome({Key? key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<PharmacyHome> createState() => _PharmacyHomeState();
 }
 
-class _HomeState extends State<Home> {
-  final UserDatabaseServices _databaseServices = UserDatabaseServices();
-  late SharedPreferences sharedPreferences;
-  late String? uid;
-  late UserModel? userModel;
+class _PharmacyHomeState extends State<PharmacyHome> {
   Location _locationController = Location();
   LatLng? currentP;
   LatLng? source;
   GoogleMapController? _controller;
   Set<Marker> _markers = {};
+  String user = "Ashan";
   bool markerPlaced = false;
   bool mapLoaded = false; // To track whether map is loaded
 
@@ -35,14 +24,6 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     getLocationUpdates();
-    initGetSavedUserData();
-  }
-
-  void initGetSavedUserData() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    uid = await _databaseServices.getCurrentUserUid();
-    Map<String, dynamic> jsonUserdata = jsonDecode(sharedPreferences.getString('userdata')!);
-    userModel = UserModel.fromJson(uid!, jsonUserdata);
   }
 
   @override
@@ -53,7 +34,7 @@ class _HomeState extends State<Home> {
   Widget buildMap() {
     _markers.add(
       Marker(
-        markerId: MarkerId('1'),
+        markerId: MarkerId('current_location'),
         position: currentP!,
       ),
     );
@@ -72,36 +53,24 @@ class _HomeState extends State<Home> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             markers: _markers,
-            onCameraMove: (CameraPosition _position){
-              currentP = LatLng(_position.target.latitude, _position.target.longitude);
+            onTap: (LatLng latLng) {
               setState(() {
+                currentP = latLng;
                 _markers.clear();
                 _markers.add(
-                    Marker(
-                        markerId: MarkerId('marker_id'),
-                        position: currentP!
-                    )
+                  Marker(
+                    markerId: MarkerId('marker_id'),
+                    position: latLng,
+                    draggable: true,
+                    onDragEnd: (LatLng newP) {
+                      setState(() {
+                        currentP = newP;
+                      });
+                    },
+                  ),
                 );
               });
-            } ,
-            // onTap: (LatLng latLng) {
-            //   setState(() {
-            //     currentP = latLng;
-            //     _markers.clear();
-            //     _markers.add(
-            //       Marker(
-            //         markerId: MarkerId('marker_id'),
-            //         position: latLng,
-            //         draggable: true,
-            //         onDragEnd: (LatLng newP) {
-            //           setState(() {
-            //             currentP = newP;
-            //           });
-            //         },
-            //       ),
-            //     );
-            //   });
-            // },
+            },
           ),
           Positioned(
             top: 10.0,
@@ -118,7 +87,7 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Welcome ${userModel!.name}",
+                      "Welcome $user",
                       style: TextStyle(
                         fontSize: 20.0,
                       ),
@@ -126,7 +95,7 @@ class _HomeState extends State<Home> {
                     SizedBox(
                       height: 5.0,
                     ),
-                    Text("Set location on map",
+                    Text("Select location by tapping on the map",
                         style: TextStyle(
                           fontSize: 12.0,
                         )),
@@ -142,9 +111,7 @@ class _HomeState extends State<Home> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/search', arguments: {'user': userModel, 'location': currentP});
-                          },
+                          onPressed: () {},
                           style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF12E7C0),
                               padding: const EdgeInsets.fromLTRB(
@@ -190,7 +157,7 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.shopping_cart),
-              label: "Activities",
+              label: "Orders",
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.person),
@@ -198,10 +165,6 @@ class _HomeState extends State<Home> {
           )
         ],
         currentIndex: 0,
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile', arguments: userModel);
-        },
         selectedItemColor: const Color(0xFF12E7C0),
       ),
     );
@@ -247,5 +210,3 @@ String locationString(LatLng pos) {
   String longitude = pos.longitude.toStringAsFixed(6);
   return "($latitude , $longitude)";
 }
-
-

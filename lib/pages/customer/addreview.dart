@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/models/user_review_model.dart';
-import '../services/pharmacy_database_services.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
 
 class AddReview extends StatefulWidget {
   const AddReview({super.key});

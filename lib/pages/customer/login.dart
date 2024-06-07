@@ -1,11 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
-import 'package:medifinder/pages/home.dart';
-import 'package:medifinder/pages/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../services/database_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,7 +13,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  late SharedPreferences prefs;
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
@@ -26,9 +25,8 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       print("User logged in");
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
-      Navigator.pushNamed(context, "/home");
     } on FirebaseAuthException catch(e) {
       print(e.code);
       if (e.code == "user-not-found" || e.code == "wrong-password" || e.code == "invalid-credential") {
@@ -290,7 +288,22 @@ class _LoginPageState extends State<LoginPage> {
                                   ElevatedButton(
                                     onPressed: () async {
                                       print("pressed");
-                                      userLogin();
+                                      await userLogin();
+                                      print('111');
+                                      String userRole = await _userDatabaseServices.getUserRole();
+                                      print(userRole);
+                                      print('222');
+                                      if(userRole == 'customer') {
+                                        await prefs.setString('role', 'customer');
+                                        Navigator.pushNamed(context, "/customer_home");
+                                      } else if (userRole == 'pharmacy') {
+                                        await prefs.setString('role', 'pharmacy');
+                                        Navigator.pushNamed(context, "/pharmacy_home");
+                                      }
+                                      else {
+                                        print('333');
+                                        throw Exception('Error finding user.');
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFF12E7C0),
@@ -306,7 +319,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ElevatedButton(
                                     onPressed: ()
                                     {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpPage()));
+                                      Navigator.pushNamed(context, "/signup");
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFFFFFFFF),

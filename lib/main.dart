@@ -1,17 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore_interface;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:medifinder/pages/home.dart';
-import 'package:medifinder/pages/activities.dart';
-import 'package:medifinder/pages/addreview.dart';
-import 'package:medifinder/pages/order.dart';
-import 'package:medifinder/pages/pharamacydetails.dart';
-import 'package:medifinder/pages/profile.dart';
-import 'package:medifinder/pages/reviews.dart';
-import 'package:medifinder/pages/search.dart';
-import 'package:medifinder/pages/signup.dart';
-import 'package:medifinder/pages/login.dart';
-import 'package:medifinder/pages/splashscreen.dart';
+import 'package:medifinder/pages/customer/home.dart';
+import 'package:medifinder/pages/customer/activities.dart';
+import 'package:medifinder/pages/customer/addreview.dart';
+import 'package:medifinder/pages/customer/order.dart';
+import 'package:medifinder/pages/customer/pharamacydetails.dart';
+import 'package:medifinder/pages/customer/profile.dart';
+import 'package:medifinder/pages/customer/reviews.dart';
+import 'package:medifinder/pages/customer/search.dart';
+import 'package:medifinder/pages/customer/signup.dart';
+import 'package:medifinder/pages/customer/login.dart';
+import 'package:medifinder/pages/customer/splashscreen.dart';
+import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
+import 'package:medifinder/pages/pharmacy/home.dart';
+import 'package:medifinder/pages/pharmacy/orderDetails.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,10 +40,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
       ),
+
       home: const SplashScreen(),
       routes: {
+        '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const Home(),
+        '/customer_home': (context) => const CustomerHome(),
+        '/pharmacy_home': (context) => const PharmacyHome(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
