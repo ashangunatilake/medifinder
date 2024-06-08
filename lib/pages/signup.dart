@@ -7,8 +7,11 @@ import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/pages/locationpicker.dart';
+import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/database_services.dart';
+
+enum Delivery {available, notavailable}
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -25,12 +28,14 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController mobilecontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   TextEditingController confirmpasswordcontroller = TextEditingController();
+  TextEditingController openingtimecontroller = TextEditingController();
+  TextEditingController closingtimecontroller = TextEditingController();
+  TextEditingController locationcontroller = TextEditingController();
   TimeOfDay openingTime = TimeOfDay.now();
   TimeOfDay closingTime = TimeOfDay.now();
   LatLng location = LatLng(0, 0);
-  bool gotOpeningTime = false;
-  bool gotClosingTime = false;
-  bool gotLocation = false;
+  Delivery? selected = Delivery.available;
+  bool deliveryAvailable = true;
   final _formkey = GlobalKey<FormState>();
 
   Future<void> storeUserData(String userID) async {
@@ -46,43 +51,15 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   userSignUp() async {
+
+    if (!_formkey.currentState!.validate()) {
+      return;
+    }
+
     String name = namecontroller.text;
     String email = emailcontroller.text;
     String mobile = mobilecontroller.text;
     String password = passwordcontroller.text;
-    String confirmpassword = confirmpasswordcontroller.text;
-
-    if (password != confirmpassword) {
-      print("Passwords not same");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                child: Text(
-                  "Error",
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                child: Text(
-                  "The password and confirm password fields do not match",
-                  style: TextStyle(
-                    fontSize: 16.0,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-      return;
-    }
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance
@@ -154,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
           {
             setState(() {
               openingTime = selectedTime;
-              gotOpeningTime = true;
+              openingtimecontroller.text = "${openingTime.hour.toString()}:${openingTime.minute.toString().padLeft(2, "0")}";
             });
           }
       }
@@ -169,7 +146,7 @@ class _SignUpPageState extends State<SignUpPage> {
         {
           setState(() {
             closingTime = selectedTime;
-            gotClosingTime = true;
+            closingtimecontroller.text = "${closingTime.hour.toString()}:${closingTime.minute.toString().padLeft(2, "0")}";
           });
         }
       }
@@ -186,7 +163,7 @@ class _SignUpPageState extends State<SignUpPage> {
     if (result != null && result is LatLng) {
       setState(() {
         location = result;
-        gotLocation = true;
+        locationcontroller.text = "(${location.latitude.toStringAsFixed(4)},${location.longitude.toStringAsFixed(4)})";
       });
     }
   }
@@ -378,47 +355,41 @@ class _SignUpPageState extends State<SignUpPage> {
                                       const SizedBox(
                                         height: 5.0,
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validateEmptyText("Name", value),
+                                        controller: namecontroller,
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                          border: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                              color: Color(0xFFCCC9C9),
+                                            ),
                                             borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
-                                            )
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please Enter Name';
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: namecontroller,
-                                                decoration: const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Name",
-                                                    hintStyle: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: Color(0xFFC4C4C4),
-                                                    )
-                                                ),
-                                              ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                              color: Color(0xFFCCC9C9),
                                             ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.person,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
+                                            borderRadius: BorderRadius.circular(9.0),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                              color: Color(0xFFCCC9C9),
                                             ),
-                                          ],
+                                            borderRadius: BorderRadius.circular(9.0),
+                                          ),
+                                          filled: true,
+                                          fillColor: const Color(0xFFF9F9F9),
+                                          hintText: "Name",
+                                          hintStyle: const TextStyle(
+                                            fontFamily: "Poppins",
+                                            fontSize: 15.0,
+                                            color: Color(0xFFC4C4C4),
+                                          ),
+                                          suffixIcon: Icon(
+                                            Icons.person,
+                                            color: Color(0xFFC4C4C4),
+                                          )
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
@@ -429,47 +400,41 @@ class _SignUpPageState extends State<SignUpPage> {
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validateEmptyText("Email Address", value),
+                                        controller: emailcontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Email Address",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.email_outlined,
+                                              color: Color(0xFFC4C4C4),
                                             )
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please Enter Email Address';
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: emailcontroller,
-                                                decoration: const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Email Address",
-                                                    hintStyle: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: Color(0xFFC4C4C4),
-                                                    )
-                                                ),
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.email_outlined,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
-                                            ),
-                                          ],
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
@@ -483,40 +448,45 @@ class _SignUpPageState extends State<SignUpPage> {
                                             ),
                                           ),
                                           const SizedBox(height: 5.0),
-                                          GestureDetector(
+                                          TextFormField(
+                                            validator: (value) => Validator.validateEmptyText("Opening Time", value),
+                                            controller: openingtimecontroller,
+                                            readOnly: true,
                                             onTap: () {
                                               getTime("Opening Time");
                                             },
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-                                              decoration: BoxDecoration(
-                                                  color: const Color(0xFFF9F9F9),
-                                                  borderRadius: BorderRadius.circular(9.0),
-                                                  border: Border.all(
-                                                    color: const Color(0xFFCCC9C9),
-                                                  )
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    (!gotOpeningTime) ? "Opening Time" : "${openingTime.hour.toString()}:${openingTime.minute.toString().padLeft(2, "0")}",
-                                                    style: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: (!gotOpeningTime) ? const Color(0xFFC4C4C4) : Colors.black,
-                                                      fontWeight: (!gotOpeningTime) ? FontWeight.w500 : FontWeight.normal,
-                                                    ),
+                                            decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                                border: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
                                                   ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                                    child: Icon(
-                                                      Icons.timelapse,
-                                                      color: Color(0xFFC4C4C4),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                errorBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                filled: true,
+                                                fillColor: const Color(0xFFF9F9F9),
+                                                hintText: "Opening Time",
+                                                hintStyle: const TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  color: Color(0xFFC4C4C4),
+                                                ),
+                                                suffixIcon: Icon(
+                                                  Icons.timelapse,
+                                                  color: Color(0xFFC4C4C4),
+                                                )
                                             ),
                                           ),
                                           const SizedBox(height: 5.0),
@@ -527,41 +497,94 @@ class _SignUpPageState extends State<SignUpPage> {
                                             ),
                                           ),
                                           const SizedBox(height: 5.0),
-                                          GestureDetector(
+                                          TextFormField(
+                                            validator: (value) => Validator.validateEmptyText("Closing Time", value),
+                                            controller: closingtimecontroller,
                                             onTap: () {
                                               getTime("Closing Time");
                                             },
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-                                              decoration: BoxDecoration(
-                                                  color: const Color(0xFFF9F9F9),
-                                                  borderRadius: BorderRadius.circular(9.0),
-                                                  border: Border.all(
-                                                    color: const Color(0xFFCCC9C9),
-                                                  )
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    (!gotClosingTime) ? "Closing Time" : "${closingTime.hour.toString()}:${closingTime.minute.toString().padLeft(2, "0")}",
-                                                    style: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: (!gotClosingTime) ? const Color(0xFFC4C4C4) : Colors.black,
-                                                      fontWeight: (!gotClosingTime) ? FontWeight.w500 : FontWeight.normal,
-                                                    ),
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                                border: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
                                                   ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                                    child: Icon(
-                                                      Icons.timelapse,
-                                                      color: Color(0xFFC4C4C4),
-                                                    ),
-                                                  )
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                errorBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                filled: true,
+                                                fillColor: const Color(0xFFF9F9F9),
+                                                hintText: "Closing Time",
+                                                hintStyle: const TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  color: Color(0xFFC4C4C4),
+                                                ),
+                                                suffixIcon: Icon(
+                                                  Icons.timelapse,
+                                                  color: Color(0xFFC4C4C4),
+                                                )
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          const Text(
+                                            "Delivery",
+                                            style: TextStyle(
+                                                fontSize: 15.0
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Radio<Delivery>(
+                                                    value: Delivery.available,
+                                                    groupValue: selected,
+                                                    onChanged: (Delivery? value) {
+                                                      setState(() {
+                                                        selected = value;
+                                                        deliveryAvailable = true;
+                                                      });
+                                                    }
+                                                  ),
+                                                  Text("Available", style: TextStyle(fontSize: 15.0),)
                                                 ],
                                               ),
-                                            ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(right: 10.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Radio<Delivery>(
+                                                        value: Delivery.notavailable,
+                                                        groupValue: selected,
+                                                        onChanged: (Delivery? value) {
+                                                          setState(() {
+                                                            selected = value;
+                                                            deliveryAvailable = false;
+                                                          });
+                                                        }
+                                                    ),
+                                                    Text("Not available", style: TextStyle(fontSize: 15.0),)
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                           const SizedBox(height: 5.0),
                                           const Text(
@@ -571,40 +594,45 @@ class _SignUpPageState extends State<SignUpPage> {
                                             ),
                                           ),
                                           const SizedBox(height: 5.0),
-                                          GestureDetector(
+                                          TextFormField(
+                                            validator: (value) => Validator.validateEmptyText("Location", value),
+                                            controller: locationcontroller,
                                             onTap: () {
                                               selectLocation(context);
                                             },
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
-                                              decoration: BoxDecoration(
-                                                  color: const Color(0xFFF9F9F9),
-                                                  borderRadius: BorderRadius.circular(9.0),
-                                                  border: Border.all(
-                                                    color: const Color(0xFFCCC9C9),
-                                                  )
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    (!gotLocation) ? "Location" : "(${location.latitude.toStringAsFixed(4)},${location.longitude.toStringAsFixed(4)})",
-                                                    style: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: (!gotLocation) ? const Color(0xFFC4C4C4) : Colors.black,
-                                                      fontWeight: (!gotLocation) ? FontWeight.w500 : FontWeight.normal,
-                                                    ),
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                                border: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
                                                   ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                                    child: Icon(
-                                                      Icons.location_on,
-                                                      color: Color(0xFFC4C4C4),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                errorBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                filled: true,
+                                                fillColor: const Color(0xFFF9F9F9),
+                                                hintText: "Location",
+                                                hintStyle: const TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  color: Color(0xFFC4C4C4),
+                                                ),
+                                                suffixIcon: Icon(
+                                                  Icons.location_on,
+                                                  color: Color(0xFFC4C4C4),
+                                                )
                                             ),
                                           ),
                                           const SizedBox(height: 5.0),
@@ -617,47 +645,41 @@ class _SignUpPageState extends State<SignUpPage> {
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validateMobileNumber(value),
+                                        controller: mobilecontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Mobile Number",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.phone_android_outlined,
+                                              color: Color(0xFFC4C4C4),
                                             )
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please Enter Mobile Number';
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: mobilecontroller,
-                                                decoration: const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Mobile Number",
-                                                    hintStyle: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: Color(0xFFC4C4C4),
-                                                    )
-                                                ),
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.phone_android_outlined,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
-                                            ),
-                                          ],
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
@@ -668,49 +690,43 @@ class _SignUpPageState extends State<SignUpPage> {
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validatePassword(value),
+                                        controller: passwordcontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Password",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.lock_outline,
+                                              color: Color(0xFFC4C4C4),
                                             )
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please Enter Password';
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: passwordcontroller,
-                                                decoration: const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Password",
-                                                    hintStyle: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: Color(0xFFC4C4C4),
-                                                    )
-                                                ),
-                                                obscureText: true,
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.lock_outline,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                        obscureText: true,
                                       ),
                                       const SizedBox(height: 5.0),
                                       const Text(
@@ -720,49 +736,43 @@ class _SignUpPageState extends State<SignUpPage> {
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validateConfirmPassword(passwordcontroller.text, value),
+                                        controller: confirmpasswordcontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Password",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.lock_outline,
+                                              color: Color(0xFFC4C4C4),
                                             )
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please Enter Password';
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: confirmpasswordcontroller,
-                                                decoration: const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText: "Password",
-                                                    hintStyle: TextStyle(
-                                                      fontFamily: "Poppins",
-                                                      fontSize: 15.0,
-                                                      color: Color(0xFFC4C4C4),
-                                                    )
-                                                ),
-                                                obscureText: true,
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.lock_outline,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                        obscureText: true,
                                       ),
                                     ]
                                 )
