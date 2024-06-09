@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+
+final geo = GeoFlutterFire();
 
 class PharmacyModel {
   final String id;
@@ -8,7 +11,7 @@ class PharmacyModel {
   final double ratings;
   final bool isDeliveryAvailable;
   final String operationHours;
-  final GeoPoint location;
+  final GeoFirePoint position;
 
   const PharmacyModel ({
     required this.id,
@@ -18,10 +21,10 @@ class PharmacyModel {
     required this.ratings,
     required this.isDeliveryAvailable,
     required this.operationHours,
-    required this.location,
+    required this.position,
   });
 
-  static PharmacyModel empty() => const PharmacyModel(id: '', name: '', address: '', contact: '', ratings: 0, isDeliveryAvailable: false, operationHours: '', location: GeoPoint(0.0, 0.0));
+  static PharmacyModel empty() => PharmacyModel(id: '', name: '', address: '', contact: '', ratings: 0, isDeliveryAvailable: false, operationHours: '', position: geo.point(latitude: 0, longitude: 0));
 
   factory PharmacyModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
     if(document.data() != null) {
@@ -34,7 +37,10 @@ class PharmacyModel {
         ratings: data['Ratings'] as double? ?? 0,
         isDeliveryAvailable: data['DeliveryServiceAvailability'] as bool? ?? false,
         operationHours: data['HoursOfOperation'] as String? ?? '',
-        location: data['Location'] as GeoPoint? ?? GeoPoint(0.0, 0.0),
+        position: geo.point(
+          latitude: (data['Position']['geopoint'] as GeoPoint).latitude,
+          longitude: (data['Position']['geopoint'] as GeoPoint).longitude,
+        ),
       );
     }
     else {
@@ -50,9 +56,9 @@ class PharmacyModel {
     double? ratings,
     bool? isDeliveryAvailable,
     String? operationHours,
-    GeoPoint? location,
+    GeoFirePoint? position,
   }) {
-    return PharmacyModel(id: this.id, name: name ?? this.name, address: address ?? this.address, contact: contact ?? this.contact, ratings: ratings ?? this.ratings, isDeliveryAvailable: isDeliveryAvailable ?? this.isDeliveryAvailable, operationHours: operationHours ?? this.operationHours, location: location ?? this.location,);
+    return PharmacyModel(id: this.id, name: name ?? this.name, address: address ?? this.address, contact: contact ?? this.contact, ratings: ratings ?? this.ratings, isDeliveryAvailable: isDeliveryAvailable ?? this.isDeliveryAvailable, operationHours: operationHours ?? this.operationHours, position: position ?? this.position,);
   }
 
   // create a json object of a UserModel instance
@@ -64,7 +70,10 @@ class PharmacyModel {
       'Ratings': ratings,
       'DeliveryServiceAvailability': isDeliveryAvailable,
       'HoursOfOperation': operationHours,
-      'Location': location,
+      'Position': {
+        'geopoint': GeoPoint(position.latitude, position.longitude),
+        'geohash': position.hash,
+      },
     };
   }
 }

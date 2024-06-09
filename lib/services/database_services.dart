@@ -84,15 +84,15 @@ class UserDatabaseServices {
     }
   }
 
-  Future<String> getUserRole() async {
+  Future<String> getUserRole(String userID) async {
     try {
-      String userUid = await getCurrentUserUid();
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(userUid).get();
+      //String userUid = await getCurrentUserUid();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(userID).get();
       if(userDoc.exists) {
         return 'customer';
       } else
         {
-          DocumentSnapshot pharmacyDoc = await FirebaseFirestore.instance.collection('Pharmacies').doc(userUid).get();
+          DocumentSnapshot pharmacyDoc = await FirebaseFirestore.instance.collection('Pharmacies').doc(userID).get();
           if(pharmacyDoc.exists) {
             return 'pharmacy';
           } else {
@@ -217,21 +217,13 @@ class UserDatabaseServices {
     }
   }
 
-  // Future<List<DocumentSnapshot>> getAcceptedUserOrders(String userID) {
-  //   Stream<QuerySnapshot<UserReview>> stream = _usersRef.doc(userID).collection('Reviews').withConverter<UserReview>(
-  //                                               fromFirestore: (snapshots, _) => UserReview.fromSnapshot(snapshots),
-  //                                               toFirestore: (review, _) => review.toJson(),
-  //                                               ).snapshots();
-  //
-  // }
-
-  Stream<List<Map<String, dynamic>>> getOngoingUserOrders(String userID) async* {
+  Stream<List<DocumentSnapshot>> getOngoingUserOrders(String userID) async* {
     try {
       // Get all pharmacies
       final pharmaciesSnapshot = await firestore.collection('Pharmacies').get();
 
       // Create a list to store all ongoing orders
-      List<Map<String, dynamic>> allUserOrders = [];
+      List<DocumentSnapshot> allUserOrders = [];
 
       for (var pharmacyDoc in pharmaciesSnapshot.docs) {
         // Get all orders for the given user in the current pharmacy
@@ -245,10 +237,9 @@ class UserDatabaseServices {
             .get();
 
         for (var orderDoc in userOrdersSnapshot.docs) {
-          allUserOrders.add(orderDoc.data());
+          allUserOrders.add(orderDoc);
         }
       }
-
       // Yield the list of ongoing orders
       yield allUserOrders;
     } catch (e) {
@@ -256,13 +247,13 @@ class UserDatabaseServices {
     }
   }
 
-  Stream<List<Map<String, dynamic>>> getCompletedUserOrders(String userID) async* {
+  Stream<List<DocumentSnapshot>> getCompletedUserOrders(String userID) async* {
     try {
       // Get all pharmacies
       final pharmaciesSnapshot = await firestore.collection('Pharmacies').get();
 
       // Create a list to store all ongoing orders
-      List<Map<String, dynamic>> allUserOrders = [];
+      List<DocumentSnapshot> allUserOrders = [];
 
       for (var pharmacyDoc in pharmaciesSnapshot.docs) {
         // Get all orders for the given user in the current pharmacy
@@ -276,10 +267,9 @@ class UserDatabaseServices {
             .get();
 
         for (var orderDoc in userOrdersSnapshot.docs) {
-          allUserOrders.add(orderDoc.data());
+          allUserOrders.add(orderDoc);
         }
       }
-
       // Yield the list of ongoing orders
       yield allUserOrders;
     } catch (e) {
@@ -287,5 +277,4 @@ class UserDatabaseServices {
     }
   }
 
-  //void showMapView
 }

@@ -769,4 +769,32 @@
 //   }
 // }
 
+// class PharmacyRatingWidget extends StatelessWidget {
+//   final String pharmacyId;
+//
+//   PharmacyRatingWidget({required this.pharmacyId});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return StreamBuilder<DocumentSnapshot>(
+//       stream: FirebaseFirestore.instance.collection('Pharmacies').doc(pharmacyId).snapshots(),
+//       builder: (context, snapshot) {
+//         if (!snapshot.hasData) {
+//           return CircularProgressIndicator();
+//         }
+//         final pharmacyData = snapshot.data!;
+//         double overallRating = pharmacyData['Ratings'];
+//
+//         return Text('Overall Rating: ${overallRating.toStringAsFixed(1)}');
+//       },
+//     );
+//   }
+// }
+
+
+
+
+
+
+
 

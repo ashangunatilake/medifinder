@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:medifinder/pages/customer/signup.dart';
+import 'package:medifinder/services/database_services.dart';
+import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../services/database_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,20 +14,35 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
-  late SharedPreferences prefs;
+  UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
   userLogin() async {
+    if (!_formkey.currentState!.validate()) {
+      return;
+    }
     String email = emailcontroller.text;
     String password = passwordcontroller.text;
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       print("User logged in");
-      prefs = await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
+      String userUid = userCredential.user!.uid;
+      String userRole = await _userDatabaseServices.getUserRole(userUid);
+      if(userRole == 'customer') {
+        Navigator.pushNamed(context, "/customer_home");
+      }
+      else if(userRole == 'pharmacy') {
+        Navigator.pushNamed(context, "/inventory");
+      }
+      else
+        {
+          throw Exception('Error logging in.');
+        }
+
     } on FirebaseAuthException catch(e) {
       print(e.code);
       if (e.code == "user-not-found" || e.code == "wrong-password" || e.code == "invalid-credential") {
@@ -159,99 +175,81 @@ class _LoginPageState extends State<LoginPage> {
                                 key: _formkey,
                                 child: Column(
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validateEmptyText("Email Address", value),
+                                        controller: emailcontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Email Address",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.email_outlined,
+                                              color: Color(0xFFC4C4C4),
                                             )
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter E-mail';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: emailcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Email Address",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.email_outlined,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
-                                            ),
-                                          ],
                                         ),
                                       ),
                                       const SizedBox(height: 27.0),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFF9F9F9),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                            border: Border.all(
-                                              color: const Color(0xFFCCC9C9),
+                                      TextFormField(
+                                        validator: (value) => Validator.validateEmptyText("Password", value),
+                                        controller: passwordcontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Password",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.lock_outline,
+                                              color: Color(0xFFC4C4C4),
                                             )
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(17.0, 12.0, 0, 12.0),
-                                                child: TextFormField(
-                                                  validator: (value) {
-                                                    if (value == null || value.isEmpty) {
-                                                      return 'Please Enter Password';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  controller: passwordcontroller,
-                                                  decoration: const InputDecoration(
-                                                      border: InputBorder.none,
-                                                      hintText: "Password",
-                                                      hintStyle: TextStyle(
-                                                        fontFamily: "Poppins",
-                                                        fontSize: 15.0,
-                                                        color: Color(0xFFC4C4C4),
-                                                      )
-                                                  ),
-                                                  obscureText: true,
-                                                ),
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                                              child: Icon(
-                                                Icons.lock_outline,
-                                                color: Color(0xFFC4C4C4),
-
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                        obscureText: true,
                                       ),
                                     ]
                                 )
@@ -288,22 +286,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ElevatedButton(
                                     onPressed: () async {
                                       print("pressed");
-                                      await userLogin();
-                                      print('111');
-                                      String userRole = await _userDatabaseServices.getUserRole();
-                                      print(userRole);
-                                      print('222');
-                                      if(userRole == 'customer') {
-                                        await prefs.setString('role', 'customer');
-                                        Navigator.pushNamed(context, "/customer_home");
-                                      } else if (userRole == 'pharmacy') {
-                                        await prefs.setString('role', 'pharmacy');
-                                        Navigator.pushNamed(context, "/pharmacy_home");
-                                      }
-                                      else {
-                                        print('333');
-                                        throw Exception('Error finding user.');
-                                      }
+                                      userLogin();
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFF12E7C0),
@@ -319,7 +302,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ElevatedButton(
                                     onPressed: ()
                                     {
-                                      Navigator.pushNamed(context, "/signup");
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpPage()));
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFFFFFFFF),

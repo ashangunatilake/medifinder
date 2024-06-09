@@ -15,13 +15,13 @@ class AddReview extends StatefulWidget {
 class _AddReviewState extends State<AddReview> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   User? user = FirebaseAuth.instance.currentUser;
-  double rating = 0;
+  double rating = 5;
   TextEditingController reviewcontroller = TextEditingController();
 
   userAddReview(String pid) {
     String comment = reviewcontroller.text;
     try {
-      UserReview review = UserReview(id: user!.uid, rating: rating, comment: comment);
+      UserReview review = UserReview(id: user!.uid, rating: rating, comment: comment, datetime: DateTime.now());
       _databaseServices.addPharmacyReview(pid, user!.uid, review);
       print('Review added successfully!');
       // e.g., show a snackbar or toast message.
@@ -112,7 +112,7 @@ class _AddReviewState extends State<AddReview> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                data['Rating'].toString(),
+                                data['Ratings'].toString(),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),
@@ -173,7 +173,8 @@ class _AddReviewState extends State<AddReview> {
                         direction: Axis.horizontal,
                         itemCount: 5,
                         itemSize: 30.0,
-                        itemPadding: EdgeInsets.only(right: 15.0),                        ratingWidget: RatingWidget(
+                        itemPadding: EdgeInsets.only(right: 15.0),
+                        ratingWidget: RatingWidget(
                           full: Icon(
                             Icons.star,
                             color: Colors.amber,
@@ -239,7 +240,7 @@ class _AddReviewState extends State<AddReview> {
                             child: ElevatedButton(
                               onPressed: () {
                                 userAddReview(pharmacyDoc.id);
-                                Navigator.pushNamed(context, '/reviews', arguments: pharmacyDoc);
+                                Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyDoc});
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFFFFFF),

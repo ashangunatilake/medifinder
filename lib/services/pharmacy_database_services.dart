@@ -35,6 +35,19 @@ class PharmacyDatabaseServices {
     }
   }
 
+  Future<DocumentSnapshot> getPharmacyDoc(String pharmacyID) async {
+    try {
+      DocumentSnapshot pharmacyDoc = await _pharmaciesRef.doc(pharmacyID).get();
+      if (pharmacyDoc.exists) {
+      return pharmacyDoc;
+      } else {
+        throw Exception('No such document.');
+      }
+    } catch (e) {
+      throw Exception('Error getting current user document: $e');
+    }
+  }
+
   Stream<QuerySnapshot> getPharmacies() {
     return _pharmaciesRef.snapshots();
   }
@@ -70,9 +83,33 @@ class PharmacyDatabaseServices {
     ).snapshots();
   }
 
+  // Future<void> addPharmacyReview(String pharmacyID, String reviewID, UserReview review) async {
+  //   try {
+  //     await _pharmaciesRef.doc(pharmacyID).collection('Reviews').doc(reviewID).set(review.toJson());
+  //   } catch (e) {
+  //     throw Exception('Error adding pharmacy review: $e');
+  //   }
+  // }
+
   Future<void> addPharmacyReview(String pharmacyID, String reviewID, UserReview review) async {
     try {
-      await _pharmaciesRef.doc(pharmacyID).collection('Reviews').doc(reviewID).set(review.toJson());
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        // Add the new review
+        transaction.set(_pharmaciesRef.doc(pharmacyID).collection('Reviews').doc(reviewID), review.toJson());
+        // Get all reviews
+        final reviewsSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Reviews').get();
+        final reviews = reviewsSnapshot.docs;
+        //Calculate the new average rating
+        double totalRating = 0;
+        reviews.forEach((review) {
+          totalRating += review['Rating'];
+        });
+        double newOverallRating = totalRating / reviews.length;
+        // Update the overall rating
+        transaction.update(_pharmaciesRef.doc(pharmacyID), {
+          'Ratings': newOverallRating,
+        });
+      });
     } catch (e) {
       throw Exception('Error adding pharmacy review: $e');
     }
@@ -94,6 +131,13 @@ class PharmacyDatabaseServices {
     }
   }
 
+  Stream<QuerySnapshot<UserReview>> getOnlyThreePharmacyReviews(String pharmacyID) {
+    return _pharmaciesRef.doc(pharmacyID).collection('Reviews').withConverter<UserReview>(
+      fromFirestore: (snapshots, _) => UserReview.fromSnapshot(snapshots),
+      toFirestore: (review, _) => review.toJson(),
+    ).limit(3).snapshots();
+  }
+
   Stream<QuerySnapshot<UserOrder>> getPharmacyOrders(String pharmacyID) {
     return _pharmaciesRef.doc(pharmacyID).collection('Orders').withConverter<UserOrder>(
       fromFirestore: (snapshots, _) => UserOrder.fromSnapshot(snapshots),
@@ -104,15 +148,17 @@ class PharmacyDatabaseServices {
   Future<void> addPharmacyOrder(String pharmacyID, String orderID, UserOrder order) async {
     // For now the doc id is auto generated in the UserOrders collection
     try {
-      await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(orderID).collection('UserOrders').add(order.toJson());
+      final DocumentReference orderDocRef = _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(orderID);
+      await orderDocRef.set({'Placeholder': true});
+      await orderDocRef.collection('UserOrders').add(order.toJson());
     } catch (e) {
       throw Exception('Error adding pharmacy order: $e');
     }
   }
 
-  Future<void> updatePharmacyOrder(String pharmacyID, String orderID, UserOrder order) async {
+  Future<void> updatePharmacyOrder(String pharmacyID, String orderID, String docID, UserOrder order) async {
     try {
-      await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(orderID).update(order.toJson());
+      await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(orderID).collection('UserOrders').doc(docID).update(order.toJson());
     } catch (e) {
       throw Exception('Error updating pharmacy order: $e');
     }
@@ -129,12 +175,10 @@ class PharmacyDatabaseServices {
   Future<List<DocumentSnapshot>> getNearbyPharmacies(LatLng userPosition, String medication) {
     try {
       final geo = GeoFlutterFire();
-
       GeoFirePoint center = geo.point(latitude: userPosition.latitude, longitude: userPosition.longitude);
       var collectionReference = firestore.collection('Pharmacies');
       double radius = 5.0; // radius in kilometers
       String field = 'Position';
-
       Stream<List<DocumentSnapshot>> nearbyPharmaciesStream = geo.collection(collectionRef: collectionReference)
           .within(center: center, radius: radius, field: field);
 
@@ -142,13 +186,11 @@ class PharmacyDatabaseServices {
     } catch (e) {
       throw Exception('Error getting nearby pharmacies: $e');
     }
-
   }
 
   Future<List<DocumentSnapshot>> filterByMedication(Stream<List<DocumentSnapshot>> pharmaciesStream, String medication) async {
     try {
       List<DocumentSnapshot> filteredPharmacies = [];
-
       List<DocumentSnapshot> newResult = await pharmaciesStream.first;
       for (DocumentSnapshot document in newResult) {
         CollectionReference drugsCollection = document.reference.collection('Drugs');
@@ -157,20 +199,11 @@ class PharmacyDatabaseServices {
           filteredPharmacies.add(document);
         }
       }
-
       return filteredPharmacies;
     } catch (e) {
       throw Exception('Error filtering pharmacies by medication: $e');
     }
-
   }
-
-  // Future<List<DocumentSnapshot>> getAcceptedUserOrders(String userID, ) {
-  //   Stream<QuerySnapshot<UserReview>> stream = _pharmaciesRef.doc(userID).collection('Reviews').withConverter<UserReview>(
-  //     fromFirestore: (snapshots, _) => UserReview.fromSnapshot(snapshots),
-  //     toFirestore: (review, _) => review.toJson(),
-  //   ).snapshots();
-  // }
 
   Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
     try {
@@ -186,37 +219,46 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Stream<List<Map<String, dynamic>>> getToAcceptUserOrders(String userID) async* {
+  //////////////////////////////////////////////////////////////
+
+  Stream<List<DocumentSnapshot>> getUsersWithToAcceptOrders(String pharmacyID) async* {
     try {
-      final pharmaciesSnapshotStream = firestore.collection('Pharmacies').snapshots();
-      await for (var pharmaciesSnapshot in pharmaciesSnapshotStream) {
-        List<Map<String, dynamic>> allUserOrders = [];
+      final userOrdersSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Orders').get();
+      List<DocumentSnapshot> allUsersWithToAcceptOrders = [];
 
-        // Get the Orders document where the document ID is the same as userID
-        final orderDocSnapshot = await firestore.collection('Orders').doc(userID).get();
-
-        if (orderDocSnapshot.exists) {
-          // Get the UserOrders collection inside the Orders document
-          final userOrdersSnapshot = await orderDocSnapshot.reference.collection('UserOrders').get();
-
-          for (var userOrderDoc in userOrdersSnapshot.docs) {
-            final data = userOrderDoc.data();
-            if (data['isAccepted'] && !data['isCompleted']) {
-              allUserOrders.add(data);
-            }
+      for (var userOrdersDoc in userOrdersSnapshot.docs) {
+        final ordersSnapshot = await userOrdersDoc.reference.collection('UserOrders').get();
+        for (var orderDoc in ordersSnapshot.docs) {
+          if(!orderDoc['Accepted'] && !orderDoc['Completed'])
+          {
+            allUsersWithToAcceptOrders.add(userOrdersDoc);
+            break;
           }
         }
-
-        // Yield the accumulated list of accepted user orders
-        yield allUserOrders;
       }
+      yield allUsersWithToAcceptOrders;
     } catch (e) {
-      throw Exception('Error getting ongoing user orders: $e');
+      throw Exception('Error getting completed user orders: $e');
     }
-
   }
 
-  //////////////////////////////////////////////////////////////
+  Stream<List<DocumentSnapshot>> getToAcceptUserOrders(Stream<List<DocumentSnapshot>> usersStream) async* {
+    await for (List<DocumentSnapshot> users in usersStream) {
+      List<DocumentSnapshot> allUserOrders = [];
+
+      for (var userDoc in users) {
+        final ordersSnapshot = await userDoc.reference.collection('UserOrders').get();
+
+        for (var orderDoc in ordersSnapshot.docs) {
+          if(!orderDoc['Accepted'] && !orderDoc['Completed']) {
+            allUserOrders.add(orderDoc);
+          }
+        }
+      }
+
+      yield allUserOrders;
+    }
+  }
 
   Stream<QuerySnapshot<DrugsModel>> getDrugs(String pharmacyID) {
     return _pharmaciesRef.doc(pharmacyID).collection('Drugs').withConverter<DrugsModel>(

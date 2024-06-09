@@ -13,8 +13,11 @@ import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
 import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
-import 'package:medifinder/pages/pharmacy/home.dart';
+import 'package:medifinder/pages/pharmacy/inventory.dart';
+//import 'package:medifinder/pages/pharmacy/home.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
+
+import 'pages/mapview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,14 +49,16 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        '/pharmacy_home': (context) => const PharmacyHome(),
+        //'/pharmacy_home': (context) => const PharmacyHome(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
         '/addreview': (context) => const AddReview(),
         '/order': (context) => const Order(),
         '/profile': (context) => const Profile(),
-        '/activities': (context) => const Activities()
+        '/activities': (context) => const Activities(),
+        '/mapview': (context) => MapView(),
+        '/inventory': (context) => Inventory(),
       },
     );
   }

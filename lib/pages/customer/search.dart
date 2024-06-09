@@ -106,6 +106,7 @@ class _SearchState extends State<Search> {
                             setState(() {
                               waiting = true;
                             });
+                            print(searchController.text.trim().toLowerCase());
                             filteredPharmacies = await _databaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
                             setState(() {
                               searched = true;
@@ -128,7 +129,7 @@ class _SearchState extends State<Search> {
               padding: const EdgeInsets.fromLTRB(24.0, 0, 0, 0),
               child: ElevatedButton(
                 onPressed: () async {
-
+                    Navigator.pushNamed(context, '/mapview', arguments: {'location': location, 'pharmacies': filteredPharmacies});
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -186,7 +187,7 @@ class _SearchState extends State<Search> {
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "4.6",
+                                                    filteredPharmacies[index]['Ratings'].toString(),
                                                     style: TextStyle(
                                                       fontSize: 15.0,
                                                     ),
