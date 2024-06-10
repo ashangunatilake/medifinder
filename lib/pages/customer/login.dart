@@ -5,6 +5,7 @@ import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
       String userUid = userCredential.user!.uid;
       String userRole = await _userDatabaseServices.getUserRole(userUid);
       if(userRole == 'customer') {
+        Snackbars.successSnackBar(message: "Login successful", context: context);
         Navigator.pushNamed(context, "/customer_home");
       }
       else if(userRole == 'pharmacy') {
@@ -47,33 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       print(e.code);
       if (e.code == "user-not-found" || e.code == "wrong-password" || e.code == "invalid-credential") {
         print("User not found");
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                  child: Text(
-                      "Error",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                  child: Text(
-                    "Incorrect Email or Password",
-                    style: TextStyle(
-                        fontSize: 16.0
-                    ),
-                  ),
-                )
-              ],
-            )
-        )
-        );
+        Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
       }
     }
   }
