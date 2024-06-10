@@ -21,85 +21,113 @@ class _CustomerHomeState extends State<CustomerHome> {
   GoogleMapController? _controller;
   Set<Marker> _markers = {};
   bool markerPlaced = false;
+  bool mapLoaded = false;
+  BitmapDescriptor? myLocationIcon;
 
-  late Future<LatLng> _locationFuture;
   late Future<Map<String, dynamic>> _userDataFuture;
 
   @override
   void initState() {
     super.initState();
-    _locationFuture = getLocation();
+    loadCustomMarker();
+    getLocationUpdates();
     _userDataFuture = getUserData();
   }
 
-  Future<LatLng> getLocation() async {
-    bool _serviceEnabled = await _locationController.serviceEnabled();
-    if (!_serviceEnabled) {
+  Future<void> loadCustomMarker() async {
+    final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(200, 200)),
+      'assets/location-pin.png',
+    );
+    setState(() {
+      myLocationIcon = markerIcon;
+    });
+  }
+
+  void getLocationUpdates() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await _locationController.serviceEnabled();
+    if (_serviceEnabled) {
       _serviceEnabled = await _locationController.requestService();
-      if (!_serviceEnabled) {
-        throw Exception("Location service not enabled");
-      }
+    } else {
+      return;
     }
 
-    PermissionStatus _permissionGranted = await _locationController.hasPermission();
+    _permissionGranted = await _locationController.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await _locationController.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
-        throw Exception("Location permission not granted");
+        return;
       }
     }
 
-    LocationData locationData = await _locationController.getLocation();
-    if (locationData.latitude == null || locationData.longitude == null) {
-      throw Exception("Failed to get location");
-    }
-
-    return LatLng(locationData.latitude!, locationData.longitude!);
+    _locationController.onLocationChanged.listen((LocationData currentLocation) {
+      if (currentLocation.latitude != null && currentLocation.longitude != null) {
+        source = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+        setState(() {
+          if (!markerPlaced) {
+            currentP = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+            source = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+            markerPlaced = true;
+            mapLoaded = true; // Set mapLoaded to true when currentP is set
+          }
+        });
+      }
+    });
   }
 
+  // Future<LatLng> getLocation() async {
+  //   bool _serviceEnabled = await _locationController.serviceEnabled();
+  //   if (!_serviceEnabled) {
+  //     _serviceEnabled = await _locationController.requestService();
+  //     if (!_serviceEnabled) {
+  //       throw Exception("Location service not enabled");
+  //     }
+  //   }
+  //
+  //   PermissionStatus _permissionGranted = await _locationController.hasPermission();
+  //   if (_permissionGranted == PermissionStatus.denied) {
+  //     _permissionGranted = await _locationController.requestPermission();
+  //     if (_permissionGranted != PermissionStatus.granted) {
+  //       throw Exception("Location permission not granted");
+  //     }
+  //   }
+  //
+  //   LocationData locationData = await _locationController.getLocation();
+  //   if (locationData.latitude == null || locationData.longitude == null) {
+  //     throw Exception("Failed to get location");
+  //   }
+  //   return LatLng(locationData.latitude!, locationData.longitude!);
+  // }
+  //
   Future<Map<String, dynamic>> getUserData() async {
     DocumentSnapshot userDoc = await _databaseServices.getCurrentUserDoc();
     return userDoc.data() as Map<String, dynamic>;
   }
 
+  String locationString(LatLng pos) {
+    String latitude = pos.latitude.toStringAsFixed(6);
+    String longitude = pos.longitude.toStringAsFixed(6);
+    return "($latitude , $longitude)";
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<LatLng>(
-      future: _locationFuture,
-      builder: (context, locationSnapshot) {
-        if (locationSnapshot.connectionState == ConnectionState.waiting) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _userDataFuture,
+      builder: (context, userSnapshot) {
+        if (userSnapshot.connectionState == ConnectionState.waiting || !markerPlaced) {
           return const Loading();
-        } else if (locationSnapshot.hasError) {
+        } else if (userSnapshot.hasError) {
           return Scaffold(
             body: Center(
-              child: Text('Error: ${locationSnapshot.error}'),
+              child: Text('Error: ${userSnapshot.error}'),
             ),
           );
         } else {
-          currentP = locationSnapshot.data!;
-          source = currentP;
-          // _markers.add(
-          //   Marker(
-          //     markerId: MarkerId('1'),
-          //     position: currentP!,
-          //   ),
-          // );
-          return FutureBuilder<Map<String, dynamic>>(
-            future: _userDataFuture,
-            builder: (context, userSnapshot) {
-              if (userSnapshot.connectionState == ConnectionState.waiting) {
-                return const Loading();
-              } else if (userSnapshot.hasError) {
-                return Scaffold(
-                  body: Center(
-                    child: Text('Error: ${userSnapshot.error}'),
-                  ),
-                );
-              } else {
-                return buildMap(userSnapshot.data!);
-              }
-            },
-          );
+          return buildMap(userSnapshot.data!);
         }
       },
     );
@@ -129,6 +157,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                   Marker(
                     markerId: MarkerId('marker_id'),
                     position: currentP!,
+                    icon: myLocationIcon!,
                   ),
                 );
               });
@@ -175,6 +204,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
+                            print(currentP);
                             Navigator.pushNamed(context, '/search', arguments: {'location': currentP});
                           },
                           style: ElevatedButton.styleFrom(
@@ -240,8 +270,4 @@ class _CustomerHomeState extends State<CustomerHome> {
   }
 }
 
-String locationString(LatLng pos) {
-  String latitude = pos.latitude.toStringAsFixed(6);
-  String longitude = pos.longitude.toStringAsFixed(6);
-  return "($latitude , $longitude)";
-}
+
