@@ -53,7 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
   //   sharedPreferences.setString('userdata', userdata);
   // }
 
-  userSignUp() async {
+  Future<void> userSignUp() async {
 
     if (!_formkey.currentState!.validate()) {
       return;
@@ -115,7 +115,7 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  pharmacySignUp() async {
+  Future<void> pharmacySignUp() async {
     String name = namecontroller.text.trim();
     String email = emailcontroller.text.trim();
     String mobile = mobilecontroller.text.trim();
@@ -210,35 +210,35 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void getTime(String time) async{
     if (time == "Opening Time")
-      {
-        final TimeOfDay? selectedTime = await showTimePicker(
+    {
+      final TimeOfDay? selectedTime = await showTimePicker(
           context: context,
           initialTime: TimeOfDay.now(),
           initialEntryMode: TimePickerEntryMode.dial
-        );
-        if (selectedTime != null)
-          {
-            setState(() {
-              openingTime = selectedTime;
-              openingtimecontroller.text = "${openingTime.hour.toString()}:${openingTime.minute.toString().padLeft(2, "0")}";
-            });
-          }
-      }
-    else if (time == "Closing Time")
+      );
+      if (selectedTime != null)
       {
-        final TimeOfDay? selectedTime = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.now(),
-            initialEntryMode: TimePickerEntryMode.dial
-        );
-        if (selectedTime != null)
-        {
-          setState(() {
-            closingTime = selectedTime;
-            closingtimecontroller.text = "${closingTime.hour.toString()}:${closingTime.minute.toString().padLeft(2, "0")}";
-          });
-        }
+        setState(() {
+          openingTime = selectedTime;
+          openingtimecontroller.text = "${openingTime.hour.toString()}:${openingTime.minute.toString().padLeft(2, "0")}";
+        });
       }
+    }
+    else if (time == "Closing Time")
+    {
+      final TimeOfDay? selectedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+          initialEntryMode: TimePickerEntryMode.dial
+      );
+      if (selectedTime != null)
+      {
+        setState(() {
+          closingTime = selectedTime;
+          closingtimecontroller.text = "${closingTime.hour.toString()}:${closingTime.minute.toString().padLeft(2, "0")}";
+        });
+      }
+    }
   }
 
   Future<void> selectLocation(BuildContext context) async {
@@ -448,37 +448,37 @@ class _SignUpPageState extends State<SignUpPage> {
                                         validator: (value) => Validator.validateEmptyText("Name", value),
                                         controller: namecontroller,
                                         decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
-                                          border: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                              color: Color(0xFFCCC9C9),
+                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
                                             ),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                              color: Color(0xFFCCC9C9),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
                                             ),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                          ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderSide: const BorderSide(
-                                              color: Color(0xFFCCC9C9),
+                                            errorBorder: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                color: Color(0xFFCCC9C9),
+                                              ),
+                                              borderRadius: BorderRadius.circular(9.0),
                                             ),
-                                            borderRadius: BorderRadius.circular(9.0),
-                                          ),
-                                          filled: true,
-                                          fillColor: const Color(0xFFF9F9F9),
-                                          hintText: "Name",
-                                          hintStyle: const TextStyle(
-                                            fontFamily: "Poppins",
-                                            fontSize: 15.0,
-                                            color: Color(0xFFC4C4C4),
-                                          ),
-                                          suffixIcon: Icon(
-                                            Icons.person,
-                                            color: Color(0xFFC4C4C4),
-                                          )
+                                            filled: true,
+                                            fillColor: const Color(0xFFF9F9F9),
+                                            hintText: "Name",
+                                            hintStyle: const TextStyle(
+                                              fontFamily: "Poppins",
+                                              fontSize: 15.0,
+                                              color: Color(0xFFC4C4C4),
+                                            ),
+                                            suffixIcon: Icon(
+                                              Icons.person,
+                                              color: Color(0xFFC4C4C4),
+                                            )
                                         ),
                                       ),
                                       const SizedBox(height: 5.0),
@@ -490,7 +490,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       ),
                                       const SizedBox(height: 5.0),
                                       TextFormField(
-                                        validator: (value) => Validator.validateEmptyText("Email Address", value),
+                                        validator: (value) => Validator.validateEmail(value),
                                         controller: emailcontroller,
                                         decoration: InputDecoration(
                                             contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
@@ -533,7 +533,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                           const Text(
                                             "Opening Time",
                                             style: TextStyle(
-                                              fontSize: 15.0
+                                                fontSize: 15.0
                                             ),
                                           ),
                                           const SizedBox(height: 5.0),
@@ -642,14 +642,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   Radio<Delivery>(
-                                                    value: Delivery.available,
-                                                    groupValue: selected,
-                                                    onChanged: (Delivery? value) {
-                                                      setState(() {
-                                                        selected = value;
-                                                        deliveryAvailable = true;
-                                                      });
-                                                    }
+                                                      value: Delivery.available,
+                                                      groupValue: selected,
+                                                      onChanged: (Delivery? value) {
+                                                        setState(() {
+                                                          selected = value;
+                                                          deliveryAvailable = true;
+                                                        });
+                                                      }
                                                   ),
                                                   Text("Available", style: TextStyle(fontSize: 15.0),)
                                                 ],

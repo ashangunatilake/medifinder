@@ -34,8 +34,7 @@ class Validator {
     if (confirmPassword == null || confirmPassword.isEmpty) {
       return "Confirm Password is required";
     }
-
-    if (password == confirmPassword) {
+    if (!("$password" == "$confirmPassword")) {
       return "Password do not match";
     }
     return null;
@@ -45,7 +44,7 @@ class Validator {
     if (value == null || value.isEmpty) {
       return "Mobile Number is required";
     }
-    final phoneRegExp = RegExp(r'0+^\d{9}$');
+    final phoneRegExp = RegExp(r'^0\d{9}$');
     if (!phoneRegExp.hasMatch(value)) {
       return "Invalid mobile number format (10 digits required)";
     }

@@ -18,23 +18,27 @@ class _AddReviewState extends State<AddReview> {
   double rating = 5;
   TextEditingController reviewcontroller = TextEditingController();
 
-  userAddReview(String pid) {
+  void userAddReview(String pharmacyId) {
     String comment = reviewcontroller.text;
     try {
-      UserReview review = UserReview(id: user!.uid, rating: rating, comment: comment, datetime: DateTime.now());
-      _databaseServices.addPharmacyReview(pid, user!.uid, review);
+      UserReview review = UserReview(
+        id: user!.uid,
+        rating: rating,
+        comment: comment,
+        datetime: DateTime.now(),
+      );
+      _databaseServices.addPharmacyReview(pharmacyId, user!.uid, review);
       print('Review added successfully!');
-      // e.g., show a snackbar or toast message.
-    } catch(e) {
-      // Handle errors more effectively, such as displaying an error message to the user.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Review added successfully')),
+      );
+      Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyId});
+    } catch (e) {
       print("Error adding review: $e");
-      // You might also want to re-throw the error or handle it differently based on the type of error.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding review')),
+      );
     }
-  }
-
-
-  Future addReview() async {
-    await FirebaseFirestore.instance.collection('Users').add({});
   }
 
   @override

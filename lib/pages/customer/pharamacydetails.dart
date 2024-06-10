@@ -15,19 +15,19 @@ class PharmacyDetails extends StatefulWidget {
 
 class _PharmacyDetailsState extends State<PharmacyDetails> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
+  late DocumentSnapshot pharmacyDoc;
+  late Map<String, dynamic> data;
+  late String drugName;
+
   @override
   Widget build(BuildContext context) {
-    late DocumentSnapshot pharmacyDoc;
-    late Map<String, dynamic> data;
-    late String drugName;
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
       data = pharmacyDoc.data() as Map<String, dynamic>;
       drugName = args['searchedDrug'] as String;
     } else {
-      // Handle the case where args are null (optional)
-      // You might want to throw an error or use default values
+      throw Exception('Something went wrong.');
     }
     return Scaffold(
       body: Container(

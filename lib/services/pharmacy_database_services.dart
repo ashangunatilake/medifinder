@@ -219,7 +219,9 @@ class PharmacyDatabaseServices {
     }
   }
 
-  //////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  // Functions for pharmacy uis
+  //////////////////////////////////////////////////////////////////////////////
 
   Stream<List<DocumentSnapshot>> getUsersWithToAcceptOrders(String pharmacyID) async* {
     try {
@@ -238,25 +240,50 @@ class PharmacyDatabaseServices {
       }
       yield allUsersWithToAcceptOrders;
     } catch (e) {
-      throw Exception('Error getting completed user orders: $e');
+      throw Exception('Error getting users with to-accept orders: $e');
     }
   }
 
   Stream<List<DocumentSnapshot>> getToAcceptUserOrders(Stream<List<DocumentSnapshot>> usersStream) async* {
-    await for (List<DocumentSnapshot> users in usersStream) {
-      List<DocumentSnapshot> allUserOrders = [];
+    try {
+      await for (List<DocumentSnapshot> users in usersStream) {
+        List<DocumentSnapshot> allUserOrders = [];
 
-      for (var userDoc in users) {
-        final ordersSnapshot = await userDoc.reference.collection('UserOrders').get();
+        for (var userDoc in users) {
+          final ordersSnapshot = await userDoc.reference.collection('UserOrders').get();
 
-        for (var orderDoc in ordersSnapshot.docs) {
-          if(!orderDoc['Accepted'] && !orderDoc['Completed']) {
-            allUserOrders.add(orderDoc);
+          for (var orderDoc in ordersSnapshot.docs) {
+            if(!orderDoc['Accepted'] && !orderDoc['Completed']) {
+              allUserOrders.add(orderDoc);
+            }
           }
         }
-      }
 
-      yield allUserOrders;
+        yield allUserOrders;
+      }
+    } catch(e) {
+      throw Exception('Error getting to-accept user orders: $e');
+    }
+  }
+  Stream<List<DocumentSnapshot>> getAcceptedUserOrders(Stream<List<DocumentSnapshot>> usersStream) async* {
+    try {
+      await for (List<DocumentSnapshot> users in usersStream) {
+        List<DocumentSnapshot> allUserOrders = [];
+
+        for (var userDoc in users) {
+          final ordersSnapshot = await userDoc.reference.collection('UserOrders').get();
+
+          for (var orderDoc in ordersSnapshot.docs) {
+            if(orderDoc['Accepted'] && !orderDoc['Completed']) {
+              allUserOrders.add(orderDoc);
+            }
+          }
+        }
+
+        yield allUserOrders;
+      }
+    } catch(e) {
+      throw Exception('Error getting accepted user orders: $e');
     }
   }
 
