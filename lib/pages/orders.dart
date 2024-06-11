@@ -8,7 +8,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 1',
       items: [
         OrderItem(itemName: 'Medicine A', quantity: 2, price: 20.0),
-        OrderItem(itemName: 'Medicine B', quantity: 1, price: 15.0),
       ],
       prescriptionUrl:
           'https://c.ndtvimg.com/2022-09/2tcj87po_doctor-neat-prescription-650_625x300_28_September_22.jpg',
@@ -17,7 +16,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 2',
       items: [
         OrderItem(itemName: 'Medicine C', quantity: 3, price: 30.0),
-        OrderItem(itemName: 'Medicine D', quantity: 2, price: 25.0),
       ],
       prescriptionUrl: 'https://example.com/prescription1.jpg',
     ),
@@ -25,7 +23,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 2',
       items: [
         OrderItem(itemName: 'Medicine C', quantity: 3, price: 30.0),
-        OrderItem(itemName: 'Medicine D', quantity: 2, price: 25.0),
       ],
       prescriptionUrl: 'https://example.com/prescription1.jpg',
     ),
@@ -33,7 +30,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 2',
       items: [
         OrderItem(itemName: 'Medicine C', quantity: 3, price: 30.0),
-        OrderItem(itemName: 'Medicine D', quantity: 2, price: 25.0),
       ],
       prescriptionUrl: 'https://example.com/prescription1.jpg',
     ),
@@ -41,7 +37,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 2',
       items: [
         OrderItem(itemName: 'Medicine C', quantity: 3, price: 30.0),
-        OrderItem(itemName: 'Medicine D', quantity: 2, price: 25.0),
       ],
       prescriptionUrl: 'https://example.com/prescription1.jpg',
     ),
@@ -49,7 +44,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 2',
       items: [
         OrderItem(itemName: 'Medicine C', quantity: 3, price: 30.0),
-        OrderItem(itemName: 'Medicine D', quantity: 2, price: 25.0),
       ],
       prescriptionUrl: 'https://example.com/prescription1.jpg',
     ),
@@ -57,7 +51,6 @@ class Orders extends StatelessWidget {
       customerName: 'Customer 2',
       items: [
         OrderItem(itemName: 'Medicine C', quantity: 3, price: 30.0),
-        OrderItem(itemName: 'Medicine D', quantity: 2, price: 25.0),
       ],
       prescriptionUrl: 'https://example.com/prescription1.jpg',
     ),

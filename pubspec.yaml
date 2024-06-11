@@ -71,7 +71,7 @@ flutter:
   assets:
    - assets/images/pharmacy_logo.png
    - assets/images/pharmacy_bg.png
-   - assets/images/product_img.png
+   - assets/images/product_img.jpg
    - assets/images/add_bg.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
