@@ -52,6 +52,12 @@ class _LoginPageState extends State<LoginPage> {
         print("User not found");
         Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
       }
+      if (e.code == "too-many-requests") {
+        Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
+      }
+      if (e.code == "network-request-failed") {
+        Snackbars.errorSnackBar(message: "Network error occured", context: context);
+      }
     }
   }
 

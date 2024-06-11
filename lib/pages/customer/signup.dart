@@ -88,6 +88,9 @@ class _SignUpPageState extends State<SignUpPage> {
         print("Email already in use");
         Snackbars.errorSnackBar(message: "Email already in use", context: context);
       }
+      if (e.code == "network-request-failed") {
+        Snackbars.errorSnackBar(message: "Network error occured", context: context);
+      }
     }
   }
 
