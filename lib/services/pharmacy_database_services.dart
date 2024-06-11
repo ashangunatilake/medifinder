@@ -35,6 +35,27 @@ class PharmacyDatabaseServices {
     }
   }
 
+  Future<DocumentSnapshot> getCurrentPharmacyDoc() async {
+    try {
+      User? user = await FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Pharmacies').doc(uid).get();
+
+        if (userDoc.exists) {
+          return userDoc;
+        } else {
+          throw Exception('No such document.');
+        }
+      } else {
+        throw Exception('No user logged in.');
+      }
+    } catch (e) {
+      throw Exception('Error getting current user document: $e');
+    }
+
+  }
+
   Future<DocumentSnapshot> getPharmacyDoc(String pharmacyID) async {
     try {
       DocumentSnapshot pharmacyDoc = await _pharmaciesRef.doc(pharmacyID).get();

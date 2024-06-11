@@ -325,7 +325,7 @@ class _ActivitiesState extends State<Activities> {
                                                         child: ElevatedButton(
                                                           onPressed: () {
                                                             continueDialog(
-                                                                context, pharmacyDoc, docs[index], user!.uid);
+                                                                context, pharmacyDoc, docs[index], user!.uid, () {setState(() {docs.removeAt(index);});});
                                                           },
                                                           style: ElevatedButton
                                                               .styleFrom(
@@ -397,7 +397,7 @@ class _ActivitiesState extends State<Activities> {
   }
 }
 
-Future<void> continueDialog(context,  DocumentSnapshot pharmacyDoc, DocumentSnapshot orderDoc, String uid) async {
+Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc, DocumentSnapshot orderDoc, String uid, Function updateState) async {
   return showDialog(
       context: context,
       barrierDismissible: false,
@@ -462,6 +462,7 @@ Future<void> continueDialog(context,  DocumentSnapshot pharmacyDoc, DocumentSnap
                           UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
                           await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
                           Navigator.of(context).pop();
+                          updateState();
                         }
                       else
                         {

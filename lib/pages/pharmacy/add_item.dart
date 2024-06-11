@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:medifinder/models/drugs_model.dart';
+import 'package:medifinder/services/database_services.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
 
 class AddItem extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
+
+  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  TextEditingController namecontroller = TextEditingController();
+  TextEditingController brandnamecontroller = TextEditingController();
+  TextEditingController dosagecontroller = TextEditingController();
+  TextEditingController unitpricecontroller = TextEditingController();
+  TextEditingController quantitycontroller = TextEditingController();
+
+  Future<void> addToStock() async {
+    try {
+      String name = namecontroller.text.trim();
+      String brandName = brandnamecontroller.text.trim();
+      String dosage = dosagecontroller.text.trim();
+      double unitPrice = unitpricecontroller.text.trim() as double;
+      double quantity = quantitycontroller.text.trim() as double;
+
+      DrugsModel drug = DrugsModel(brand: brandName, name: name, dosage: dosage, quantity: quantity, price: unitPrice);
+      String pharmacyUid = await _userDatabaseServices.getCurrentUserUid();
+      await _pharmacyDatabaseServices.addDrug(pharmacyUid, name, drug);
+      print('New drug added successfully');
+    } catch(e) {
+      throw Exception('Error adding new drug: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +63,7 @@ class AddItem extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   TextFormField(
+                    controller: namecontroller,
                     decoration: InputDecoration(
                       labelText: 'Name',
                       filled: true,
@@ -52,6 +81,7 @@ class AddItem extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   TextFormField(
+                    controller: brandnamecontroller,
                     decoration: InputDecoration(
                       labelText: 'Brand Name',
                       filled: true,
@@ -69,6 +99,7 @@ class AddItem extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   TextFormField(
+                    controller: dosagecontroller,
                     decoration: InputDecoration(
                       labelText: 'Dosage',
                       filled: true,
@@ -86,6 +117,7 @@ class AddItem extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   TextFormField(
+                    controller: unitpricecontroller,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Unit Price',
@@ -104,6 +136,7 @@ class AddItem extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   TextFormField(
+                    controller: quantitycontroller,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Quantity',
@@ -126,9 +159,9 @@ class AddItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              // Process the form data
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()){
+                              await addToStock();
                             }
                           },
                           style: ElevatedButton.styleFrom(

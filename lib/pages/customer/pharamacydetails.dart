@@ -16,7 +16,9 @@ class PharmacyDetails extends StatefulWidget {
 class _PharmacyDetailsState extends State<PharmacyDetails> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   late DocumentSnapshot pharmacyDoc;
-  late Map<String, dynamic> data;
+  late Map<String, dynamic> pharmacyData;
+  late DocumentSnapshot drugDoc;
+  late Map<String, dynamic> drugData;
   late String drugName;
 
   @override
@@ -24,8 +26,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
-      data = pharmacyDoc.data() as Map<String, dynamic>;
+      pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
+      drugDoc = args['searchedDrugDoc'] as DocumentSnapshot;
+      drugData = drugDoc.data() as Map<String, dynamic>;
       drugName = args['searchedDrug'] as String;
+
     } else {
       throw Exception('Something went wrong.');
     }
@@ -89,7 +94,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        data['Name'], //"Pharmacy 1"
+                        pharmacyData['Name'], //"Pharmacy 1"
                         style: TextStyle(
                           fontSize: 20.0,
                         ),
@@ -100,7 +105,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              data['Ratings'].toString(),
+                              pharmacyData['Ratings'].toString(),
                               style: TextStyle(
                                 fontSize: 15.0,
                               ),
@@ -119,7 +124,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                     height: 20.0,
                   ),
                   Text(
-                    "Price 1",
+                    drugData['UnitPrice'].toString(),
                     style: TextStyle(
                         fontSize: 20.0
                     ),
@@ -284,7 +289,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  GeoPoint geopoint = data['Position']['geopoint'];
+                                  GeoPoint geopoint = pharmacyData['Position']['geopoint'];
                                   Launcher.openMap(geopoint);
                                   // GeoPoint geoPoint = data['Position'];
                                   // print(geoPoint.latitude);
@@ -313,7 +318,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Launcher.openDialler(data['ContactNo']);
+                                  Launcher.openDialler(pharmacyData['ContactNo']);
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),

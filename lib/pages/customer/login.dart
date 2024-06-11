@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushNamed(context, "/customer_home");
       }
       else if(userRole == 'pharmacy') {
-        Navigator.pushNamed(context, "/inventory");
+        Navigator.pushNamed(context, "/pharmacy_home");
       }
       else
         {

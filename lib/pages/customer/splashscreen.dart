@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/pages/customer/login.dart';
-//import 'package:medifinder/pages/pharmacy/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../pharmacy/PharmacyRegister.dart';
 
-import '../pharmacy/inventory.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CustomerHome()),);
       }
       else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Inventory()),);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()),);
       }
 
     }

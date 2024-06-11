@@ -12,6 +12,7 @@ import 'package:medifinder/pages/customer/search.dart';
 import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
+import 'package:medifinder/pages/pharmacy/PharmacyRegister.dart';
 import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 //import 'package:medifinder/pages/pharmacy/home.dart';
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        //'/pharmacy_home': (context) => const PharmacyHome(),
+        '/pharmacy_home': (context) => RegisterPage(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
