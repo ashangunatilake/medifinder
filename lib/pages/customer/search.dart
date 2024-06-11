@@ -217,7 +217,7 @@ class _SearchState extends State<Search> {
                                           height: 20.0,
                                         ),
                                         Text(
-                                          drugDoc['UnitPrice'].toString(),
+                                          "Rs. ${drugDoc['UnitPrice'].toString()}",
                                           style: TextStyle(
                                             fontSize: 20.0,
                                           ),

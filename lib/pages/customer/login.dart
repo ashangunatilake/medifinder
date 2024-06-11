@@ -34,10 +34,11 @@ class _LoginPageState extends State<LoginPage> {
       String userUid = userCredential.user!.uid;
       String userRole = await _userDatabaseServices.getUserRole(userUid);
       if(userRole == 'customer') {
-        Snackbars.successSnackBar(message: "Login successful", context: context);
+        Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamed(context, "/customer_home");
       }
       else if(userRole == 'pharmacy') {
+        Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamed(context, "/pharmacy_home");
       }
       else

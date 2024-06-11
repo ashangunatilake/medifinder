@@ -136,9 +136,9 @@ class _OrderState extends State<Order> {
         isAccepted: false,
         isCompleted: false,
       );
-      _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
+      await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
       print('User order added successfully!');
-      Navigator.pushNamed(context, "/login");
+      Navigator.pushNamed(context, "/activities");
     } catch (e) {
       print("Error adding order: $e");
     }
@@ -218,7 +218,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          drugData['UnitPrice'].toString(),
+                          "Rs. ${drugData['UnitPrice'].toString()}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
