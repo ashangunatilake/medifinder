@@ -29,8 +29,53 @@ class OrderDetails extends StatelessWidget {
     //}
   }
 
-  void _cancelOrder() {
+  void _cancelOrder(BuildContext context) {
     print('Order Cancelled');
+    final TextEditingController reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Cancel Order'),
+          content: TextField(
+            controller: reasonController,
+            decoration:
+                InputDecoration(hintText: 'Enter reason for cancellation'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.blueGrey),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                'Submit',
+                style: TextStyle(color: Colors.black),
+              ),
+              onPressed: () {
+                final reason = reasonController.text;
+                if (reason.isNotEmpty) {
+                  Navigator.of(context).pop(); // Close the dialog
+                  print('Order Cancelled with reason: $reason');
+                  // This is where you would call the backend to cancel the order
+                } else {
+                  // Show a message if the reason is empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Reason cannot be empty')),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -120,7 +165,7 @@ class OrderDetails extends StatelessWidget {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: _cancelOrder,
+                        onPressed: () => _cancelOrder(context),
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(245, 72, 70, 70)),
                         child: Text(
