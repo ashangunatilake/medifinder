@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/pages/locationpicker.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/pharmacy_model.dart';
@@ -79,38 +80,13 @@ class _SignUpPageState extends State<SignUpPage> {
       await prefs.setString('role', 'customer');
       //storeUserData(userCredential.user!.uid);
       print("User account created");
+      Snackbars.successSnackBar(message: "Account created", context: context);
       Navigator.pushNamed(context, "/login");
     } on FirebaseAuthException catch (e) {
       print(e.code);
       if (e.code == "email-already-in-use") {
         print("Email already in use");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                  child: Text(
-                    "Error",
-                    style: TextStyle(
-                      fontSize: 20.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                  child: Text(
-                    "Email already in use",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+        Snackbars.errorSnackBar(message: "Email already in use", context: context);
       }
     }
   }
@@ -123,38 +99,6 @@ class _SignUpPageState extends State<SignUpPage> {
     bool delivery = deliveryAvailable;
     GeoFirePoint pharmacyLocation = geo.point(latitude: location.latitude, longitude: location.longitude);
     String password = passwordcontroller.text;
-    String confirmpassword = confirmpasswordcontroller.text;
-    if (password != confirmpassword) {
-      print("Passwords not same");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                child: Text(
-                  "Error",
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                child: Text(
-                  "The password and confirm password fields do not match",
-                  style: TextStyle(
-                    fontSize: 16.0,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-      return;
-    }
 
     try {
       UserCredential userCredential = await FirebaseAuth.instance
@@ -165,38 +109,12 @@ class _SignUpPageState extends State<SignUpPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('role', 'pharmacy');
       print("Pharmacy account created");
+      Snackbars.successSnackBar(message: "Account created", context: context);
       Navigator.pushNamed(context, "/login");
     } on FirebaseAuthException catch (e) {
       print(e.code);
       if (e.code == "email-already-in-use") {
-        print("Email already in use");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 22.0, 0, 50.0),
-                  child: Text(
-                    "Error",
-                    style: TextStyle(
-                      fontSize: 20.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(13.0, 0, 0, 20.0),
-                  child: Text(
-                    "Email already in use",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+        Snackbars.errorSnackBar(message: "Email already in use", context: context);
       }
     }
   }
