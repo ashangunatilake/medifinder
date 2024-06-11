@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 import '../../services/database_services.dart';
 
 class Order extends StatefulWidget {
@@ -136,11 +137,12 @@ class _OrderState extends State<Order> {
         isAccepted: false,
         isCompleted: false,
       );
-      _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
+      await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
       print('User order added successfully!');
-      Navigator.pushNamed(context, "/login");
+      Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Order placed successfully", context: context));
+      Navigator.pushNamed(context, "/activities");
     } catch (e) {
-      print("Error adding order: $e");
+      Snackbars.errorSnackBar(message: "Error placing the order", context: context);
     }
   }
 
@@ -218,7 +220,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'Rs. ${drugData['UnitPrice'].toString()}',
+                          "Rs. ${drugData['UnitPrice'].toString()}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),

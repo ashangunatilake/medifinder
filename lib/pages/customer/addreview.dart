@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 
 class AddReview extends StatefulWidget {
   const AddReview({super.key});
@@ -29,15 +30,11 @@ class _AddReviewState extends State<AddReview> {
       );
       _databaseServices.addPharmacyReview(pharmacyId, user!.uid, review);
       print('Review added successfully!');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Review added successfully')),
-      );
+      Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Review added succcessfully", context: context));
       Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyId});
     } catch (e) {
       print("Error adding review: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding review')),
-      );
+      Snackbars.errorSnackBar(message: "Error adding review", context: context);
     }
   }
 

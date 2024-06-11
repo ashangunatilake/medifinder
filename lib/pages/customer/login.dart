@@ -34,10 +34,11 @@ class _LoginPageState extends State<LoginPage> {
       String userUid = userCredential.user!.uid;
       String userRole = await _userDatabaseServices.getUserRole(userUid);
       if(userRole == 'customer') {
-        Snackbars.successSnackBar(message: "Login successful", context: context);
+        Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamed(context, "/customer_home");
       }
       else if(userRole == 'pharmacy') {
+        Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamed(context, "/pharmacy_home");
       }
       else
@@ -50,6 +51,12 @@ class _LoginPageState extends State<LoginPage> {
       if (e.code == "user-not-found" || e.code == "wrong-password" || e.code == "invalid-credential") {
         print("User not found");
         Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
+      }
+      if (e.code == "too-many-requests") {
+        Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
+      }
+      if (e.code == "network-request-failed") {
+        Snackbars.errorSnackBar(message: "Network error occured", context: context);
       }
     }
   }
