@@ -32,7 +32,7 @@ class _SearchState extends State<Search> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -193,12 +193,11 @@ class _SearchState extends State<Search> {
                                               ),
                                             ),
                                             Container(
-                                              width: 47.0,
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    filteredPharmacies[index]['Ratings'].toString(),
+                                                    filteredPharmacies[index]['Ratings'].toStringAsFixed(1),
                                                     style: TextStyle(
                                                       fontSize: 15.0,
                                                     ),

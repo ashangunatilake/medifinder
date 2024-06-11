@@ -44,7 +44,7 @@ class _MapViewState extends State<MapView> {
   Future<void> loadCustomMarker() async {
     final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(size: Size(200, 200)),
-      'assets/location-pin.png',
+      'assets/images/location-pin.png',
     );
     setState(() {
       myLocationIcon = markerIcon;

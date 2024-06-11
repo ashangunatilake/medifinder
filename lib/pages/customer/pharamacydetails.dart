@@ -38,7 +38,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,),
         ),
       child: Column(
@@ -100,12 +100,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                         ),
                       ),
                       Container(
-                        width: 47.0,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              pharmacyData['Ratings'].toString(),
+                              pharmacyData['Ratings'].toStringAsFixed(1),
                               style: TextStyle(
                                 fontSize: 15.0,
                               ),
