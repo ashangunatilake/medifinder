@@ -218,7 +218,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          drugData['UnitPrice'].toString(),
+                          'Rs. ${drugData['UnitPrice'].toString()}',
                           style: TextStyle(
                             fontSize: 20.0,
                           ),

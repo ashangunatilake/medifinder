@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 import 'package:medifinder/pages/pharmacy/orders.dart';
-import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -70,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: _deviceHeight * 0.1,
                       child: Container(),
                     ),
-                    _avatarWidget(),
+                    _avatarWidget(pharmacyData['Name']),
                     SizedBox(height: 20),
                     _profileDetails(),
                     SizedBox(height: 20),
@@ -111,19 +111,19 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget _avatarWidget() {
+  Widget _avatarWidget(String pharmacyName) {
     double _circleD = _deviceHeight * 0.14;
     return Padding(
       padding: const EdgeInsets.only(top: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Align(
+          Align(
             alignment: Alignment.topCenter,
             child: Column(
               children: [
                 Text(
-                  'Pharmacy Name',
+                  pharmacyName,
                   style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Poppins',
@@ -142,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(500),
               image: const DecorationImage(
-                image: AssetImage('assets/images/pharmacy_logo.png'),
+                image: AssetImage('assets/pharmacy_logo.png'),
               ),
             ),
           ),
@@ -211,23 +211,41 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _actionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isEditing = !_isEditing;
+                });
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Color.fromRGBO(21, 201, 180, 1)),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              child: Text(_isEditing ? 'Save Changes' : 'Edit Profile'),
+            ),
+          ],
+        ),
         ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _isEditing = !_isEditing;
-            });
+          onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.remove('isLoggedIn');
+            Navigator.pushNamed(context, '/login');
           },
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all<Color>(
-                Color.fromRGBO(21, 201, 180, 1)),
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                Colors.white),
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
           ),
-          child: Text(_isEditing ? 'Save Changes' : 'Edit Profile'),
-        ),
+          child: Text('Log Out'),
+        )
       ],
     );
   }
+
 }

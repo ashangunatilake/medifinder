@@ -25,7 +25,7 @@ class _AddReviewState extends State<AddReview> {
         id: user!.uid,
         rating: rating,
         comment: comment,
-        datetime: DateTime.now(),
+        timestamp: Timestamp.fromDate(DateTime.now()),
       );
       _databaseServices.addPharmacyReview(pharmacyId, user!.uid, review);
       print('Review added successfully!');

@@ -218,7 +218,7 @@ class _ReviewsState extends State<Reviews> {
                     else{
                       List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
                       if (selected == 1) {
-                        reviews.sort((a, b) => b.datetime.compareTo(a.datetime));
+                        reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
                       }
                       if (selected == 2) {
                         reviews.sort((a, b) => b.rating.compareTo(a.rating));

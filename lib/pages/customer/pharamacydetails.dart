@@ -124,7 +124,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                     height: 20.0,
                   ),
                   Text(
-                    drugData['UnitPrice'].toString(),
+                    'Rs. ${drugData['UnitPrice'].toString()}',
                     style: TextStyle(
                         fontSize: 20.0
                     ),
