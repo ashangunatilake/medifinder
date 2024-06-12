@@ -90,7 +90,7 @@ class OrderDetails extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/images/add_bg.png'), // Add your background image here
+                    'assets/background.png'), // Add your background image here
                 fit: BoxFit.cover,
               ),
             ),

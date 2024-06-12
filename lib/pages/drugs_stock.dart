@@ -174,7 +174,7 @@ class Drugs extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/images/pharmacy_bg.png'),
+                  image: AssetImage('assets/background.png'),
                   fit: BoxFit.cover),
             ),
           ),
