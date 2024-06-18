@@ -28,8 +28,9 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _contactController =
       TextEditingController(text: 'Add Number');
 
+  final String pharmacyId = "pharmacyId123"; // Replace with actual pharmacyId
+
   void _onItemTapped(int index) {
-    // Implement logic to navigate different pages.
     setState(() {
       _selectedIndex = index;
     });
@@ -39,7 +40,9 @@ class _RegisterPageState extends State<RegisterPage> {
           context, MaterialPageRoute(builder: (context) => Inventory()));
     } else if (index == 1) {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => Orders()));
+          context,
+          MaterialPageRoute(
+              builder: (context) => Orders(pharmacyId: pharmacyId)));
     }
   }
 
@@ -49,7 +52,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      //backgroundColor: const Color.fromRGBO(21, 201, 180, 1),
       body: Stack(
         children: [
           Container(
@@ -83,7 +85,6 @@ class _RegisterPageState extends State<RegisterPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        //There's a little issue in changing the color of the icon. Check it******
         selectedItemColor: const Color.fromRGBO(62, 221, 170, 1),
         unselectedItemColor: Colors.grey,
         items: [
