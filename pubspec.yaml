@@ -53,6 +53,7 @@ dependencies:
   geoflutterfire2: ^2.3.15
   firebase_storage: ^11.7.6
   url_launcher: ^6.3.0
+  flutter_typeahead: ^5.2.0
 
 dev_dependencies:
   flutter_test:
