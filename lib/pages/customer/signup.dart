@@ -794,6 +794,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
+                                  FocusManager.instance.primaryFocus?.unfocus();
                                   if(isPressedUser) {
                                     await userSignUp();
                                   }

@@ -35,6 +35,16 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       throw Exception('Something went wrong.');
     }
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(pharmacyData["Name"]),
+        backgroundColor: Colors.white54,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+          fontSize: 18.0,
+          color: Colors.black
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -47,29 +57,8 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
         children: [
           const SafeArea(
               child: SizedBox(
-                height: 5,
+                height: 21.0,
               )
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10.0,0,0,0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                    size: 30.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 21.0
           ),
           Container(
             margin: const EdgeInsets.only(left:10.0, right: 10.0),
@@ -152,6 +141,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
 
               ),
               child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 13.0),
@@ -208,6 +198,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                 else {
                                   List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
                                   return ListView.builder(
+                                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                                     itemCount: reviews.length,
                                     itemBuilder: (context, index) {
                                       UserReview review = reviews[index];
@@ -386,6 +377,9 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                             ),
                           ],
                         ),
+                        const SizedBox(
+                            height: 20.0
+                        ),
                       ],
 
                     ),
@@ -398,28 +392,28 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
         ],
       ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 0,
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
-        },
-        selectedItemColor: const Color(0xFF12E7C0),
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: "Home",
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.shopping_cart),
+      //       label: "Orders",
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.person),
+      //         label: "Profile"
+      //     )
+      //   ],
+      //   currentIndex: 0,
+      //   onTap: (int n) {
+      //     if (n == 1) Navigator.pushNamed(context, '/activities');
+      //     if (n == 2) Navigator.pushNamed(context, '/profile');
+      //   },
+      //   selectedItemColor: const Color(0xFF12E7C0),
+      // ),
     );
   }
 }

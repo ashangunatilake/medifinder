@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/validators/validation.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -17,6 +18,7 @@ class _SearchState extends State<Search> {
   bool waiting = false;
   late LatLng location;
   final TextEditingController searchController = TextEditingController();
+  final _formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,16 @@ class _SearchState extends State<Search> {
       // You might want to throw an error or use default values
     }
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text("Search"),
+        backgroundColor: Colors.white54,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -41,86 +53,80 @@ class _SearchState extends State<Search> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SafeArea(
-              child: SizedBox(height: 5),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 30.0,
-                    ),
-                  ),
-                ],
-              ),
+              child: SizedBox(),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24.0, 21.0, 24.0, 0),
               child: Form(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9F9F9),
-                    borderRadius: BorderRadius.circular(9.0),
-                    border: Border.all(
-                      color: const Color(0xFFCCC9C9),
+                key: _formkey,
+                child: TextFormField(
+                  controller: searchController,
+                  validator: (value) => Validator.validateEmptyText("Medicine name", value),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Color(0xFFCCC9C9),
+                      ),
+                      borderRadius: BorderRadius.circular(9.0),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          child: TextFormField(
-                            controller: searchController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter Medicine';
-                              }
-                              return null;
-                            },
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Search Medicine",
-                              hintStyle: TextStyle(
-                                fontFamily: "Poppins",
-                                fontSize: 15.0,
-                                color: Color(0xFFC4C4C4),
-                              ),
-                            ),
-                          ),
-                        ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Color(0xFFCCC9C9),
                       ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 10.0, 0),
-                        child: GestureDetector(
-                          onTap: () async {
-                            setState(() {
-                              waiting = true;
-                            });
-                            print(searchController.text.trim().toLowerCase());
-                            filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
-                            setState(() {
-                              searched = true;
-                              waiting = false;
-                            });
-                          },
-                          child: Icon(
-                            Icons.search,
-                            color: Color(0xFFC4C4C4),
-                          ),
-                        ),
+                      borderRadius: BorderRadius.circular(9.0),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Color(0xFFCCC9C9),
                       ),
-                    ],
+                      borderRadius: BorderRadius.circular(9.0),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF9F9F9),
+                    hintText: "Search Medicine",
+                    hintStyle: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 15.0,
+                      color: Color(0xFFC4C4C4),
+                    ),
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        if (!_formkey.currentState!.validate()) {
+                          return;
+                        }
+                        setState(() {
+                          waiting = true;
+                        });
+                        print(searchController.text.trim().toLowerCase());
+                        filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
+                        setState(() {
+                          searched = true;
+                          waiting = false;
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.search,
+                        color: Color(0xFFC4C4C4),
+                      ),
+                    )
                   ),
+                  onFieldSubmitted: (value) async{
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    if (!_formkey.currentState!.validate()) {
+                      return;
+                    }
+                    setState(() {
+                      waiting = true;
+                    });
+                    print(searchController.text.trim().toLowerCase());
+                    filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
+                    setState(() {
+                      searched = true;
+                      waiting = false;
+                    });
+                  },
                 ),
               ),
             ),
@@ -145,6 +151,7 @@ class _SearchState extends State<Search> {
             if (searched && !waiting)
               Expanded(
                 child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                   itemCount: filteredPharmacies.length,
                   itemBuilder: (context, index) {
                     return FutureBuilder<DocumentSnapshot>(
@@ -247,28 +254,28 @@ class _SearchState extends State<Search> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-        ],
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
-        },
-        currentIndex: 0,
-        selectedItemColor: const Color(0xFF12E7C0),
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: "Home",
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.shopping_cart),
+      //       label: "Orders",
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.person),
+      //       label: "Profile",
+      //     ),
+      //   ],
+      //   onTap: (int n) {
+      //     if (n == 1) Navigator.pushNamed(context, '/activities');
+      //     if (n == 2) Navigator.pushNamed(context, '/profile');
+      //   },
+      //   currentIndex: 0,
+      //   selectedItemColor: const Color(0xFF12E7C0),
+      // ),
     );
   }
 }
