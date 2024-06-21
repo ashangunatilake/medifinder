@@ -4,6 +4,8 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 
+import '../../services/database_services.dart';
+
 class Reviews extends StatefulWidget {
   const Reviews({super.key});
 
@@ -12,7 +14,8 @@ class Reviews extends StatefulWidget {
 }
 
 class _ReviewsState extends State<Reviews> {
-  final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
+  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   int selected = 1;
   @override
   Widget build(BuildContext context) {
@@ -204,7 +207,7 @@ class _ReviewsState extends State<Reviews> {
             // ),
             Expanded(
                 child: StreamBuilder(
-                  stream: _databaseServices.getPharmacyReviews(pharmacyDoc.id),
+                  stream: _pharmacyDatabaseServices.getPharmacyReviews(pharmacyDoc.id),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');

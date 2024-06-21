@@ -17,6 +17,7 @@ import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 //import 'package:medifinder/pages/pharmacy/home.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
+import 'package:medifinder/services/push_notofications.dart';
 
 import 'pages/mapview.dart';
 
@@ -29,6 +30,7 @@ void main() async {
       const firestore_interface.Settings(
     persistenceEnabled: true,
   );
+  await PushNotifications().initNotifications();
   runApp(const MyApp());
 }
 

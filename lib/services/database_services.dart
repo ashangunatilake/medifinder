@@ -55,6 +55,19 @@ class UserDatabaseServices {
 
   }
 
+  Future<DocumentSnapshot> getUserDoc(String userID) async {
+    try {
+      DocumentSnapshot userDoc = await _usersRef.doc(userID).get();
+      if (userDoc.exists) {
+        return userDoc;
+      } else {
+        throw Exception('No such document.');
+      }
+    } catch (e) {
+      throw Exception('Error getting current user document: $e');
+    }
+  }
+
   Stream<QuerySnapshot> getUsers() {
     return _usersRef.snapshots();
   }
