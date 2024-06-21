@@ -91,7 +91,7 @@ class _SearchState extends State<Search> {
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF9F9F9),
-                          hintText: "Search Medicine",
+                          hintText: "Search Medicine/Brand",
                           hintStyle: TextStyle(
                             fontFamily: "Poppins",
                             fontSize: 15.0,
@@ -146,7 +146,10 @@ class _SearchState extends State<Search> {
                   },
                   suggestionsCallback: (textEditingValue) {
                     if (textEditingValue != null && textEditingValue.length > 0) {
-                      return Drugs.names.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                      List<String> suggestions = Drugs.names.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                      suggestions.addAll(Drugs.brands.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList());
+                      suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                      return suggestions;
                     }
                     else {
                       return [];
