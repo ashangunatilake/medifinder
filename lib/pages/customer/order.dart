@@ -140,7 +140,7 @@ class _OrderState extends State<Order> {
       await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
       print('User order added successfully!');
       Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Order placed successfully", context: context));
-      Navigator.pushNamed(context, "/activities");
+      Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
     } catch (e) {
       Snackbars.errorSnackBar(message: "Error placing the order", context: context);
     }
@@ -149,11 +149,21 @@ class _OrderState extends State<Order> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: (!loading) ? Text("${pharmacyData["Name"]} - Order") : Text("Order"),
+        backgroundColor: Colors.white54,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
+      ),
       body: (loading) ? const Center(child: CircularProgressIndicator())
           : Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -163,27 +173,8 @@ class _OrderState extends State<Order> {
           children: [
             const SafeArea(
                 child: SizedBox(
-                  height: 5,
+                  height: 21.0,
                 )),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 30.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 21.0),
             Container(
               margin: const EdgeInsets.only(left: 10.0, right: 10.0),
               width: MediaQuery.of(context).size.width,
@@ -416,7 +407,7 @@ class _OrderState extends State<Order> {
                         child: ElevatedButton(
                           onPressed: () async {
                             userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
-                            Navigator.pushNamed(context, '/activities');
+                            //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF12E7C0),
@@ -442,25 +433,25 @@ class _OrderState extends State<Order> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile")
-        ],
-        currentIndex: 0,
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
-        },
-        selectedItemColor: const Color(0xFF12E7C0),
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: "Home",
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.shopping_cart),
+      //       label: "Orders",
+      //     ),
+      //     BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile")
+      //   ],
+      //   currentIndex: 0,
+      //   onTap: (int n) {
+      //     if (n == 1) Navigator.pushNamed(context, '/activities');
+      //     if (n == 2) Navigator.pushNamed(context, '/profile');
+      //   },
+      //   selectedItemColor: const Color(0xFF12E7C0),
+      // ),
     );
   }
 }

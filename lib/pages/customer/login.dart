@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/background.png'),
+              image: AssetImage('assets/images/background.png'),
               fit: BoxFit.cover,),
           ),
           child: ListView(
@@ -268,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () async {
-                                      print("pressed");
+                                      FocusManager.instance.primaryFocus?.unfocus();
                                       userLogin();
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -285,6 +285,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ElevatedButton(
                                     onPressed: ()
                                     {
+                                      FocusManager.instance.primaryFocus?.unfocus();
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpPage()));
                                     },
                                     style: ElevatedButton.styleFrom(

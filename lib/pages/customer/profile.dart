@@ -28,7 +28,7 @@ class _ProfileState extends State<Profile> {
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -106,8 +106,8 @@ class _ProfileState extends State<Profile> {
         ],
         currentIndex: 2,
         onTap: (int n) {
-          if (n == 0) Navigator.pushNamed(context, '/customer_home');
-          if (n == 1) Navigator.pushNamed(context, '/activities');
+          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
+          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
         },
         selectedItemColor: const Color(0xFF12E7C0),
       ),

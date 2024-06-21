@@ -38,7 +38,7 @@ class _CustomerHomeState extends State<CustomerHome> {
   Future<void> loadCustomMarker() async {
     final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(size: Size(200, 200)),
-      'assets/location-pin.png',
+      'assets/images/location-pin.png',
     );
     setState(() {
       myLocationIcon = markerIcon;
@@ -262,8 +262,8 @@ class _CustomerHomeState extends State<CustomerHome> {
         ],
         currentIndex: 0,
         onTap: (int n) {
-          if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
+          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF12E7C0),
       ),

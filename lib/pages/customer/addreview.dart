@@ -43,10 +43,20 @@ class _AddReviewState extends State<AddReview> {
     final pharmacyDoc = ModalRoute.of(context)!.settings.arguments as DocumentSnapshot;
     Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text("${pharmacyDoc["Name"]} - Add review"),
+        backgroundColor: Colors.white54,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'),
+            image: AssetImage('assets/images/background.png'),
             fit: BoxFit.cover,),
         ),
         child: Column(
@@ -55,29 +65,8 @@ class _AddReviewState extends State<AddReview> {
           children: [
             const SafeArea(
                 child: SizedBox(
-                  height: 5,
+                  height: 21.0,
                 )
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10.0,0,0,0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 30.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-                height: 21.0
             ),
             Container(
               margin: const EdgeInsets.only(left:10.0, right: 10.0),
@@ -108,12 +97,11 @@ class _AddReviewState extends State<AddReview> {
                           ),
                         ),
                         Container(
-                          width: 47.0,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                data['Ratings'].toString(),
+                                data['Ratings'].toStringAsFixed(1),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),
@@ -210,12 +198,6 @@ class _AddReviewState extends State<AddReview> {
                               )
                           ),
                           child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please Enter Your Review';
-                              }
-                              return null;
-                            },
                             controller: reviewcontroller,
                             expands: true,
                             maxLines: null,
@@ -240,8 +222,9 @@ class _AddReviewState extends State<AddReview> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
+                                FocusManager.instance.primaryFocus?.unfocus();
                                 userAddReview(pharmacyDoc.id);
-                                Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyDoc});
+                                Navigator.pushNamedAndRemoveUntil(context, '/reviews', ModalRoute.withName('/pharmacydetails'), arguments: {'selectedPharmacy': pharmacyDoc});
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFFFFFF),
@@ -274,28 +257,28 @@ class _AddReviewState extends State<AddReview> {
 
         )
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 0,
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamed(context, '/activities');
-          if (n == 2) Navigator.pushNamed(context, '/profile');
-        },
-        selectedItemColor: const Color(0xFF12E7C0),
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: "Home",
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.shopping_cart),
+      //       label: "Orders",
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.person),
+      //         label: "Profile"
+      //     )
+      //   ],
+      //   currentIndex: 0,
+      //   onTap: (int n) {
+      //     if (n == 1) Navigator.pushNamed(context, '/activities');
+      //     if (n == 2) Navigator.pushNamed(context, '/profile');
+      //   },
+      //   selectedItemColor: const Color(0xFF12E7C0),
+      // ),
     );
   }
 }
