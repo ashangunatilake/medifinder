@@ -17,6 +17,7 @@ import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 //import 'package:medifinder/pages/pharmacy/home.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
+import 'package:medifinder/services/push_notofications.dart';
 
 import 'pages/mapview.dart';
 
@@ -29,6 +30,7 @@ void main() async {
       const firestore_interface.Settings(
     persistenceEnabled: true,
   );
+  await PushNotifications().initNotifications();
   runApp(const MyApp());
 }
 
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        '/pharmacy_home': (context) => RegisterPage(),
+        //'/pharmacy_home': (context) => RegisterPage(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
@@ -59,7 +61,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const Profile(),
         '/activities': (context) => const Activities(),
         '/mapview': (context) => MapView(),
-        '/inventory': (context) => Inventory(),
+        //'/inventory': (context) => Inventory(),
       },
     );
   }
