@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        '/pharmacy_home': (context) => RegisterPage(),
+        //'/pharmacy_home': (context) => RegisterPage(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const Profile(),
         '/activities': (context) => const Activities(),
         '/mapview': (context) => MapView(),
-        '/inventory': (context) => Inventory(),
+        //'/inventory': (context) => Inventory(),
       },
     );
   }

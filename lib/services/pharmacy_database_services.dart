@@ -215,9 +215,14 @@ class PharmacyDatabaseServices {
       List<DocumentSnapshot> newResult = await pharmaciesStream.first;
       for (DocumentSnapshot document in newResult) {
         CollectionReference drugsCollection = document.reference.collection('Drugs');
-        QuerySnapshot drugsSnapshot = await drugsCollection.where('Name', isEqualTo: medication).get();
-        if (drugsSnapshot.docs.isNotEmpty) {
+        QuerySnapshot drugsSnapshotName = await drugsCollection.where('Name', isEqualTo: medication).get();
+        if (drugsSnapshotName.docs.isNotEmpty) {
           filteredPharmacies.add(document);
+        } else {
+          QuerySnapshot drugsSnapshotBrandName = await drugsCollection.where('BrandName', isEqualTo: medication).get();
+          if (drugsSnapshotBrandName.docs.isNotEmpty) {
+            filteredPharmacies.add(document);
+          }
         }
       }
       return filteredPharmacies;
@@ -229,11 +234,16 @@ class PharmacyDatabaseServices {
   Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
     try {
     CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
-    DocumentSnapshot drugDoc = await drugsRef.doc(name).get();
-    if (drugDoc.exists) {
-      return drugDoc;
+    QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
+    if (querySnapshotName.docs.isNotEmpty) {
+      return querySnapshotName.docs.first;
     } else {
-      throw Exception('No such document.');
+      QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
+      if (querySnapshotBrandName.docs.isNotEmpty) {
+        return querySnapshotBrandName.docs.first;
+      } else{
+        throw Exception('No such document.');
+      }
     }
     } catch (e) {
       throw Exception('Error getting drug by name: $e');
@@ -315,10 +325,11 @@ class PharmacyDatabaseServices {
     ).snapshots();
   }
 
-  Future<void> addDrug(String pharmacyID, String drugID, DrugsModel drug) async {
+  Future<void> addDrug(String pharmacyID, DrugsModel drug) async {
     //Use the drug name as their doc id in Drugs collection
     try {
-      await _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID).set(drug.toJson());
+      //await _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID).set(drug.toJson());
+      await _pharmaciesRef.doc(pharmacyID).collection('Drugs').add(drug.toJson());
     } catch (e) {
       throw Exception('Error adding drug: $e');
     }

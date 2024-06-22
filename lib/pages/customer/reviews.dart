@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
-
+import '../../models/user_model.dart';
 import '../../services/database_services.dart';
 
 class Reviews extends StatefulWidget {
@@ -222,92 +222,108 @@ class _ReviewsState extends State<Reviews> {
                         itemCount: reviews.length,
                         itemBuilder: (context, index) {
                           UserReview review = reviews[index];
-                          print(review.comment);
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Color(0x40FFFFFF),
-                                            blurRadius: 4.0,
-                                            offset: Offset(0, 4)
-                                        )
-                                      ]
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 10.0),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          print('Review Comment: ${review.comment}, Rating: ${review.rating}');
+                          return FutureBuilder<DocumentSnapshot>(
+                            future: _userDatabaseServices.getUserDoc(review.id),
+                            builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                              if (userSnapshot.connectionState == ConnectionState.waiting) {
+                                return ListTile(
+                                  title: Text('Loading...'),
+                                );
+                              }
+                              if (userSnapshot.hasError) {
+                                return ListTile(
+                                  title: Text('Error loading data'),
+                                );
+                              }
+                              if (userSnapshot.hasData && userSnapshot.data != null) {
+                                UserModel userData = userSnapshot.data!.data() as UserModel;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                        decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Color(0x40FFFFFF),
+                                                  blurRadius: 4.0,
+                                                  offset: Offset(0, 4)
+                                              )
+                                            ]
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 10.0),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    userData.name, // Assuming UserModel has a 'name' property
+                                                    style: TextStyle(
+                                                        fontSize: 14.0,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                  ),
+                                                  RatingBar(
+                                                    ignoreGestures: true,
+                                                    initialRating: review.rating,
+                                                    direction: Axis.horizontal,
+                                                    itemCount: 5,
+                                                    itemSize: 24.0,
+                                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                                                    ratingWidget: RatingWidget(
+                                                      full: Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      half: Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      empty: Icon(
+                                                        Icons.star,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                    onRatingUpdate: (rating) {
+                                                      print(rating);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 17.0),
                                             Text(
-                                              "Name",
+                                              review.comment,
                                               style: TextStyle(
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.bold
+                                                fontSize: 14.0,
                                               ),
                                             ),
-                                            RatingBar(
-                                              ignoreGestures: true,
-                                              initialRating: review.rating,
-                                              direction: Axis.horizontal,
-                                              itemCount: 5,
-                                              itemSize: 24.0,
-                                              itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                              ratingWidget: RatingWidget(
-                                                full: Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                                half: Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                                empty: Icon(
-                                                  Icons.star,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                              onRatingUpdate: (rating) {
-                                                print(rating);
-                                              },
-                                            ),
+                                            SizedBox(height: 20.0),
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(
-                                          height: 17.0
-                                      ),
-                                      Text(
-                                        review.comment,
-                                        style: TextStyle(
-                                          fontSize: 14.0,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 20.0,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 20.0,
-                              ),
-                            ],
+                                    ),
+                                    SizedBox(height: 20.0),
+                                  ],
+                                );
+                              }
+                              // Handle the case where snapshot has no data
+                              return ListTile(
+                                title: Text('No data available'),
+                              );
+                            },
                           );
                         },
-                      );
+                      );;
                     }
 
                   }
