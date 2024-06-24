@@ -13,10 +13,12 @@ import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
 import 'package:medifinder/pages/pharmacy/PharmacyRegister.dart';
+import 'package:medifinder/pages/pharmacy/pharmacyprofile.dart';
 import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 //import 'package:medifinder/pages/pharmacy/home.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
+import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:medifinder/services/push_notofications.dart';
 
 import 'pages/mapview.dart';
@@ -52,7 +54,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        //'/pharmacy_home': (context) => RegisterPage(),
+        '/pharmacy_home': (context) => Inventory(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
@@ -61,6 +63,9 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const Profile(),
         '/activities': (context) => const Activities(),
         '/mapview': (context) => MapView(),
+        '/orders': (context) => Orders(),
+        '/order_details': (context) => OrderDetails(),
+        '/pharmacy_profile': (context) => const PharmacyProfile()
         //'/inventory': (context) => Inventory(),
       },
     );

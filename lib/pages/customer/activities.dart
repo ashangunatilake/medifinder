@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
@@ -260,6 +261,15 @@ class _ActivitiesState extends State<Activities> {
                                                     ],
                                                   ),
                                                   SizedBox(
+                                                    height: 5.0,
+                                                  ),
+                                                  Text(
+                                                    "Quantity : ${docs[index]['Quantity'].toInt()}",
+                                                    style: TextStyle(
+                                                        fontSize: 16.0
+                                                    ),
+                                                  ),
+                                                  SizedBox(
                                                     height: 20.0,
                                                   ),
                                                   Row(
@@ -466,9 +476,8 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                         }
                       else
                         {
-                          //Stream<List<DocumentSnapshot>> usersList = _pharmacyDatabaseServices.getToAcceptUserOrders('IEcGVbXB2kXD62JVukiO');
-                          //int l = await usersList.length;
-                          printNumberOfElementsInStream();
+                          Snackbars.errorSnackBar(message: "Pharmacy has not accepted the order", context: context);
+                          Navigator.of(context).pop();
                         }
                     },
                     style: ElevatedButton.styleFrom(
@@ -494,13 +503,5 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
   );
 }
 
-Future<void> printNumberOfElementsInStream() async {
-  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
-  Stream<List<DocumentSnapshot>> usersList = _pharmacyDatabaseServices.getToAcceptUserOrders(_pharmacyDatabaseServices.getUsersWithToAcceptOrders('IEcGVbXB2kXD62JVukiO'));
 
-  usersList.listen((List<DocumentSnapshot> snapshots) {
-    int length = snapshots.length;
-    print('!!!: $length');
-  });
-}
 
