@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:medifinder/pages/customer/signup.dart';
+import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,13 +34,14 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setBool('isLoggedIn', true);
       String userUid = userCredential.user!.uid;
       String userRole = await _userDatabaseServices.getUserRole(userUid);
+      await prefs.setString('role', userRole);
       if(userRole == 'customer') {
         Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
-        Navigator.pushNamed(context, "/customer_home");
+        Navigator.pushNamedAndRemoveUntil(context, "/customer_home", (route) => false);
       }
       else if(userRole == 'pharmacy') {
         Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
-        Navigator.pushNamed(context, "/pharmacy_home");
+        Navigator.pushNamedAndRemoveUntil(context, "/pharmacy_home", (route) => false);
       }
       else
         {

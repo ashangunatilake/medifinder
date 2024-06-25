@@ -3,8 +3,8 @@ import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
+import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../pharmacy/PharmacyRegister.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -27,7 +27,6 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     String role = prefs.getString('role') ?? 'customer';
-
     // Simulate a delay for the splash screen
     await Future.delayed(const Duration(seconds: 2));
 
@@ -36,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CustomerHome()),);
       }
       else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()),);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Inventory(),));
       }
 
     }
@@ -50,4 +49,3 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Loading();
   }
 }
-

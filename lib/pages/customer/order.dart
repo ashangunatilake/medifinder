@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import '../../services/database_services.dart';
 
@@ -17,6 +19,7 @@ class Order extends StatefulWidget {
 class _OrderState extends State<Order> {
   final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  final PushNotifications _pushNotifications = PushNotifications();
   bool deliver = false;
   XFile? _image;
   final picker = ImagePicker();
@@ -31,6 +34,7 @@ class _OrderState extends State<Order> {
   late Map<String, dynamic> drugData;
   late GeoPoint userLocation;
   bool loading = false;
+  String fileName = "";
 
   @override
   void initState() {
@@ -69,15 +73,47 @@ class _OrderState extends State<Order> {
     }
   }
 
+  Future<XFile?> compressImage(String path) async {
+    final lastIndex = path.lastIndexOf(RegExp(r'.png|.jp'));
+    final fileName = path.substring(0,lastIndex);
+    final outputPath = "${fileName}_out${path.substring(lastIndex)}";
+    print(outputPath);
+    if (lastIndex == path.lastIndexOf(RegExp(r'.png'))) {
+      final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          path,
+          outputPath,
+          minWidth: 1000,
+          minHeight: 1000,
+          quality: 50,
+          format: CompressFormat.png
+      );
+      return compressedImage;
+    }
+    else {
+      final compressedImage = await FlutterImageCompress.compressAndGetFile(
+        path,
+        outputPath,
+        minWidth: 1000,
+        minHeight: 1000,
+        quality: 50,
+      );
+      return compressedImage;
+    }
+
+  }
+
   //Image Picker function to get image from gallery
   Future<void> getImageFromGalleryAndSave(String pName, String uName) async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _image = XFile(pickedFile.path);
-      }
-    });
+
+    if (pickedFile != null) {
+      _image = await compressImage(pickedFile.path);
+      setState(() {
+        fileName = _image!.name;
+      });
+    }
+
 
     if (_image != null) {
       _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
@@ -88,11 +124,12 @@ class _OrderState extends State<Order> {
   Future<void> getImageFromCameraAndSave(String pName, String uName) async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
-    setState(() {
-      if (pickedFile != null) {
-        _image = XFile(pickedFile.path);
-      }
-    });
+    if (pickedFile != null) {
+      _image = await compressImage(pickedFile.path);
+      setState(() {
+        fileName = _image!.name;
+      });
+    }
 
     if (_image != null) {
       _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
@@ -383,7 +420,7 @@ class _OrderState extends State<Order> {
                           )
                               : Expanded(
                             child: Text(
-                              _image!.name,
+                              fileName,
                               style: TextStyle(
                                 fontSize: 14.0,
                               ),
@@ -411,9 +448,11 @@ class _OrderState extends State<Order> {
                           onPressed: () async {
                             if(deliver) {
                               userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, userLocation);
+                              //_pushNotifications.sendNotificationToPharmacy(deviceToken, drugName, customerName);
                             }
                             else {
                               userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
+                              //_pushNotifications.sendNotificationToPharmacy(deviceToken, drugName, customerName);
                             }
                             //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },

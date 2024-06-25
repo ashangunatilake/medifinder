@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
@@ -260,6 +261,15 @@ class _ActivitiesState extends State<Activities> {
                                                     ],
                                                   ),
                                                   SizedBox(
+                                                    height: 5.0,
+                                                  ),
+                                                  Text(
+                                                    "Quantity : ${docs[index]['Quantity'].toInt()}",
+                                                    style: TextStyle(
+                                                        fontSize: 16.0
+                                                    ),
+                                                  ),
+                                                  SizedBox(
                                                     height: 20.0,
                                                   ),
                                                   Row(
@@ -458,16 +468,17 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                     onPressed: () async {
                       final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
                       if(orderDoc['Accepted'])
-                        {
-                          UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
-                          await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
-                          Navigator.of(context).pop();
-                          updateState();
-                        }
+                      {
+                        UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
+                        await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
+                        Navigator.of(context).pop();
+                        updateState();
+                      }
                       else
-                        {
-
-                        }
+                      {
+                        Snackbars.errorSnackBar(message: "Pharmacy has not accepted the order", context: context);
+                        Navigator.of(context).pop();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF12E7C0),
@@ -491,4 +502,5 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
       }
   );
 }
+
 

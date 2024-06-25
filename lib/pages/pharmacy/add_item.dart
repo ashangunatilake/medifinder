@@ -14,8 +14,6 @@ class AddItem extends StatefulWidget {
 
 class _AddItemState extends State<AddItem> {
   final _formKey = GlobalKey<FormState>();
-  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
-  User? user = FirebaseAuth.instance.currentUser;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController brandController = TextEditingController();
   final TextEditingController dosageController = TextEditingController();
@@ -32,24 +30,6 @@ class _AddItemState extends State<AddItem> {
       dosageController.text = widget.drug!.dosage;
       unitPriceController.text = widget.drug!.price.toString();
       quantityController.text = widget.drug!.quantity.toString();
-    }
-  }
-
-  Future<void> pharmacyAddDrug() async {
-    try {
-      DrugsModel drug = DrugsModel(
-          brand: brandController.text.trim(),
-          name: nameController.text.trim(),
-          dosage: dosageController.text.trim(),
-          quantity: double.parse(quantityController.text.trim()),
-          price: double.parse(unitPriceController.text.trim())
-      );
-      await _pharmacyDatabaseServices.addDrug(user!.uid, drug);
-      print('Drug added successfully!');
-      //Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Drug added succcessfully", context: context));
-    } catch (e) {
-      print("Error adding drug: $e");
-      //Snackbars.errorSnackBar(message: "Error adding drug", context: context);
     }
   }
 
@@ -152,58 +132,69 @@ class _AddItemState extends State<AddItem> {
                           onPressed: _isLoading
                               ? null
                               : () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() {
-                                      _isLoading = true;
-                                    });
-                                    try {
-                                      if (widget.drug == null) {
-                                        pharmacyAddDrug();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Drug added successfully!')),
-                                        );
-                                      } else {
-                                        // Update existing drug
-                                        //await PharmacyDatabaseServices().updateDrug(updatedDrug);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Drug updated successfully!')),
-                                        );
-                                      }
+                            if (_formKey.currentState!.validate()) {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              User? user = FirebaseAuth.instance.currentUser;
+                              // Create or update a DrugModel
+                              DrugsModel updatedDrug = DrugsModel(
+                                name: nameController.text,
+                                brand: brandController.text,
+                                dosage: dosageController.text,
+                                price: double.parse(unitPriceController.text),
+                                quantity: double.parse(quantityController.text),
+                              );
 
-                                      // Clear form
-                                      _formKey.currentState!.reset();
-                                      nameController.clear();
-                                      brandController.clear();
-                                      dosageController.clear();
-                                      unitPriceController.clear();
-                                      quantityController.clear();
+                              try {
+                                if (widget.drug == null) {
+                                  // Add new drug
+                                  //await PharmacyDatabaseServices().addDrug(user!.uid, updatedDrug);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Drug added successfully!')),
+                                  );
+                                } else {
+                                  // Update existing drug
+                                  //await PharmacyDatabaseServices().updateDrug(updatedDrug);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Drug updated successfully!')),
+                                  );
+                                }
 
-                                      setState(() {
-                                        _isLoading = false;
-                                      });
+                                // Clear form
+                                _formKey.currentState!.reset();
+                                nameController.clear();
+                                brandController.clear();
+                                dosageController.clear();
+                                unitPriceController.clear();
+                                quantityController.clear();
 
-                                      // Optionally: Keep the form open to add more drugs
-                                      // Navigator.pop(context);
-                                    } catch (e) {
-                                      setState(() {
-                                        _isLoading = false;
-                                      });
+                                setState(() {
+                                  _isLoading = false;
+                                });
 
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Failed to ${widget.drug == null ? 'add' : 'update'} drug: $e')),
-                                      );
-                                    }
-                                  }
-                                },
+                                // Optionally: Keep the form open to add more drugs
+                                // Navigator.pop(context);
+                              } catch (e) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'Failed to ${widget.drug == null ? 'add' : 'update'} drug: $e')),
+                                );
+                              }
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(218, 3, 240, 212),
                             padding: EdgeInsets.symmetric(
@@ -215,23 +206,23 @@ class _AddItemState extends State<AddItem> {
                           child: _isLoading
                               ? CircularProgressIndicator(color: Colors.white)
                               : Text(
-                                  widget.drug == null
-                                      ? 'Add to Stock'
-                                      : 'Save Changes',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                            widget.drug == null
+                                ? 'Add to Stock'
+                                : 'Save Changes',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                         ElevatedButton(
                           onPressed: _isLoading
                               ? null
                               : () {
-                                  // Close the keyboard before navigating back
-                                  FocusScope.of(context).unfocus();
-                                  WidgetsBinding.instance!
-                                      .addPostFrameCallback((_) {
-                                    Navigator.pop(context);
-                                  });
-                                },
+                            // Close the keyboard before navigating back
+                            FocusScope.of(context).unfocus();
+                            WidgetsBinding.instance!
+                                .addPostFrameCallback((_) {
+                              Navigator.pop(context);
+                            });
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey,
                             padding: EdgeInsets.symmetric(

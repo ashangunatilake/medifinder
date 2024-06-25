@@ -60,7 +60,7 @@ class PharmacyDatabaseServices {
     try {
       DocumentSnapshot pharmacyDoc = await _pharmaciesRef.doc(pharmacyID).get();
       if (pharmacyDoc.exists) {
-      return pharmacyDoc;
+        return pharmacyDoc;
       } else {
         throw Exception('No such document.');
       }
@@ -185,9 +185,9 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Future<void> deletePharmacyOrder(String pharmacyID, String orderID) async {
+  Future<void> deletePharmacyOrder(String pharmacyID, String orderID, String docID) async {
     try {
-      await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(orderID).delete();
+      await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(orderID).collection('UserOrders').doc(docID).delete();
     } catch (e) {
       throw Exception('Error deleting pharmacy order: $e');
     }
@@ -233,18 +233,18 @@ class PharmacyDatabaseServices {
 
   Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
     try {
-    CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
-    QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
-    if (querySnapshotName.docs.isNotEmpty) {
-      return querySnapshotName.docs.first;
-    } else {
-      QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
-      if (querySnapshotBrandName.docs.isNotEmpty) {
-        return querySnapshotBrandName.docs.first;
-      } else{
-        throw Exception('No such document.');
+      CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
+      QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
+      if (querySnapshotName.docs.isNotEmpty) {
+        return querySnapshotName.docs.first;
+      } else {
+        QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
+        if (querySnapshotBrandName.docs.isNotEmpty) {
+          return querySnapshotBrandName.docs.first;
+        } else{
+          throw Exception('No such document.');
+        }
       }
-    }
     } catch (e) {
       throw Exception('Error getting drug by name: $e');
     }
@@ -258,7 +258,7 @@ class PharmacyDatabaseServices {
     try {
       final userOrdersSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Orders').get();
       List<DocumentSnapshot> allUsersWithToAcceptOrders = [];
-
+      print(userOrdersSnapshot.docs);
       for (var userOrdersDoc in userOrdersSnapshot.docs) {
         final ordersSnapshot = await userOrdersDoc.reference.collection('UserOrders').get();
         for (var orderDoc in ordersSnapshot.docs) {
@@ -272,6 +272,27 @@ class PharmacyDatabaseServices {
       yield allUsersWithToAcceptOrders;
     } catch (e) {
       throw Exception('Error getting users with to-accept orders: $e');
+    }
+  }
+
+  Stream<List<DocumentSnapshot>> getUsersWithAcceptedOrders(String pharmacyID) async* {
+    try {
+      final userOrdersSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Orders').get();
+      List<DocumentSnapshot> allUsersWithAcceptedOrders = [];
+      print(userOrdersSnapshot.docs);
+      for (var userOrdersDoc in userOrdersSnapshot.docs) {
+        final ordersSnapshot = await userOrdersDoc.reference.collection('UserOrders').get();
+        for (var orderDoc in ordersSnapshot.docs) {
+          if(orderDoc['Accepted'] && !orderDoc['Completed'])
+          {
+            allUsersWithAcceptedOrders.add(userOrdersDoc);
+            break;
+          }
+        }
+      }
+      yield allUsersWithAcceptedOrders;
+    } catch (e) {
+      throw Exception('Error getting users with accepted orders: $e');
     }
   }
 
@@ -345,6 +366,4 @@ class PharmacyDatabaseServices {
       throw Exception('Error deleting drug: $e');
     }
   }
-
-  getOngoingOrders(String pharmacyId) {}
 }
