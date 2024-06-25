@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/services/database_services.dart';
+import 'package:medifinder/models/user_model.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -11,14 +13,72 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  late DocumentSnapshot<Map<String, dynamic>> userDoc;
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController numberController;
-  bool readonly = true;
+  bool enabled = false;
+  bool nameFieldModified = false;
+  bool mobileFieldModified = false;
 
-  Future<Map<String, dynamic>> _fetchUserData() async {
-    final userDoc = await _userDatabaseServices.getCurrentUserDoc();
-    return userDoc.data() as Map<String, dynamic>;
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    emailController = TextEditingController();
+    numberController = TextEditingController();
+
+    nameController.addListener(() {
+      setState(() {
+        nameFieldModified = true;
+      });
+    });
+    numberController.addListener(() {
+      setState(() {
+        mobileFieldModified = true;
+      });
+    });
+
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      userDoc = await _userDatabaseServices.getCurrentUserDoc() as DocumentSnapshot<Map<String, dynamic>>;
+      final userData = userDoc.data();
+      if (userData != null) {
+        setState(() {
+          nameController.text = userData['Name'];
+          emailController.text = userData['Email'];
+          numberController.text = userData['Mobile'];
+        });
+      }
+    } catch (e) {
+      // Handle error
+      print('Error fetching user data: $e');
+    }
+  }
+
+  UserModel _updateUserProfile(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final UserModel currentUser = UserModel.fromSnapshot(doc);
+    UserModel updatedUser = currentUser;
+
+    if (nameFieldModified) {
+      updatedUser = updatedUser.copyWith(name: nameController.text);
+    }
+    if (mobileFieldModified) {
+      updatedUser = updatedUser.copyWith(mobile: numberController.text);
+    }
+
+    return updatedUser;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    numberController.dispose();
+    super.dispose();
   }
 
   @override
@@ -46,54 +106,36 @@ class _ProfileState extends State<Profile> {
                 ),
               ],
             ),
-            child: FutureBuilder<Map<String, dynamic>>(
-              future: _fetchUserData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData) {
-                  return const Center(child: Text('No user data found.'));
-                } else {
-                  final userData = snapshot.data!;
-                  nameController = TextEditingController(text: userData['Name']);
-                  emailController = TextEditingController(text: userData['Email']);
-                  numberController = TextEditingController(text: userData['Mobile']);
-
-                  return ListView(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 10.0),
-                          Text(
-                            nameController.text,
-                            style: const TextStyle(fontSize: 28.0, color: Colors.black),
-                          ),
-                          const SizedBox(height: 20.0),
-                          const CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            child: Icon(Icons.person, size: 130.0, color: Colors.black),
-                            radius: 75.0,
-                          ),
-                          const SizedBox(height: 30.0),
-                          _buildTextFieldRow("Name", nameController),
-                          const SizedBox(height: 10.0),
-                          _buildTextFieldRow("Email", emailController, readonly: true),
-                          const SizedBox(height: 10.0),
-                          _buildTextFieldRow("Mobile No.", numberController),
-                          const SizedBox(height: 30.0),
-                          _buildActionButtons(context),
-                          const SizedBox(height: 20.0),
-                        ],
-                      ),
-                    ],
-                  );
-                }
-              },
+            child: ListView(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10.0),
+                    Text(
+                      nameController.text,
+                      style: const TextStyle(fontSize: 28.0, color: Colors.black),
+                    ),
+                    const SizedBox(height: 20.0),
+                    const CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.person, size: 130.0, color: Colors.black),
+                      radius: 75.0,
+                    ),
+                    const SizedBox(height: 30.0),
+                    _buildTextFieldRow("Name", nameController, enabled),
+                    const SizedBox(height: 10.0),
+                    _buildTextFieldRow("Email", emailController, false),
+                    const SizedBox(height: 10.0),
+                    _buildTextFieldRow("Mobile No.", numberController, enabled),
+                    const SizedBox(height: 30.0),
+                    _buildActionButtons(context),
+                    const SizedBox(height: 20.0),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -114,7 +156,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildTextFieldRow(String label, TextEditingController controller, {bool readonly = false}) {
+  Widget _buildTextFieldRow(String label, TextEditingController controller, bool enabled) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
@@ -127,7 +169,7 @@ class _ProfileState extends State<Profile> {
           const SizedBox(height: 16.0),
           Expanded(
             child: TextFormField(
-              readOnly: readonly,
+              enabled: enabled,
               controller: controller,
               style: const TextStyle(fontSize: 14.0, color: Colors.black),
             ),
@@ -140,17 +182,17 @@ class _ProfileState extends State<Profile> {
   Widget _buildActionButtons(BuildContext context) {
     return Column(
       children: [
-        if (readonly)
+        if (!enabled)
           _buildButton(
             context,
             "Edit Profile",
                 () {
               setState(() {
-                readonly = false;
+                enabled = true;
               });
             },
           ),
-        if (readonly)
+        if (!enabled)
           _buildButton(
             context,
             "Change Password",
@@ -158,7 +200,7 @@ class _ProfileState extends State<Profile> {
               // Add your change password logic here
             },
           ),
-        if (readonly)
+        if (!enabled)
           _buildButton(
             context,
             "Log out",
@@ -168,13 +210,17 @@ class _ProfileState extends State<Profile> {
               Navigator.pushNamed(context, '/login');
             },
           ),
-        if (!readonly)
+        if (enabled)
           _buildButton(
             context,
             "Done",
-                () {
+                () async {
+              await _userDatabaseServices.updateUser(userDoc.id, _updateUserProfile(userDoc));
+              print('Updated successfully!');
               setState(() {
-                readonly = true;
+                enabled = false;
+                nameFieldModified = false;
+                mobileFieldModified = false;
               });
             },
           ),

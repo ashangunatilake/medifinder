@@ -29,6 +29,7 @@ class _OrderState extends State<Order> {
   late Map<String, dynamic> pharmacyData;
   late String drugName;
   late Map<String, dynamic> drugData;
+  late GeoPoint userLocation;
   bool loading = false;
 
   @override
@@ -54,6 +55,7 @@ class _OrderState extends State<Order> {
         drugName = args['searchedDrug'] as String;
         DocumentSnapshot drugDoc = await _pharmacyDatabaseServices.getDrugByName(drugName, pharmacyDoc.id);
         drugData = drugDoc.data() as Map<String, dynamic>;
+        userLocation = args['userLocation'] as GeoPoint;
       }
       else {
         throw Exception("Arguments are missing");
@@ -125,7 +127,7 @@ class _OrderState extends State<Order> {
     );
   }
 
-  Future<void> userAddOrder(String uid, String pid, String drugName, String imageUrl, double quantity, bool delivery) async {
+  Future<void> userAddOrder(String uid, String pid, String drugName, String imageUrl, double quantity, bool delivery, [GeoPoint? location]) async {
     try {
       UserOrder order = UserOrder(
         id: uid,
@@ -136,6 +138,7 @@ class _OrderState extends State<Order> {
         delivery: delivery,
         isAccepted: false,
         isCompleted: false,
+        location: location,
       );
       await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
       print('User order added successfully!');
@@ -406,7 +409,12 @@ class _OrderState extends State<Order> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
+                            if(deliver) {
+                              userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, userLocation);
+                            }
+                            else {
+                              userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
+                            }
                             //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },
                           style: ElevatedButton.styleFrom(

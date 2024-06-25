@@ -55,6 +55,7 @@ dependencies:
   url_launcher: ^6.3.0
   firebase_messaging: ^14.9.4
   flutter_typeahead: ^5.2.0
+  flutter_local_notifications: ^17.1.2
 
 dev_dependencies:
   flutter_test:

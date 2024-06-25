@@ -275,46 +275,41 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Stream<List<DocumentSnapshot>> getToAcceptUserOrders(Stream<List<DocumentSnapshot>> usersStream) async* {
+  Stream<List<DocumentSnapshot>> getToAcceptUserOrders(String pharmacyID, String userOrdersDocID) async* {
     try {
-      await for (List<DocumentSnapshot> users in usersStream) {
-        List<DocumentSnapshot> allUserOrders = [];
+      final ordersSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(userOrdersDocID).collection('UserOrders').get();
 
-        for (var userDoc in users) {
-          final ordersSnapshot = await userDoc.reference.collection('UserOrders').get();
+      List<DocumentSnapshot> allUserOrders = [];
 
-          for (var orderDoc in ordersSnapshot.docs) {
-            if(!orderDoc['Accepted'] && !orderDoc['Completed']) {
-              allUserOrders.add(orderDoc);
-            }
-          }
+      for (var orderDoc in ordersSnapshot.docs) {
+        if (!orderDoc['Accepted'] && !orderDoc['Completed']) {
+          allUserOrders.add(orderDoc);
         }
-
-        yield allUserOrders;
       }
-    } catch(e) {
+
+      yield allUserOrders;
+
+    } catch (e) {
       throw Exception('Error getting to-accept user orders: $e');
     }
   }
-  Stream<List<DocumentSnapshot>> getAcceptedUserOrders(Stream<List<DocumentSnapshot>> usersStream) async* {
+
+  Stream<List<DocumentSnapshot>> getAcceptedUserOrders(String pharmacyID, String userOrdersDocID) async* {
     try {
-      await for (List<DocumentSnapshot> users in usersStream) {
-        List<DocumentSnapshot> allUserOrders = [];
+      final ordersSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Orders').doc(userOrdersDocID).collection('UserOrders').get();
 
-        for (var userDoc in users) {
-          final ordersSnapshot = await userDoc.reference.collection('UserOrders').get();
+      List<DocumentSnapshot> allUserOrders = [];
 
-          for (var orderDoc in ordersSnapshot.docs) {
-            if(orderDoc['Accepted'] && !orderDoc['Completed']) {
-              allUserOrders.add(orderDoc);
-            }
-          }
+      for (var orderDoc in ordersSnapshot.docs) {
+        if (orderDoc['Accepted'] && !orderDoc['Completed']) {
+          allUserOrders.add(orderDoc);
         }
-
-        yield allUserOrders;
       }
-    } catch(e) {
-      throw Exception('Error getting accepted user orders: $e');
+
+      yield allUserOrders;
+
+    } catch (e) {
+      throw Exception('Error getting to-accept user orders: $e');
     }
   }
 
@@ -350,4 +345,6 @@ class PharmacyDatabaseServices {
       throw Exception('Error deleting drug: $e');
     }
   }
+
+  getOngoingOrders(String pharmacyId) {}
 }

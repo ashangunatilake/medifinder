@@ -200,7 +200,7 @@ class _SearchState extends State<Search> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': filteredPharmacies[index], 'searchedDrug': searchController.text.trim().toLowerCase(), 'searchedDrugDoc': drugDoc});
+                                  Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': filteredPharmacies[index], 'searchedDrug': searchController.text.trim().toLowerCase(), 'searchedDrugDoc': drugDoc, 'userLocation': location});
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.only(left: 10.0, right: 10.0),

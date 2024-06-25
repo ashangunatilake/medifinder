@@ -791,7 +791,13 @@
 //   }
 // }
 
-
+// <uses-permission android:name="android.permission.INTERNET" />-->
+// <!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+// <!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
+// <!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+// <!--    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />-->
+// <!--    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />-->
+// <!--    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 
 

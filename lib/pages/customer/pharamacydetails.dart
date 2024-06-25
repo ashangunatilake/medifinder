@@ -22,6 +22,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
   late String drugName;
+  late GeoPoint userLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +33,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       drugDoc = args['searchedDrugDoc'] as DocumentSnapshot;
       drugData = drugDoc.data() as Map<String, dynamic>;
       drugName = args['searchedDrug'] as String;
+      userLocation = args['userLocation'] as GeoPoint;
     } else {
       throw Exception('Something went wrong.');
     }
@@ -368,7 +370,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     continueDialog(
-                                        context, pharmacyDoc, drugName);
+                                        context, pharmacyDoc, drugName, userLocation);
                                   },
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFFFFFFFF),
@@ -428,7 +430,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName) async {
+Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName, GeoPoint userLocation) async {
   Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
   return showDialog(
   context: context,
@@ -497,7 +499,7 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugNa
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName});
+                  Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName, 'userLocation': userLocation});
 
                 },
                 style: ElevatedButton.styleFrom(

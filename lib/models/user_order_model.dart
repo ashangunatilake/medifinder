@@ -9,6 +9,7 @@ class UserOrder {
   final bool delivery;
   final bool isAccepted;
   final bool isCompleted;
+  final GeoPoint? location;
 
 
   const UserOrder({
@@ -20,9 +21,10 @@ class UserOrder {
     required this.delivery,
     required this.isAccepted,
     required this.isCompleted,
+    this.location,
   });
 
-  static UserOrder empty() => const UserOrder(id: '', did: '', pid: '', url: '', quantity: 0, delivery: false, isAccepted: false, isCompleted: false);
+  static UserOrder empty() => const UserOrder(id: '', did: '', pid: '', url: '', quantity: 0, delivery: false, isAccepted: false, isCompleted: false, location: null);
 
   factory UserOrder.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
     if(document.data() != null) {
@@ -36,6 +38,7 @@ class UserOrder {
         delivery: data['DeliveryMethod'] ?? false,
         isAccepted: data['Accepted'] ?? false,
         isCompleted: data['Completed'] ?? false,
+        location: data['UserLocation'],
       );
     }
     else {
@@ -46,13 +49,14 @@ class UserOrder {
   UserOrder.fromJson(String userID, Map<String, Object?> json)
     :this(
       id: userID,
-      did: json['DrugID']! as String,
-      pid: json['PharmacyID']! as String,
-      url: json['PrescriptionURL']! as String,
-      quantity: json['Quantity']! as double,
+      did: json['DrugID'] as String,
+      pid: json['PharmacyID'] as String,
+      url: json['PrescriptionURL'] as String,
+      quantity: json['Quantity'] as double,
       delivery: json['DeliveryMethod'] as bool,
       isAccepted: json['Accepted'] as bool,
       isCompleted: json['Completed'] as bool,
+      location: json['UserLocation'] as GeoPoint?,
     );
 
   UserOrder copyWith({
@@ -63,8 +67,9 @@ class UserOrder {
     bool? delivery,
     bool? isAccepted,
     bool? isCompleted,
+    GeoPoint? location,
   }) {
-    return UserOrder(id: this.id, did: did ?? this.did, pid: pid ?? this.pid, url: url ?? this.url, quantity: quantity ?? this.quantity, delivery: delivery ?? this.delivery, isAccepted: isAccepted ?? this.isAccepted, isCompleted: isCompleted ?? this.isCompleted);
+    return UserOrder(id: this.id, did: did ?? this.did, pid: pid ?? this.pid, url: url ?? this.url, quantity: quantity ?? this.quantity, delivery: delivery ?? this.delivery, isAccepted: isAccepted ?? this.isAccepted, isCompleted: isCompleted ?? this.isCompleted, location: location ?? this.location);
   }
 
   Map<String, Object?> toJson() {
@@ -75,7 +80,8 @@ class UserOrder {
       'Quantity': quantity,
       'DeliveryMethod': delivery,
       'Accepted': isAccepted,
-      'Completed':isCompleted,
+      'Completed': isCompleted,
+      'UserLocation': location,
     };
   }
 }

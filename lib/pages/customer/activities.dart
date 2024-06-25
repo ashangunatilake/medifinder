@@ -466,9 +466,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                         }
                       else
                         {
-                          //Stream<List<DocumentSnapshot>> usersList = _pharmacyDatabaseServices.getToAcceptUserOrders('IEcGVbXB2kXD62JVukiO');
-                          //int l = await usersList.length;
-                          printNumberOfElementsInStream();
+
                         }
                     },
                     style: ElevatedButton.styleFrom(
@@ -492,15 +490,5 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
 
       }
   );
-}
-
-Future<void> printNumberOfElementsInStream() async {
-  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
-  Stream<List<DocumentSnapshot>> usersList = _pharmacyDatabaseServices.getToAcceptUserOrders(_pharmacyDatabaseServices.getUsersWithToAcceptOrders('IEcGVbXB2kXD62JVukiO'));
-
-  usersList.listen((List<DocumentSnapshot> snapshots) {
-    int length = snapshots.length;
-    print('!!!: $length');
-  });
 }
 
