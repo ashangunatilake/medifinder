@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -22,7 +23,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
   late String drugName;
-  late GeoPoint userLocation;
+  late LatLng userLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       drugDoc = args['searchedDrugDoc'] as DocumentSnapshot;
       drugData = drugDoc.data() as Map<String, dynamic>;
       drugName = args['searchedDrug'] as String;
-      userLocation = args['userLocation'] as GeoPoint;
+      userLocation = args['userLocation'] as LatLng;
     } else {
       throw Exception('Something went wrong.');
     }
@@ -430,7 +431,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName, GeoPoint userLocation) async {
+Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName, LatLng userLocation) async {
   Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
   return showDialog(
   context: context,

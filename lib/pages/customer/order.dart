@@ -8,6 +8,7 @@ import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import '../../services/database_services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Order extends StatefulWidget {
   const Order({super.key});
@@ -32,7 +33,7 @@ class _OrderState extends State<Order> {
   late Map<String, dynamic> pharmacyData;
   late String drugName;
   late Map<String, dynamic> drugData;
-  late GeoPoint userLocation;
+  late LatLng userLocation;
   bool loading = false;
   String fileName = "";
 
@@ -59,7 +60,7 @@ class _OrderState extends State<Order> {
         drugName = args['searchedDrug'] as String;
         DocumentSnapshot drugDoc = await _pharmacyDatabaseServices.getDrugByName(drugName, pharmacyDoc.id);
         drugData = drugDoc.data() as Map<String, dynamic>;
-        userLocation = args['userLocation'] as GeoPoint;
+        userLocation = args['userLocation'] as LatLng;
       }
       else {
         throw Exception("Arguments are missing");
@@ -446,13 +447,28 @@ class _OrderState extends State<Order> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
+                            final GeoPoint location = GeoPoint(userLocation.latitude, userLocation.longitude);
                             if(deliver) {
-                              userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, userLocation);
-                              //_pushNotifications.sendNotificationToPharmacy(deviceToken, drugName, customerName);
+                              userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, location);
+                              if(pharmacyData['FCMToken'] != null) {
+                                List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                                if(tokens.isNotEmpty) {
+                                  for(var token in tokens) {
+                                    _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                                  }
+                                }
+                              }
                             }
                             else {
                               userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
-                              //_pushNotifications.sendNotificationToPharmacy(deviceToken, drugName, customerName);
+                              if(pharmacyData['FCMToken'] != null) {
+                                List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                                if(tokens.isNotEmpty) {
+                                  for(var token in tokens) {
+                                    _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                                  }
+                                }
+                              }
                             }
                             //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },

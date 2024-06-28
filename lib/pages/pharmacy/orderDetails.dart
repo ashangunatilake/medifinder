@@ -30,15 +30,20 @@ class _OrderDetailsState extends State<OrderDetails> {
     updatedOrder.copyWith(isAccepted: true);
     await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id, updatedOrder);
     print('Order Accepted');
-    //_pushNotifications.sendNotificationToCustomer(deviceToken, accepted, drugName, pharmacyName, reason);
+
+    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+    if(userData['FCMToken'] != null) {
+      List<String> tokens = List<String>.from(userData['FCMTokens']);
+      if(tokens.isNotEmpty) {
+        for(var token in tokens) {
+          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugID'], userData['Name']);
+        }
+      }
+    }
   }
 
   Future<void> _cancelOrder(BuildContext context, DocumentSnapshot<Map<String, dynamic>> orderDoc) async {
-    await _pharmacyDatabaseServices.deletePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id);
-    print('Order Cancelled');
-    //_pushNotifications.sendNotificationToCustomer(deviceToken, accepted, drugName, pharmacyName, reason);
     final TextEditingController reasonController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -64,12 +69,26 @@ class _OrderDetailsState extends State<OrderDetails> {
                 'Submit',
                 style: TextStyle(color: Colors.black),
               ),
-              onPressed: () {
+              onPressed: () async {
                 final reason = reasonController.text;
                 if (reason.isNotEmpty) {
                   Navigator.of(context).pop(); // Close the dialog
                   print('Order Cancelled with reason: $reason');
+
                   // This is where you would call the backend to cancel the order
+                  await _pharmacyDatabaseServices.deletePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id);
+                  print('Order Cancelled');
+
+                  Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+                  if(userData['FCMToken'] != null) {
+                    List<String> tokens = List<String>.from(userData['FCMTokens']);
+                    if(tokens.isNotEmpty) {
+                      for(var token in tokens) {
+                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugID'], userData['Name'], reason);
+                      }
+                    }
+                  }
+
                 } else {
                     Snackbars.errorSnackBar(message: "Reason cannot be empty", context: context);
                 }
