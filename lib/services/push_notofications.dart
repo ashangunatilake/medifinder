@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;
@@ -24,15 +25,52 @@ class PushNotifications {
       provisional: false,
       sound: true
     );
+    final fCMToken = await _firebaseMessaging.getToken();
+    print("device token: $fCMToken");
   }
 
-  static Future getDeviceToken() async {
+  Future<String?> getDeviceToken() async {
     // Fetch the FCM token for this device
     final fCMToken = await _firebaseMessaging.getToken();
     print("device token: $fCMToken");
+    return fCMToken;
+  }
+
+  Future addDeviceToken(String userRole, String userID) async {
+    // Fetch the FCM token for this device
+    final fCMToken = await _firebaseMessaging.getToken();
+    print("device token: $fCMToken");
+
+    late DocumentSnapshot<Map<String, dynamic>> userDoc;
+    if(userRole == 'customer') {
+      userDoc = await FirebaseFirestore.instance.collection('Users').doc(userID).get();
+
+      // _firebaseMessaging.onTokenRefresh.listen((event) async {
+      //   DocumentReference userDoc = FirebaseFirestore.instance.collection('Users').doc(userID);
+      //   await userDoc.update({'FCMTokens': FieldValue.arrayUnion([fCMToken])});
+      // });
+
+    } else if(userRole == 'pharmacy') {
+      userDoc = await FirebaseFirestore.instance.collection('Pharmacies').doc(userID).get();
+    }
+
+    if(userDoc.exists) {
+      Map<String, dynamic>? userData = userDoc.data();
+      if(userData != null) {
+        List<String> tokens =  List<String>.from(userData['tokens']);
+        if(!tokens.contains(fCMToken)) {
+          tokens.add(fCMToken!);
+          await userDoc.reference.update({'FCMTokens': tokens,});
+        }
+      }
+      else{
+        throw Exception('Error fetching user data.');
+      }
+    } else {
+      throw Exception('Error fetching user.');
+    }
+
     //await _firebaseMessaging.deleteToken();
-
-
   }
 
   // Initialize local notifications
@@ -113,41 +151,72 @@ class PushNotifications {
     return credentials.accessToken.data;
   }
 
-  void sendNotificationToCustomer(String deviceToken, bool accepted, String drugName, String pharmacyName, String? reason) async {
+  void sendNotificationToCustomer(String deviceToken, bool accepted, bool completed, String drugName, String pharmacyName, [String? reason]) async {
     final String serverAccessTokenKey = await getAccessToken();
     String endpointFirebaseCloudMessaging = 'https://fcm.googleapis.com/v1/projects/medifinder-564fa/messages:send';
 
-    if(accepted) {
-      final Map<String, dynamic> message =
-      {
-        'message':
+    if(!completed) {
+      if(accepted) {
+        final Map<String, dynamic> message =
         {
-          'token': deviceToken,
-          'notification':
+          'message':
           {
-            'title': "Order Accepted",
-            'body': "Your order for $drugName has been accepted by $pharmacyName."
+            'token': deviceToken,
+            'notification':
+            {
+              'title': "Order Accepted",
+              'body': "Your order for $drugName has been accepted by $pharmacyName."
+            }
           }
+        };
+
+        final http.Response response = await http.post(
+          Uri.parse(endpointFirebaseCloudMessaging),
+          headers: <String, String>
+          {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $serverAccessTokenKey'
+          },
+          body: jsonEncode(message),
+        );
+
+        if(response.statusCode == 200) {
+          print('Notification sent successfully.');
+        } else {
+          print('Failed, to send FCM message: ${response.statusCode}');
         }
-      };
-
-      final http.Response response = await http.post(
-        Uri.parse(endpointFirebaseCloudMessaging),
-        headers: <String, String>
-        {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $serverAccessTokenKey'
-        },
-        body: jsonEncode(message),
-      );
-
-      if(response.statusCode == 200) {
-        print('Notification sent successfully.');
-      } else {
-        print('Failed, to send FCM message: ${response.statusCode}');
       }
-    }
-    else {
+      else {
+        final Map<String, dynamic> message =
+        {
+          'message':
+          {
+            'token': deviceToken,
+            'notification':
+            {
+              'title': "Order Canceled",
+              'body': "Your order for $drugName has been canceled by $pharmacyName due to $reason."
+            }
+          }
+        };
+
+        final http.Response response = await http.post(
+          Uri.parse(endpointFirebaseCloudMessaging),
+          headers: <String, String>
+          {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $serverAccessTokenKey'
+          },
+          body: jsonEncode(message),
+        );
+
+        if(response.statusCode == 200) {
+          print('Notification sent successfully.');
+        } else {
+          print('Failed, to send FCM message: ${response.statusCode}');
+        }
+      }
+    } else {
       final Map<String, dynamic> message =
       {
         'message':
@@ -155,8 +224,8 @@ class PushNotifications {
           'token': deviceToken,
           'notification':
           {
-            'title': "Order Canceled",
-            'body': "Your order for $drugName has been canceled by $pharmacyName due to $reason."
+            'title': "Order Completed",
+            'body': "Your order for $drugName at $pharmacyName has been completed."
           }
         }
       };
@@ -179,37 +248,69 @@ class PushNotifications {
     }
   }
 
-  void sendNotificationToPharmacy(String deviceToken, String drugName, String customerName) async {
+  void sendNotificationToPharmacy(String deviceToken, bool completed, String drugName, String customerName) async {
     final String serverAccessTokenKey = await getAccessToken();
     String endpointFirebaseCloudMessaging = 'https://fcm.googleapis.com/v1/projects/medifinder-564fa/messages:send';
 
-    final Map<String, dynamic> message =
-    {
-      'message':
+    if(!completed) {
+      final Map<String, dynamic> message =
       {
-        'token': deviceToken,
-        'notification':
+        'message':
         {
-          'title': "New Order Received",
-          'body': "A new order for $drugName has been placed by $customerName."
+          'token': deviceToken,
+          'notification':
+          {
+            'title': "New Order Received",
+            'body': "A new order for $drugName has been placed by $customerName."
+          }
         }
+      };
+
+      final http.Response response = await http.post(
+        Uri.parse(endpointFirebaseCloudMessaging),
+        headers: <String, String>
+        {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $serverAccessTokenKey'
+        },
+        body: jsonEncode(message),
+      );
+
+      if(response.statusCode == 200) {
+        print('Notification sent successfully.');
+      } else {
+        print('Failed, to send FCM message: ${response.statusCode}');
       }
-    };
-
-    final http.Response response = await http.post(
-      Uri.parse(endpointFirebaseCloudMessaging),
-      headers: <String, String>
-      {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $serverAccessTokenKey'
-      },
-      body: jsonEncode(message),
-    );
-
-    if(response.statusCode == 200) {
-      print('Notification sent successfully.');
     } else {
-      print('Failed, to send FCM message: ${response.statusCode}');
+      final Map<String, dynamic> message =
+      {
+        'message':
+        {
+          'token': deviceToken,
+          'notification':
+          {
+            'title': "Order Completed",
+            'body': "The order for $drugName to $customerName has been completed."
+          }
+        }
+      };
+
+      final http.Response response = await http.post(
+        Uri.parse(endpointFirebaseCloudMessaging),
+        headers: <String, String>
+        {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $serverAccessTokenKey'
+        },
+        body: jsonEncode(message),
+      );
+
+      if(response.statusCode == 200) {
+        print('Notification sent successfully.');
+      } else {
+        print('Failed, to send FCM message: ${response.statusCode}');
+      }
     }
+
   }
 }

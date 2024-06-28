@@ -12,6 +12,7 @@ class PharmacyModel {
   final bool isDeliveryAvailable;
   final String operationHours;
   final GeoFirePoint position;
+  final List<String> tokens;
 
   const PharmacyModel ({
     required this.id,
@@ -22,9 +23,10 @@ class PharmacyModel {
     required this.isDeliveryAvailable,
     required this.operationHours,
     required this.position,
+    this.tokens = const [],
   });
 
-  static PharmacyModel empty() => PharmacyModel(id: '', name: '', address: '', contact: '', ratings: 0, isDeliveryAvailable: false, operationHours: '', position: geo.point(latitude: 0, longitude: 0));
+  static PharmacyModel empty() => PharmacyModel(id: '', name: '', address: '', contact: '', ratings: 0, isDeliveryAvailable: false, operationHours: '', position: geo.point(latitude: 0, longitude: 0), tokens: []);
 
   factory PharmacyModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
     if(document.data() != null) {
@@ -41,6 +43,7 @@ class PharmacyModel {
           latitude: (data['Position']['geopoint'] as GeoPoint).latitude,
           longitude: (data['Position']['geopoint'] as GeoPoint).longitude,
         ),
+        tokens: List<String>.from(data['FCMTokens'] ?? []),
       );
     }
     else {
@@ -58,7 +61,7 @@ class PharmacyModel {
     String? operationHours,
     GeoFirePoint? position,
   }) {
-    return PharmacyModel(id: this.id, name: name ?? this.name, address: address ?? this.address, contact: contact ?? this.contact, ratings: ratings ?? this.ratings, isDeliveryAvailable: isDeliveryAvailable ?? this.isDeliveryAvailable, operationHours: operationHours ?? this.operationHours, position: position ?? this.position,);
+    return PharmacyModel(id: id, name: name ?? this.name, address: address ?? this.address, contact: contact ?? this.contact, ratings: ratings ?? this.ratings, isDeliveryAvailable: isDeliveryAvailable ?? this.isDeliveryAvailable, operationHours: operationHours ?? this.operationHours, position: position ?? this.position, tokens: tokens);
   }
 
   // create a json object of a UserModel instance
@@ -74,6 +77,7 @@ class PharmacyModel {
         'geopoint': GeoPoint(position.latitude, position.longitude),
         'geohash': position.hash,
       },
+      'FCMTokens': tokens,
     };
   }
 }

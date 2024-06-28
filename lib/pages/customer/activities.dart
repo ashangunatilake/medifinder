@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
@@ -408,6 +409,7 @@ class _ActivitiesState extends State<Activities> {
 }
 
 Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc, DocumentSnapshot orderDoc, String uid, Function updateState) async {
+  final PushNotifications _pushNotifications = PushNotifications();
   return showDialog(
       context: context,
       barrierDismissible: false,
@@ -466,11 +468,26 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
+                      final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
                       final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
                       if(orderDoc['Accepted'])
                       {
                         UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
                         await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
+
+                        final Map<String, dynamic> pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
+                        final DocumentSnapshot userDoc = await _userDatabaseServices.getUserDoc(uid);
+                        final Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+                        if(pharmacyData['FCMToken'] != null) {
+                          List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                          if(tokens.isNotEmpty) {
+                            for(var token in tokens) {
+                              _pushNotifications.sendNotificationToPharmacy(token, false, orderDoc['DrugID'], userData['Name']);
+                            }
+                          }
+                        }
+
                         Navigator.of(context).pop();
                         updateState();
                       }
