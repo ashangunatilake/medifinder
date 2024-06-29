@@ -25,3 +25,18 @@ class TPlatformException implements Exception {
   @override
   String toString() => 'TPlatformException: $message';
 }
+
+class InsufficientQuantityException implements Exception {
+  final String message;
+  InsufficientQuantityException(this.message);
+}
+
+class DrugBrandNameException implements Exception {
+  final String message;
+  DrugBrandNameException(this.message);
+}
+
+class DrugNameException implements Exception {
+  final String message;
+  DrugNameException(this.message);
+}

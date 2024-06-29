@@ -10,6 +10,8 @@ import 'package:medifinder/snackbars/snackbar.dart';
 import '../../services/database_services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../services/exception_handling_services.dart';
+
 class Order extends StatefulWidget {
   const Order({super.key});
 
@@ -32,6 +34,7 @@ class _OrderState extends State<Order> {
   late DocumentSnapshot pharmacyDoc;
   late Map<String, dynamic> pharmacyData;
   late String drugName;
+  late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
   late LatLng userLocation;
   bool loading = false;
@@ -58,7 +61,7 @@ class _OrderState extends State<Order> {
         pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
         pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
         drugName = args['searchedDrug'] as String;
-        DocumentSnapshot drugDoc = await _pharmacyDatabaseServices.getDrugByName(drugName, pharmacyDoc.id);
+        drugDoc = await _pharmacyDatabaseServices.getDrugByName(drugName, pharmacyDoc.id);
         drugData = drugDoc.data() as Map<String, dynamic>;
         userLocation = args['userLocation'] as LatLng;
       }
@@ -447,28 +450,56 @@ class _OrderState extends State<Order> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
+                            if (quantity == 0) {
+                              Snackbars.errorSnackBar(message: "Quantity cannot be zero", context: context);
+                              return;
+                            }
+                            if (_image == null) {
+                              Snackbars.errorSnackBar(message: "Please upload a prescription", context: context);
+                              return;
+                            }
                             final GeoPoint location = GeoPoint(userLocation.latitude, userLocation.longitude);
                             if(deliver) {
-                              userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, location);
-                              if(pharmacyData['FCMToken'] != null) {
-                                List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
-                                if(tokens.isNotEmpty) {
-                                  for(var token in tokens) {
-                                    _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                              try {
+                                await _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
+                                userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, location);
+
+                                if (pharmacyData['FCMToken'] != null) {
+                                  List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                                  if (tokens.isNotEmpty) {
+                                    for (var token in tokens) {
+                                      _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                                    }
                                   }
+                                }
+                              } catch (e) {
+                                if (e is InsufficientQuantityException) {
+                                  Snackbars.errorSnackBar(message: e.message, context: context);
+                                } else {
+                                  Snackbars.errorSnackBar(message: 'Error placing order: $e', context: context);
                                 }
                               }
                             }
                             else {
-                              userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
-                              if(pharmacyData['FCMToken'] != null) {
-                                List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
-                                if(tokens.isNotEmpty) {
-                                  for(var token in tokens) {
-                                    _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                              try {
+                                _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
+                                userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
+                                if(pharmacyData['FCMToken'] != null) {
+                                  List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                                  if(tokens.isNotEmpty) {
+                                    for(var token in tokens) {
+                                      _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                                    }
                                   }
                                 }
+                              } catch (e) {
+                                if (e is InsufficientQuantityException) {
+                                  Snackbars.errorSnackBar(message: e.message, context: context);
+                                } else {
+                                  Snackbars.errorSnackBar(message: 'Error placing order: $e', context: context);
+                                }
                               }
+
                             }
                             //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },
@@ -496,25 +527,6 @@ class _OrderState extends State<Order> {
           ],
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: "Home",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.shopping_cart),
-      //       label: "Orders",
-      //     ),
-      //     BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile")
-      //   ],
-      //   currentIndex: 0,
-      //   onTap: (int n) {
-      //     if (n == 1) Navigator.pushNamed(context, '/activities');
-      //     if (n == 2) Navigator.pushNamed(context, '/profile');
-      //   },
-      //   selectedItemColor: const Color(0xFF12E7C0),
-      // ),
     );
   }
 }

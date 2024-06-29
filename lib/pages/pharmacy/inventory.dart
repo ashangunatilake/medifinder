@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:medifinder/pages/pharmacy/add_item.dart';
@@ -74,7 +73,7 @@ class _InventoryState extends State<Inventory> {
                               Icons.local_pharmacy,
                               Color.fromRGBO(21, 201, 180, 1),
                               //(),
-                              AddItem()
+                              Drugs()
                           ),
                           _buildCard(
                             context,

@@ -1,256 +1,207 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
-import 'package:medifinder/models/drugs_model.dart';
+import '../../models/drugs_model.dart';
+import '../../snackbars/snackbar.dart';
 
-class AddItem extends StatefulWidget {
-  final DrugsModel? drug;
-
-  AddItem({Key? key, this.drug}) : super(key: key);
-
-  @override
-  _AddItemState createState() => _AddItemState();
-}
-
-class _AddItemState extends State<AddItem> {
+class AddItem extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController brandController = TextEditingController();
-  final TextEditingController dosageController = TextEditingController();
-  final TextEditingController unitPriceController = TextEditingController();
-  final TextEditingController quantityController = TextEditingController();
-  bool _isLoading = false; // Track loading state
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.drug != null) {
-      nameController.text = widget.drug!.name;
-      brandController.text = widget.drug!.brand;
-      dosageController.text = widget.drug!.dosage;
-      unitPriceController.text = widget.drug!.price.toString();
-      quantityController.text = widget.drug!.quantity.toString();
+  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  TextEditingController namecontroller = TextEditingController();
+  TextEditingController brandnamecontroller = TextEditingController();
+  TextEditingController dosagecontroller = TextEditingController();
+  TextEditingController unitpricecontroller = TextEditingController();
+  TextEditingController quantitycontroller = TextEditingController();
+
+  Future<void> pharmacyAddDrug(BuildContext context) async {
+    try {
+      final String uid = await _pharmacyDatabaseServices.getCurrentPharmacyUid();
+      final drugsCollection = FirebaseFirestore.instance.collection('Pharmacies').doc(uid).collection('Drugs');
+      final querySnapshot = await drugsCollection.where('Name', isEqualTo: namecontroller.text.trim()).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print('A drug with the same name already exists.');
+        Snackbars.errorSnackBar(message: "A drug with the same name already exists", context: context);
+        return;
+      }
+
+      DrugsModel drug = DrugsModel(
+          brand: brandnamecontroller.text.trim(),
+          name: namecontroller.text.trim(),
+          dosage: dosagecontroller.text.trim(),
+          quantity: double.parse(quantitycontroller.text.trim()),
+          price: double.parse(unitpricecontroller.text.trim())
+      );
+
+      await _pharmacyDatabaseServices.addDrug(uid, drug);
+      print('Drug added successfully!');
+      Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Drug added succcessfully", context: context));
+    } catch (e) {
+      print("Error adding drug: $e");
+      Snackbars.errorSnackBar(message: "Error adding drug", context: context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.drug == null ? 'Add New Drug' : 'Edit Drug'),
+        title: const Text("Add New Drug"),
+        backgroundColor: Colors.white54,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.cover,
           ),
-          SingleChildScrollView(
-            padding: EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.drug == null
-                        ? 'Add New Drug Details'
-                        : 'Edit Drug Details',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+        ),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SafeArea(child: SizedBox(height: 10.0,)),
+                Text(
+                  'Add New Drug Details',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Name',
-                    controller: nameController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the drug name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Brand Name',
-                    controller: brandController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the brand name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Dosage',
-                    controller: dosageController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the dosage';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Unit Price',
-                    controller: unitPriceController,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the unit price';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Quantity',
-                    controller: quantityController,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the quantity';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              User? user = FirebaseAuth.instance.currentUser;
-                              // Create or update a DrugModel
-                              DrugsModel updatedDrug = DrugsModel(
-                                name: nameController.text,
-                                brand: brandController.text,
-                                dosage: dosageController.text,
-                                price: double.parse(unitPriceController.text),
-                                quantity: double.parse(quantityController.text),
-                              );
-
-                              try {
-                                if (widget.drug == null) {
-                                  // Add new drug
-                                  //await PharmacyDatabaseServices().addDrug(user!.uid, updatedDrug);
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Drug added successfully!')),
-                                  );
-                                } else {
-                                  // Update existing drug
-                                  //await PharmacyDatabaseServices().updateDrug(updatedDrug);
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Drug updated successfully!')),
-                                  );
-                                }
-
-                                // Clear form
-                                _formKey.currentState!.reset();
-                                nameController.clear();
-                                brandController.clear();
-                                dosageController.clear();
-                                unitPriceController.clear();
-                                quantityController.clear();
-
-                                setState(() {
-                                  _isLoading = false;
-                                });
-
-                                // Optionally: Keep the form open to add more drugs
-                                // Navigator.pop(context);
-                              } catch (e) {
-                                setState(() {
-                                  _isLoading = false;
-                                });
-
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'Failed to ${widget.drug == null ? 'add' : 'update'} drug: $e')),
-                                );
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(218, 3, 240, 212),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: namecontroller,
+                  labelText: 'Name',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the drug name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: brandnamecontroller,
+                  labelText: 'Brand Name',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the brand name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: dosagecontroller,
+                  labelText: 'Dosage',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the dosage';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: unitpricecontroller,
+                  labelText: 'Unit Price',
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the unit price';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: quantitycontroller,
+                  labelText: 'Quantity',
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the quantity';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 30),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            // Process the form data
+                            //***********Add backend function to handle form submission
+                            await pharmacyAddDrug(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(218, 3, 240, 212),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
                           ),
-                          child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                            widget.drug == null
-                                ? 'Add to Stock'
-                                : 'Save Changes',
-                            style: TextStyle(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () {
-                            // Close the keyboard before navigating back
-                            FocusScope.of(context).unfocus();
-                            WidgetsBinding.instance!
-                                .addPostFrameCallback((_) {
-                              Navigator.pop(context);
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                        child: Text(
+                          'Add to Stock',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Close the keyboard before navigating back
+                          FocusScope.of(context).unfocus();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.pop(context);
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
                           ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                      ],
-                    ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildTextField({
-    required String labelText,
     required TextEditingController controller,
+    required String labelText,
     required String? Function(String?) validator,
     TextInputType keyboardType = TextInputType.text,
   }) {

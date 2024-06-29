@@ -800,6 +800,103 @@
 // <!--    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
 
+// Future<void> pharmacyDeleteContinueDialog(BuildContext context) {
+//   return showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text(
+//             "Confirm Delete",
+//             textAlign: TextAlign.center,
+//           ),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 'Drug Name',
+//                 style: TextStyle(
+//                   fontSize: 16.0,
+//                 ),
+//               ),
+//               SizedBox(
+//                 height: 10.0,
+//               ),
+//               Text(
+//                 'Brand Name',
+//                 style: TextStyle(
+//                   fontSize: 16.0,
+//                 ),
+//               ),
+//               SizedBox(
+//                 height: 10.0,
+//               ),
+//               Text(
+//                 'Dosage',
+//                 style: TextStyle(
+//                   fontSize: 16.0,
+//                 ),
+//               ),
+//               SizedBox(
+//                 height: 10.0,
+//               ),
+//             ],
+//           ),
+//           actions: [
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Expanded(
+//                   child: ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.of(context).pop();
+//                     },
+//                     style: ElevatedButton.styleFrom(
+//                         backgroundColor: const Color(0xFFFFFFFF),
+//                         //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+//                         side: const BorderSide(color: Color(0xFF12E7C0))
+//                     ),
+//                     child: const Text(
+//                       "Cancel",
+//                       style: TextStyle(
+//                         color: Color(0xFF12E7C0),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//                 SizedBox(
+//                   width: 14.0,
+//                 ),
+//                 Expanded(
+//                   child: ElevatedButton(
+//                     onPressed: () {
+//
+//                       Navigator.of(context).pop();
+//                     },
+//                     style: ElevatedButton.styleFrom(
+//                         backgroundColor: const Color(0xFF12E7C0),
+//                         //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+//                         side: const BorderSide(color: Color(0xFF12E7C0))
+//                     ),
+//                     child: const Text(
+//                       "Confirm",
+//                       style: TextStyle(
+//                         color: Colors.white,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//
+//             )
+//           ],
+//         );
+//
+//       }
+//   );
+// }
+
 
 
 

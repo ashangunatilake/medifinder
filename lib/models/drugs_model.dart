@@ -24,8 +24,8 @@ class DrugsModel {
         brand: data['BrandName'] ?? '',
         name: data['Name'] ?? '',
         dosage: data['Dosage'] ?? '',
-        quantity: data['Quantity'] ?? 0,
-        price: data['UnitPrice'] ?? 0,
+        quantity: (data['Quantity'] is int) ? (data['Quantity'] as int).toDouble() : data['Quantity'] ?? 0.0,
+        price: (data['UnitPrice'] is int) ? (data['UnitPrice'] as int).toDouble() : data['UnitPrice'] ?? 0.0,
       );
     }
     else {
