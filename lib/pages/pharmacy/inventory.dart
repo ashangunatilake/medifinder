@@ -32,8 +32,7 @@ class _InventoryState extends State<Inventory> {
           }
           if (!snapshot.hasData || snapshot.data == null) {
             return Text('No data available');
-          }
-          else {
+          } else {
             var docs = snapshot.data!;
             return Container(
               decoration: BoxDecoration(
@@ -72,8 +71,7 @@ class _InventoryState extends State<Inventory> {
                               'Drugs In Store',
                               Icons.local_pharmacy,
                               Color.fromRGBO(21, 201, 180, 1),
-                              //(),
-                              Drugs()
+                              Drugs(),
                           ),
                           _buildCard(
                             context,
@@ -102,15 +100,16 @@ class _InventoryState extends State<Inventory> {
             icon: Icon(Icons.shopping_cart),
             label: "Orders",
           ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile")
         ],
         currentIndex: 0,
         onTap: (int n) {
-          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
+          if (n == 1)
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/orders', (route) => false);
+          if (n == 2)
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/pharmacy_profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF12E7C0),
       ),

@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:medifinder/services/exception_handling_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -362,6 +362,7 @@ class Drugs extends StatelessWidget {
                                 ),
                               ],
                             ),
+
                           ),
                         );
                       },
