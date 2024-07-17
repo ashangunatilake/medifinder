@@ -29,7 +29,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // Function to listen to background changes
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
-  if(message.notification != null) {
+  if (message.notification != null) {
     print('Some notification received in background...');
   }
 }
@@ -55,7 +55,7 @@ void main() async {
 
   // On background notification tapped
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    if(message.notification != null) {
+    if (message.notification != null) {
       print('Background notification tapped');
       navigatorKey.currentState!.pushNamed('/message', arguments: message);
     }
@@ -65,17 +65,17 @@ void main() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     String payloadData = jsonEncode(message.data);
     print('Got a message in foreground');
-    if(message.notification != null) {
+    if (message.notification != null) {
       PushNotifications.showSimpleNotification(
-        title: message.notification!.title!,
-        body: message.notification!.body!,
-        payload: payloadData);
+          title: message.notification!.title!,
+          body: message.notification!.body!,
+          payload: payloadData);
     }
   });
 
   // For handling in terminated state
   final RemoteMessage? message =
-  await FirebaseMessaging.instance.getInitialMessage();
+      await FirebaseMessaging.instance.getInitialMessage();
   if (message != null) {
     print('Launched in terminated state');
     Future.delayed(Duration(seconds: 1), () {
@@ -98,7 +98,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
       ),
-
       navigatorKey: navigatorKey,
       home: const SplashScreen(),
       routes: {
