@@ -72,7 +72,6 @@ class _InventoryState extends State<Inventory> {
                               'Drugs In Store',
                               Icons.local_pharmacy,
                               Color.fromRGBO(21, 201, 180, 1),
-                              //(),
                               DrugStock()
                           ),
                           _buildCard(

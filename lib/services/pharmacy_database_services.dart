@@ -416,7 +416,7 @@ class PharmacyDatabaseServices {
       throw Exception('Error deleting drug: $e');
     }
   }
-
+  
   Future<void> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
     try {
       final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);

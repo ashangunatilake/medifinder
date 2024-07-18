@@ -475,19 +475,6 @@ class _DrugStockState extends State<DrugStock> {
   }
 }
 
-// import 'package:flutter/material.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter_typeahead/flutter_typeahead.dart';
-// import 'package:medifinder/services/exception_handling_services.dart';
-// import 'package:medifinder/services/pharmacy_database_services.dart';
-// import 'package:medifinder/models/drugs_model.dart';
-// import 'package:medifinder/snackbars/snackbar.dart';
-
-// class Drugs extends StatefulWidget {
-//   @override
-//   _DrugsState createState() => _DrugsState();
-// }
-
 // class _DrugsState extends State<Drugs> {
 //   final PharmacyDatabaseServices _pharmacyDatabaseServices =
 //       PharmacyDatabaseServices();
@@ -540,171 +527,7 @@ class _DrugStockState extends State<DrugStock> {
 //   // Future<void> pharmacyEditDrug(BuildContext context, String drugID, DrugsModel drug) async {
 //   //   // Existing edit drug code
 //   // }
-//   Future<void> pharmacyDeleteDrug(BuildContext context, String drugID) async {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text('Confirm Delete'),
-//           content: Text('Are you sure you want to delete this drug?'),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.of(context).pop(); // Close the dialog
-//               },
-//               child: Text('Cancel'),
-//             ),
-//             TextButton(
-//               onPressed: () async {
-//                 try {
-//                   final String uid =
-//                       await _pharmacyDatabaseServices.getCurrentPharmacyUid();
-//                   await _pharmacyDatabaseServices.deleteDrug(uid, drugID);
-//                   print('Drug deleted successfully!');
-//                   Navigator.of(context)
-//                       .pop(); // Close the dialog after deletion
-//                   Future.delayed(Duration.zero).then((value) =>
-//                       Snackbars.successSnackBar(
-//                           message: "Drug deleted successfully",
-//                           context: context));
-//                 } catch (e) {
-//                   print("Error deleting drug: $e");
-//                   Snackbars.errorSnackBar(
-//                       message: "Error deleting drug", context: context);
-//                 }
-//               },
-//               child: Text('Delete'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
 
-//   Future<void> pharmacyEditDrug(
-//       BuildContext context, String drugID, DrugsModel drug) async {
-//     final nameController = TextEditingController(text: drug.name);
-//     final brandNameController = TextEditingController(text: drug.brand);
-//     final dosageController = TextEditingController(text: drug.dosage);
-//     final quantityController =
-//         TextEditingController(text: drug.quantity.toString());
-//     final unitPriceController =
-//         TextEditingController(text: drug.price.toString());
-
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled:
-//           true, // Ensures the modal sheet takes full screen height
-//       builder: (BuildContext context) {
-//         return Padding(
-//           padding: EdgeInsets.only(
-//             bottom: MediaQuery.of(context).viewInsets.bottom,
-//             top: 20.0,
-//             left: 20.0,
-//             right: 20.0,
-//           ),
-//           child: SingleChildScrollView(
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Text('Edit Drug',
-//                     style:
-//                         TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-//                 SizedBox(height: 20),
-//                 TextField(
-//                   controller: nameController,
-//                   decoration: InputDecoration(labelText: 'Name'),
-//                   enabled: false,
-//                 ),
-//                 TextField(
-//                   controller: brandNameController,
-//                   decoration: InputDecoration(labelText: 'Brand'),
-//                   enabled: false,
-//                 ),
-//                 TextField(
-//                   controller: dosageController,
-//                   decoration: InputDecoration(labelText: 'Dosage'),
-//                   enabled: false,
-//                 ),
-//                 TextField(
-//                   controller: quantityController,
-//                   decoration: InputDecoration(labelText: 'Quantity'),
-//                 ),
-//                 TextField(
-//                   controller: unitPriceController,
-//                   decoration: InputDecoration(labelText: 'Price'),
-//                 ),
-//                 SizedBox(height: 20),
-//                 ElevatedButton(
-//                   onPressed: () async {
-//                     try {
-//                       final String uid = await _pharmacyDatabaseServices
-//                           .getCurrentPharmacyUid();
-//                       DrugsModel updatedDrug = drug;
-//                       updatedDrug = updatedDrug.copyWith(
-//                         quantity: double.parse(quantityController.text.trim()),
-//                         price: double.parse(unitPriceController.text.trim()),
-//                       );
-//                       await _pharmacyDatabaseServices.updateDrug(
-//                           uid, drugID, updatedDrug);
-
-//                       Navigator.of(context).pop(); // Close the bottom sheet
-//                       Snackbars.successSnackBar(
-//                           message: "Drug updated successfully",
-//                           context: context);
-//                     } catch (e) {
-//                       print("Error updating drug: $e");
-//                       Snackbars.errorSnackBar(
-//                           message: "Error updating drug", context: context);
-//                     }
-//                   },
-//                   child: Text('Done'),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return FutureBuilder(
-//       future: _pharmacyDatabaseServices.getCurrentPharmacyUid(),
-//       builder: (context, snapshot) {
-//         if (snapshot.connectionState == ConnectionState.waiting) {
-//           return Scaffold(
-//             body: Center(child: CircularProgressIndicator()),
-//           );
-//         }
-//         if (snapshot.hasError) {
-//           return Scaffold(
-//             body: Center(child: Text('Error: ${snapshot.error}')),
-//           );
-//         }
-//         final String uid = snapshot.data!;
-
-//         return Scaffold(
-//           extendBodyBehindAppBar: true,
-//           appBar: AppBar(
-//             title: const Text("Drugs in Store"),
-//             backgroundColor: Colors.white54,
-//             elevation: 0.0,
-//             titleTextStyle:
-//                 const TextStyle(fontSize: 18.0, color: Colors.black),
-//           ),
-//           body: Container(
-//             decoration: BoxDecoration(
-//               image: DecorationImage(
-//                 image: AssetImage('assets/images/background.png'),
-//                 fit: BoxFit.cover,
-//               ),
-//             ),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 const SafeArea(
 //                   child: SizedBox(height: 10.0),
 //                 ),
 //                 Center(
@@ -1213,12 +1036,11 @@ class _DrugStockState extends State<DrugStock> {
 //                     );
 //                   },
 //                 ),
-//               ),
-//             ],
+//               ],
+//             ),
 //           ),
 //         ),
 //       );
-//       },
-//     );
-//   }
-// }
+//         );
+
+

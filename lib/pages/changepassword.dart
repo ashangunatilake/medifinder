@@ -43,6 +43,14 @@ class _ChangePasswordState extends State<ChangePassword> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    oldpassowrdController.dispose();
+    newpasswordController.dispose();
+    confirmpasswordController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
