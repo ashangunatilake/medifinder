@@ -1,431 +1,276 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:medifinder/services/pharmacy_database_services.dart';
-// import 'package:medifinder/models/drugs_model.dart';
-
-// class AddItem extends StatefulWidget {
-//   final DrugsModel? drug;
-
-//   AddItem({Key? key, this.drug}) : super(key: key);
-
-//   @override
-//   _AddItemState createState() => _AddItemState();
-// }
-
-// class _AddItemState extends State<AddItem> {
-//   final _formKey = GlobalKey<FormState>();
-//   final TextEditingController nameController = TextEditingController();
-//   final TextEditingController brandController = TextEditingController();
-//   final TextEditingController dosageController = TextEditingController();
-//   final TextEditingController unitPriceController = TextEditingController();
-//   final TextEditingController quantityController = TextEditingController();
-//   bool _isLoading = false; // Track loading state
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     if (widget.drug != null) {
-//       nameController.text = widget.drug!.name;
-//       brandController.text = widget.drug!.brand;
-//       dosageController.text = widget.drug!.dosage;
-//       unitPriceController.text = widget.drug!.price.toString();
-//       quantityController.text = widget.drug!.quantity.toString();
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.drug == null ? 'Add New Drug' : 'Edit Drug'),
-//       ),
-//       body: Stack(
-//         children: [
-//           Container(
-//             decoration: BoxDecoration(
-//               image: DecorationImage(
-//                 image: AssetImage('assets/background.png'),
-//                 fit: BoxFit.cover,
-//               ),
-//             ),
-//           ),
-//           SingleChildScrollView(
-//             padding: EdgeInsets.all(20),
-//             child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     widget.drug == null
-//                         ? 'Add New Drug Details'
-//                         : 'Edit Drug Details',
-//                     style: TextStyle(
-//                       fontSize: 24,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                   SizedBox(height: 20),
-//                   _buildTextField(
-//                     labelText: 'Name',
-//                     controller: nameController,
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter the drug name';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 20),
-//                   _buildTextField(
-//                     labelText: 'Brand Name',
-//                     controller: brandController,
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter the brand name';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 20),
-//                   _buildTextField(
-//                     labelText: 'Dosage',
-//                     controller: dosageController,
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter the dosage';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 20),
-//                   _buildTextField(
-//                     labelText: 'Unit Price',
-//                     controller: unitPriceController,
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter the unit price';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 20),
-//                   _buildTextField(
-//                     labelText: 'Quantity',
-//                     controller: quantityController,
-//                     keyboardType: TextInputType.number,
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter the quantity';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 30),
-//                   Center(
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                       children: [
-//                         ElevatedButton(
-//                           onPressed: _isLoading
-//                               ? null
-//                               : () async {
-//                             if (_formKey.currentState!.validate()) {
-//                               setState(() {
-//                                 _isLoading = true;
-//                               });
-//                               User? user = FirebaseAuth.instance.currentUser;
-//                               // Create or update a DrugModel
-//                               DrugsModel updatedDrug = DrugsModel(
-//                                 name: nameController.text,
-//                                 brand: brandController.text,
-//                                 dosage: dosageController.text,
-//                                 price: double.parse(unitPriceController.text),
-//                                 quantity: double.parse(quantityController.text),
-//                               );
-
-//                               try {
-//                                 if (widget.drug == null) {
-//                                   // Add new drug
-//                                   //await PharmacyDatabaseServices().addDrug(user!.uid, updatedDrug);
-//                                   ScaffoldMessenger.of(context)
-//                                       .showSnackBar(
-//                                     SnackBar(
-//                                         content: Text(
-//                                             'Drug added successfully!')),
-//                                   );
-//                                 } else {
-//                                   // Update existing drug
-//                                   //await PharmacyDatabaseServices().updateDrug(updatedDrug);
-//                                   ScaffoldMessenger.of(context)
-//                                       .showSnackBar(
-//                                     SnackBar(
-//                                         content: Text(
-//                                             'Drug updated successfully!')),
-//                                   );
-//                                 }
-
-//                                 // Clear form
-//                                 _formKey.currentState!.reset();
-//                                 nameController.clear();
-//                                 brandController.clear();
-//                                 dosageController.clear();
-//                                 unitPriceController.clear();
-//                                 quantityController.clear();
-
-//                                 setState(() {
-//                                   _isLoading = false;
-//                                 });
-
-//                                 // Optionally: Keep the form open to add more drugs
-//                                 // Navigator.pop(context);
-//                               } catch (e) {
-//                                 setState(() {
-//                                   _isLoading = false;
-//                                 });
-
-//                                 ScaffoldMessenger.of(context)
-//                                     .showSnackBar(
-//                                   SnackBar(
-//                                       content: Text(
-//                                           'Failed to ${widget.drug == null ? 'add' : 'update'} drug: $e')),
-//                                 );
-//                               }
-//                             }
-//                           },
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: Color.fromARGB(218, 3, 240, 212),
-//                             padding: EdgeInsets.symmetric(
-//                                 horizontal: 30, vertical: 15),
-//                             shape: RoundedRectangleBorder(
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                           ),
-//                           child: _isLoading
-//                               ? CircularProgressIndicator(color: Colors.white)
-//                               : Text(
-//                             widget.drug == null
-//                                 ? 'Add to Stock'
-//                                 : 'Save Changes',
-//                             style: TextStyle(color: Colors.white),
-//                           ),
-//                         ),
-//                         ElevatedButton(
-//                           onPressed: _isLoading
-//                               ? null
-//                               : () {
-//                             // Close the keyboard before navigating back
-//                             FocusScope.of(context).unfocus();
-//                             WidgetsBinding.instance!
-//                                 .addPostFrameCallback((_) {
-//                               Navigator.pop(context);
-//                             });
-//                           },
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: Colors.grey,
-//                             padding: EdgeInsets.symmetric(
-//                                 horizontal: 30, vertical: 15),
-//                             shape: RoundedRectangleBorder(
-//                               borderRadius: BorderRadius.circular(10),
-//                             ),
-//                           ),
-//                           child: Text(
-//                             'Cancel',
-//                             style: TextStyle(color: Colors.white),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildTextField({
-//     required String labelText,
-//     required TextEditingController controller,
-//     required String? Function(String?) validator,
-//     TextInputType keyboardType = TextInputType.text,
-//   }) {
-//     return TextFormField(
-//       controller: controller,
-//       keyboardType: keyboardType,
-//       decoration: InputDecoration(
-//         labelText: labelText,
-//         filled: true,
-//         fillColor: Colors.white,
-//         border: OutlineInputBorder(
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//       ),
-//       validator: validator,
-//     );
-//   }
-// }
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:medifinder/drugs/names.dart';
+import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
+import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/validators/validation.dart';
+import '../../models/drugs_model.dart';
+import '../../snackbars/snackbar.dart';
 
-class AddItem extends StatelessWidget {
+class AddItem extends StatefulWidget {
+  @override
+  State<AddItem> createState() => _AddItemState();
+}
+
+class _AddItemState extends State<AddItem> {
   final _formKey = GlobalKey<FormState>();
+  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  TextEditingController namecontroller = TextEditingController();
+  TextEditingController brandnamecontroller = TextEditingController();
+  TextEditingController dosagecontroller = TextEditingController();
+  TextEditingController unitpricecontroller = TextEditingController();
+  TextEditingController quantitycontroller = TextEditingController();
+
+  Future<void> pharmacyAddDrug(BuildContext context) async {
+    try {
+      final String uid = await _pharmacyDatabaseServices.getCurrentPharmacyUid();
+      final drugsCollection = FirebaseFirestore.instance.collection('Pharmacies').doc(uid).collection('Drugs');
+      final querySnapshot = await drugsCollection.where('Name', isEqualTo: namecontroller.text.trim()).where('BrandName', isEqualTo: brandnamecontroller.text.trim()).where('Dosage', isEqualTo: dosagecontroller.text.trim()).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        Snackbars.errorSnackBar(message: "Drug already exists", context: context);
+        return;
+      }
+
+      DrugsModel drug = DrugsModel(
+          brand: brandnamecontroller.text.trim(),
+          name: namecontroller.text.trim(),
+          dosage: dosagecontroller.text.trim(),
+          quantity: int.parse(quantitycontroller.text.trim()),
+          price: double.parse(unitpricecontroller.text.trim())
+      );
+
+      await _pharmacyDatabaseServices.addDrug(uid, drug);
+      print('Drug added successfully!');
+      Future.delayed(Duration.zero, () {
+        Snackbars.successSnackBar(message: "Drug added successfully", context: context);
+        FocusManager.instance.primaryFocus?.unfocus();
+        setState(() {
+          namecontroller.text = "";
+          brandnamecontroller.text = "";
+          dosagecontroller.text = "";
+          unitpricecontroller.text = "";
+          quantitycontroller.text = "";
+        });
+      });
+
+    } catch (e) {
+      print("Error adding drug: $e");
+      Snackbars.errorSnackBar(message: "Error adding drug", context: context);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    namecontroller.dispose();
+    brandnamecontroller.dispose();
+    dosagecontroller.dispose();
+    quantitycontroller.dispose();
+    unitpricecontroller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Add New Drug'),
+        title: const Text("Add New Drug"),
+        backgroundColor: Colors.white54,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.cover,
           ),
-          SingleChildScrollView(
-            padding: EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Add New Drug Details',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+        ),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SafeArea(child: SizedBox(height: 10.0,)),
+                Text(
+                  'Add New Drug Details',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Name',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the drug name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Brand Name',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the brand name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Dosage',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the dosage';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Unit Price',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the unit price';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    labelText: 'Quantity',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the quantity';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              // Process the form data
-                              //***********Add backend function to handle form submission
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(218, 3, 240, 212),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                ),
+                SizedBox(height: 20),
+                TypeAheadField<String>(
+                  controller: namecontroller,
+                  builder: (context, controller, focusNode) {
+                    return _buildTextField(
+                      controller: namecontroller,
+                      labelText: 'Name',
+                      validator: (value) => Validator.validateEmptyText("Name", value),
+                      focusNode: focusNode
+                    );
+                  },
+                  itemBuilder: (context, String? suggestion) {
+                    return ListTile(
+                      title: Text(suggestion!),
+                    );
+                  },
+                  onSelected: (String? suggestion) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    namecontroller.text = suggestion!;
+                  },
+                  suggestionsCallback: (textEditingValue) {
+                    if (textEditingValue != null && textEditingValue.length > 0) {
+                      List<String> suggestions = Drugs.names.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                      suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                      return suggestions;
+                    }
+                    else {
+                      return [];
+                    }
+                  },
+                  emptyBuilder: (context) {
+                    return SizedBox();
+                  },
+                ),
+                SizedBox(height: 20),
+                TypeAheadField(
+                  controller: brandnamecontroller,
+                  builder: (context, controller, focusNode) {
+                    return _buildTextField(
+                      controller: brandnamecontroller,
+                      labelText: 'Brand Name',
+                      validator: (value) => Validator.validateEmptyText("Brand Name", value),
+                      focusNode: focusNode
+                    );
+                  },
+                  itemBuilder: (context, dynamic suggestion) {
+                    return ListTile(
+                      title: Text(suggestion!),
+                    );
+                  },
+                  onSelected: (dynamic suggestion) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    brandnamecontroller.text = suggestion!;
+                  },
+                  suggestionsCallback: (textEditingValue) {
+                    if (textEditingValue != null && textEditingValue.length > 0) {
+                      List<String> suggestions = Drugs.brands.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                      suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                      return suggestions;
+                    }
+                    else {
+                      return [];
+                    }
+                  },
+                  emptyBuilder: (context) {
+                    return SizedBox();
+                  },
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: dosagecontroller,
+                  labelText: 'Dosage',
+                  validator: (value) => Validator.validateEmptyText("Dosage", value),
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: unitpricecontroller,
+                  labelText: 'Unit Price',
+                  keyboardType: TextInputType.number,
+                  validator: (value) => Validator.validateEmptyText("Unit Price", value),
+                ),
+                SizedBox(height: 20),
+                _buildTextField(
+                  controller: quantitycontroller,
+                  labelText: 'Quantity',
+                  keyboardType: TextInputType.number,
+                  validator: (value) => Validator.validateEmptyText("Quantity", value),
+                ),
+                SizedBox(height: 30),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            // Process the form data
+                            //***********Add backend function to handle form submission
+                            await pharmacyAddDrug(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(218, 3, 240, 212),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
                           ),
-                          child: Text(
-                            'Add to Stock',
-                            style: TextStyle(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Close the keyboard before navigating back
-                            FocusScope.of(context).unfocus();
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              Navigator.pop(context);
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 15,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                        child: Text(
+                          'Add to Stock',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Close the keyboard before navigating back
+                          FocusScope.of(context).unfocus();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.pop(context);
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
                           ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                      ],
-                    ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required String labelText,
     required String? Function(String?) validator,
+    FocusNode? focusNode,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      autofocus: false,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: labelText,

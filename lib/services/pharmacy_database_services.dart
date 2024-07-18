@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:async/async.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import '../models/drugs_model.dart';
 import '../models/user_order_model.dart';
 import '../models/user_review_model.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+
+import 'exception_handling_services.dart';
 
 const String PHARMACIES_COLLECTION_REFERENCE = 'Pharmacies';
 
@@ -231,6 +234,25 @@ class PharmacyDatabaseServices {
     }
   }
 
+  // Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
+  //   try {
+  //     CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
+  //     QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
+  //     if (querySnapshotName.docs.isNotEmpty) {
+  //       return querySnapshotName.docs.first;
+  //     } else {
+  //       QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
+  //       if (querySnapshotBrandName.docs.isNotEmpty) {
+  //         return querySnapshotBrandName.docs.first;
+  //       } else{
+  //         throw Exception('No such document.');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Error getting drug by name: $e');
+  //   }
+  // }
+
   Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
     try {
       CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
@@ -238,15 +260,28 @@ class PharmacyDatabaseServices {
       if (querySnapshotName.docs.isNotEmpty) {
         return querySnapshotName.docs.first;
       } else {
-        QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
-        if (querySnapshotBrandName.docs.isNotEmpty) {
-          return querySnapshotBrandName.docs.first;
-        } else{
-          throw Exception('No such document.');
-        }
+        throw DrugNameException('Drug not found');
       }
     } catch (e) {
       throw Exception('Error getting drug by name: $e');
+    }
+  }
+
+  Future<List<DocumentSnapshot>> getDrugsByBrandName(String name, String pharmacyID) async {
+    try {
+      List<DocumentSnapshot> filteredDrugs = [];
+      CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
+      QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
+      if (querySnapshotBrandName.docs.isNotEmpty) {
+        for (DocumentSnapshot document in querySnapshotBrandName.docs) {
+          filteredDrugs.add(document);
+        }
+        return filteredDrugs;
+      } else{
+        throw DrugBrandNameException('Drugs not found');
+      }
+    } catch (e) {
+      throw Exception('Error getting drugs by brand name: $e');
     }
   }
 
@@ -334,11 +369,26 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Stream<QuerySnapshot<DrugsModel>> getDrugs(String pharmacyID) {
-    return _pharmaciesRef.doc(pharmacyID).collection('Drugs').withConverter<DrugsModel>(
+  Stream<List<QuerySnapshot<DrugsModel>>> searchDrugs(String pharmacyID, String name) {
+    final nameQuery = _pharmaciesRef.doc(pharmacyID).collection('Drugs').where('Name', isEqualTo: name).withConverter<DrugsModel>(
       fromFirestore: (snapshots, _) => DrugsModel.fromSnapshot(snapshots),
       toFirestore: (drug, _) => drug.toJson(),
     ).snapshots();
+
+    final brandNameQuery = _pharmaciesRef.doc(pharmacyID).collection('Drugs').where('BrandName', isEqualTo: name).withConverter<DrugsModel>(
+      fromFirestore: (snapshots, _) => DrugsModel.fromSnapshot(snapshots),
+      toFirestore: (drug, _) => drug.toJson(),
+    ).snapshots();
+    return StreamZip([nameQuery, brandNameQuery]);
+  }
+
+
+  Stream<List<QuerySnapshot<DrugsModel>>> getDrugs(String pharmacyID) {
+    final drugQuery = _pharmaciesRef.doc(pharmacyID).collection('Drugs').withConverter<DrugsModel>(
+      fromFirestore: (snapshots, _) => DrugsModel.fromSnapshot(snapshots),
+      toFirestore: (drug, _) => drug.toJson(),
+    ).snapshots();
+    return StreamZip([drugQuery]);
   }
 
   Future<void> addDrug(String pharmacyID, DrugsModel drug) async {
@@ -366,4 +416,27 @@ class PharmacyDatabaseServices {
       throw Exception('Error deleting drug: $e');
     }
   }
+
+  Future<void> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
+    try {
+      final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
+      final drugSnapshot = await drugDoc.get();
+
+      if(drugSnapshot.exists) {
+        final currentQuantity = drugSnapshot.data()?['Quantity'] ?? 0.0;
+        final newQuantity = currentQuantity - quantity;
+
+        if (newQuantity < 0) {
+          throw InsufficientQuantityException('The quantity you are ordering is greater than the available quantity');
+        }
+
+        await drugDoc.update({'Quantity': newQuantity});
+      } else {
+        throw DrugNameException('Drug not found.');
+      }
+    } catch (e) {
+      throw Exception('Error updating drug quantity: $e');
+    }
+  }
 }
+

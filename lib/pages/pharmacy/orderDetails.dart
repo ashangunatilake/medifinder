@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/pages/launcher.dart';
 import 'package:medifinder/pages/pharmacy/full_screen_image.dart';
@@ -27,19 +28,27 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   Future<void> _acceptOrder(DocumentSnapshot<Map<String, dynamic>> orderDoc) async {
     UserOrder updatedOrder = UserOrder.fromSnapshot(orderDoc);
-    updatedOrder.copyWith(isAccepted: true);
+    updatedOrder = updatedOrder.copyWith(isAccepted: true);
     await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id, updatedOrder);
     print('Order Accepted');
 
-    Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-    if(userData['FCMToken'] != null) {
-      List<String> tokens = List<String>.from(userData['FCMTokens']);
+    try {
+      UserModel userData = userDoc.data() as UserModel;
+      print(userData.tokens);
+      List<String> tokens = List<String>.from(userData.tokens);
       if(tokens.isNotEmpty) {
         for(var token in tokens) {
-          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugID'], userData['Name']);
+          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugID'], userData.name);
         }
       }
+        } catch (e) {
+      Exception('Error getting FCM token: $e');
     }
+
+    Future.delayed(Duration.zero, () {
+      Snackbars.successSnackBar(message: "Order accepted successfully", context: context);
+      Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+    });
   }
 
   Future<void> _cancelOrder(BuildContext context, DocumentSnapshot<Map<String, dynamic>> orderDoc) async {
@@ -72,23 +81,31 @@ class _OrderDetailsState extends State<OrderDetails> {
               onPressed: () async {
                 final reason = reasonController.text;
                 if (reason.isNotEmpty) {
-                  Navigator.of(context).pop(); // Close the dialog
+                  //Navigator.of(context).pop(); // Close the dialog
                   print('Order Cancelled with reason: $reason');
 
                   // This is where you would call the backend to cancel the order
                   await _pharmacyDatabaseServices.deletePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id);
                   print('Order Cancelled');
 
-                  Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-                  if(userData['FCMToken'] != null) {
-                    List<String> tokens = List<String>.from(userData['FCMTokens']);
+                  Future.delayed(Duration.zero, () {
+                    Snackbars.successSnackBar(message: "Order cancelled successfully", context: context);
+                    Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+                  });
+
+                  print(userDoc['FCMTokens']);
+                  try {
+                    UserModel userData = userDoc.data() as UserModel;
+                    print(userData.tokens);
+                    List<String> tokens = List<String>.from(userData.tokens);
                     if(tokens.isNotEmpty) {
                       for(var token in tokens) {
-                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugID'], userData['Name'], reason);
+                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugID'], userData.name, reason);
                       }
                     }
+                                    } catch (e) {
+                    Exception('Error getting FCM token: $e');
                   }
-
                 } else {
                     Snackbars.errorSnackBar(message: "Reason cannot be empty", context: context);
                 }
@@ -258,10 +275,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     if (!accepted) ElevatedButton(
-                                      onPressed: () async {
-                                        await _acceptOrder(docs[index] as DocumentSnapshot<Map<String, dynamic>>);
-
+                                      onPressed: () {
+                                        _acceptOrder(docs[index] as DocumentSnapshot<Map<String, dynamic>>);
                                         // Send a notification to the user
+                                        
                                       },
                                       style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color.fromARGB(255, 69, 255, 236)
@@ -272,8 +289,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       )
                                     ),
                                     if (!accepted) ElevatedButton(
-                                        onPressed: () async {
-                                          await _cancelOrder(context, docs[index] as DocumentSnapshot<Map<String, dynamic>>);
+                                        onPressed: () {
+                                          _cancelOrder(context, docs[index] as DocumentSnapshot<Map<String, dynamic>>);
 
                                           // Send a notification to the user with the reason
 
@@ -286,9 +303,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                                           style: TextStyle(color: Colors.white),
                                         )
                                     ),
-                                    if (accepted) ElevatedButton(
+                                    if (accepted && docs[index]['DeliveryMethod']) ElevatedButton(
                                         onPressed: () {
-
+                                          GeoPoint geopoint = docs[index]['UserLocation'];
+                                          Launcher.openMap(geopoint);
                                         },
                                         style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color.fromARGB(255, 69, 255, 236),

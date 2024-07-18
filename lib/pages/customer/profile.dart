@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/models/user_model.dart';
@@ -18,6 +19,7 @@ class _ProfileState extends State<Profile> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController numberController;
+  final _formkey = GlobalKey<FormState>();
   bool enabled = false;
   bool nameFieldModified = false;
   bool mobileFieldModified = false;
@@ -113,32 +115,35 @@ class _ProfileState extends State<Profile> {
             ),
             child: loaded ? ListView(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 10.0),
-                    Text(
-                      userDoc['Name'],
-                      style: const TextStyle(fontSize: 28.0, color: Colors.black),
-                    ),
-                    const SizedBox(height: 20.0),
-                    const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.person, size: 130.0, color: Colors.black),
-                      radius: 75.0,
-                    ),
-                    const SizedBox(height: 30.0),
-                    _buildTextFieldRow("Name", nameController, enabled),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Email", emailController, false),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Mobile No.", numberController, enabled),
-                    const SizedBox(height: 30.0),
-                    _buildActionButtons(context),
-                    const SizedBox(height: 20.0),
-                  ],
+                Form(
+                  key: _formkey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 10.0),
+                      Text(
+                        userDoc['Name'],
+                        style: const TextStyle(fontSize: 28.0, color: Colors.black),
+                      ),
+                      const SizedBox(height: 20.0),
+                      const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.person, size: 130.0, color: Colors.black),
+                        radius: 75.0,
+                      ),
+                      const SizedBox(height: 30.0),
+                      _buildTextFieldRow("Name", nameController, enabled),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Email", emailController, false),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Mobile No.", numberController, enabled),
+                      const SizedBox(height: 30.0),
+                      _buildActionButtons(context),
+                      const SizedBox(height: 20.0),
+                    ],
+                  ),
                 ),
               ],
             ) : const Center(child: CircularProgressIndicator(),),
@@ -176,6 +181,7 @@ class _ProfileState extends State<Profile> {
             child: TextFormField(
               enabled: enabled,
               controller: controller,
+              validator: (value) => (label == "Name") ? Validator.validateEmptyText(label, value) : (label == "Mobile No." ? Validator.validateMobileNumber(value) : null),
               style: const TextStyle(fontSize: 14.0, color: Colors.black),
             ),
           ),
@@ -202,7 +208,7 @@ class _ProfileState extends State<Profile> {
             context,
             "Change Password",
                 () {
-              // Add your change password logic here
+              Navigator.pushNamed(context, '/changepassword');
             },
           ),
         if (!enabled)
@@ -220,6 +226,9 @@ class _ProfileState extends State<Profile> {
             context,
             "Done",
                 () async {
+              if (!_formkey.currentState!.validate()) {
+                return;
+              }
               await _userDatabaseServices.updateUser(userDoc.id, _updateUserProfile(userDoc));
               print('Updated successfully!');
               // setState(() {

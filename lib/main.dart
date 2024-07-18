@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:medifinder/drugs/names.dart';
+import 'package:medifinder/pages/changepassword.dart';
 import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/activities.dart';
 import 'package:medifinder/pages/customer/addreview.dart';
@@ -16,10 +18,14 @@ import 'package:medifinder/pages/customer/search.dart';
 import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
+import 'package:medifinder/pages/forgotpassword.dart';
+import 'package:medifinder/pages/pharmacy/add_item.dart';
+import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/pharmacyprofile.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
 import 'package:medifinder/pages/pharmacy/orders.dart';
+import 'package:medifinder/pages/resetpassword.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/pages/message.dart';
 
@@ -117,6 +123,11 @@ class MyApp extends StatelessWidget {
         '/orders': (context) => Orders(),
         '/order_details': (context) => OrderDetails(),
         '/pharmacy_profile': (context) => const PharmacyProfile(),
+        '/stock': (context) => DrugStock(),
+        '/adddrug': (context) => AddItem(),
+        '/changepassword': (context) => const ChangePassword(),
+        '/forgotpassword': (context) => const ForgotPassword(),
+        '/resetpassword': (context) => const ResetPassword(),
         '/message': (context) => const NotificationMessage(),
       },
     );

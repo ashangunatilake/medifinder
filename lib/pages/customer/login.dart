@@ -249,16 +249,17 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   RichText(
                                       text: TextSpan(
-                                          text: "Forget me",
+                                          text: "Forgot password?",
                                           style: const TextStyle(
                                             color: Color(0xFF0386D0),
                                             fontSize: 14.0,
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              //onTap logic
+                                              Navigator.pushNamed(context, '/forgotpassword');
                                             }
-                                      )),
+                                      )
+                                  ),
 
                                 ],
                               ),

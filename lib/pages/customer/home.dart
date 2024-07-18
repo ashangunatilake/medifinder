@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -24,6 +25,7 @@ class _CustomerHomeState extends State<CustomerHome> {
   bool markerPlaced = false;
   bool mapLoaded = false;
   BitmapDescriptor? myLocationIcon;
+  StreamSubscription<LocationData>? _locationSubscription;
 
   late Future<Map<String, dynamic>> _userDataFuture;
 
@@ -33,6 +35,13 @@ class _CustomerHomeState extends State<CustomerHome> {
     loadCustomMarker();
     getLocationUpdates();
     _userDataFuture = getUserData();
+  }
+
+  @override
+  void dispose() {
+    // Cancel the location subscription to avoid memory leaks
+    _locationSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadCustomMarker() async {
@@ -64,17 +73,19 @@ class _CustomerHomeState extends State<CustomerHome> {
       }
     }
 
-    _locationController.onLocationChanged.listen((LocationData currentLocation) {
+    _locationSubscription = _locationController.onLocationChanged.listen((LocationData currentLocation) {
       if (currentLocation.latitude != null && currentLocation.longitude != null) {
         source = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-        setState(() {
-          if (!markerPlaced) {
-            currentP = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-            source = LatLng(currentLocation.latitude!, currentLocation.longitude!);
-            markerPlaced = true;
-            mapLoaded = true; // Set mapLoaded to true when currentP is set
-          }
-        });
+        if (mounted) {
+          setState(() {
+            if (!markerPlaced) {
+              currentP = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+              source = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+              markerPlaced = true;
+              mapLoaded = true; // Set mapLoaded to true when currentP is set
+            }
+          });
+        }
       }
     });
   }
