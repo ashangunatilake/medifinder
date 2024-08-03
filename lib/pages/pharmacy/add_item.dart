@@ -30,7 +30,7 @@ class AddItem extends StatelessWidget {
           brand: brandnamecontroller.text.trim(),
           name: namecontroller.text.trim(),
           dosage: dosagecontroller.text.trim(),
-          quantity: double.parse(quantitycontroller.text.trim()),
+          quantity: int.parse(quantitycontroller.text.trim()),
           price: double.parse(unitpricecontroller.text.trim())
       );
 

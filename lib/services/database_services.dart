@@ -8,6 +8,8 @@ import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
 
+import 'exception_handling_services.dart';
+
 const String USERS_COLLECTION_REFERENCE = 'Users';
 
 class UserDatabaseServices {
@@ -27,10 +29,10 @@ class UserDatabaseServices {
       if (user != null) {
         return user.uid;
       } else {
-        throw Exception('No user logged in.');
+        throw UserLoginException('No user logged in');
       }
     } catch (e) {
-      throw Exception('Error getting current user UID: $e');
+      throw ErrorException;
     }
   }
 

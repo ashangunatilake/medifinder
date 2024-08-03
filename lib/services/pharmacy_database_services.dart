@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:async/async.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import '../models/drugs_model.dart';
@@ -368,11 +369,26 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Stream<QuerySnapshot<DrugsModel>> getDrugs(String pharmacyID) {
-    return _pharmaciesRef.doc(pharmacyID).collection('Drugs').withConverter<DrugsModel>(
+  Stream<List<QuerySnapshot<DrugsModel>>> searchDrugs(String pharmacyID, String name) {
+    final nameQuery = _pharmaciesRef.doc(pharmacyID).collection('Drugs').where('Name', isEqualTo: name).withConverter<DrugsModel>(
       fromFirestore: (snapshots, _) => DrugsModel.fromSnapshot(snapshots),
       toFirestore: (drug, _) => drug.toJson(),
     ).snapshots();
+
+    final brandNameQuery = _pharmaciesRef.doc(pharmacyID).collection('Drugs').where('BrandName', isEqualTo: name).withConverter<DrugsModel>(
+      fromFirestore: (snapshots, _) => DrugsModel.fromSnapshot(snapshots),
+      toFirestore: (drug, _) => drug.toJson(),
+    ).snapshots();
+    return StreamZip([nameQuery, brandNameQuery]);
+  }
+
+
+  Stream<List<QuerySnapshot<DrugsModel>>> getDrugs(String pharmacyID) {
+    final drugQuery = _pharmaciesRef.doc(pharmacyID).collection('Drugs').withConverter<DrugsModel>(
+      fromFirestore: (snapshots, _) => DrugsModel.fromSnapshot(snapshots),
+      toFirestore: (drug, _) => drug.toJson(),
+    ).snapshots();
+    return StreamZip([drugQuery]);
   }
 
   Future<void> addDrug(String pharmacyID, DrugsModel drug) async {
@@ -401,7 +417,7 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Future<void> updateDrugQuantity(String pharmacyID, String drugID, double quantity) async {
+  Future<void> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
     try {
       final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
       final drugSnapshot = await drugDoc.get();
@@ -416,7 +432,7 @@ class PharmacyDatabaseServices {
 
         await drugDoc.update({'Quantity': newQuantity});
       } else {
-        throw Exception('Drug not found.');
+        throw DrugNameException('Drug not found.');
       }
     } catch (e) {
       throw Exception('Error updating drug quantity: $e');

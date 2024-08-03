@@ -40,3 +40,13 @@ class DrugNameException implements Exception {
   final String message;
   DrugNameException(this.message);
 }
+
+class ErrorException implements Exception {
+  final String message;
+  ErrorException([this.message = 'Something went wrong']);
+}
+
+class UserLoginException implements Exception {
+  final String message;
+  UserLoginException(this.message);
+}

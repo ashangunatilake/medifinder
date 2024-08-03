@@ -100,7 +100,7 @@ class PushNotifications {
   // Show a simple notification
   static Future showSimpleNotification({required String title, required  String body, required String payload}) async {
     const AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails('your channel id', 'your channe name',
+    AndroidNotificationDetails('your channel id', 'your channel name',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
@@ -195,7 +195,7 @@ class PushNotifications {
             'notification':
             {
               'title': "Order Canceled",
-              'body': "Your order for $drugName has been canceled by $pharmacyName due to $reason."
+              'body': "Your order for $drugName has been cancelled by $pharmacyName due to $reason."
             }
           }
         };

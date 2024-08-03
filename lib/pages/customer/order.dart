@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -26,7 +27,7 @@ class _OrderState extends State<Order> {
   bool deliver = false;
   XFile? _image;
   final picker = ImagePicker();
-  double quantity = 0;
+  int quantity = 0;
   late String _imageUrl;
   late String userUid;
   late DocumentSnapshot userDoc;
@@ -66,9 +67,12 @@ class _OrderState extends State<Order> {
         userLocation = args['userLocation'] as LatLng;
       }
       else {
-        throw Exception("Arguments are missing");
+        throw ErrorException();
       }
     } catch (e) {
+      if (e is UserLoginException) {
+        Snackbars.errorSnackBar(message: e.message, context: context);
+      }
       print("Error fetching user data: $e");
     } finally {
       setState(() {
@@ -168,7 +172,7 @@ class _OrderState extends State<Order> {
     );
   }
 
-  Future<void> userAddOrder(String uid, String pid, String drugName, String imageUrl, double quantity, bool delivery, [GeoPoint? location]) async {
+  Future<void> userAddOrder(String uid, String pid, String drugName, String imageUrl, int quantity, bool delivery, [GeoPoint? location]) async {
     try {
       UserOrder order = UserOrder(
         id: uid,
@@ -184,7 +188,6 @@ class _OrderState extends State<Order> {
       await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
       print('User order added successfully!');
       Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Order placed successfully", context: context));
-      Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
     } catch (e) {
       Snackbars.errorSnackBar(message: "Error placing the order", context: context);
     }
@@ -463,15 +466,16 @@ class _OrderState extends State<Order> {
                               try {
                                 await _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
                                 userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, location);
-
-                                if (pharmacyData['FCMToken'] != null) {
+                                if (pharmacyData['FCMTokens'] != null) {
                                   List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
                                   if (tokens.isNotEmpty) {
                                     for (var token in tokens) {
+                                      print(token);
                                       _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
                                     }
                                   }
                                 }
+                                Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
                                   Snackbars.errorSnackBar(message: e.message, context: context);
@@ -484,14 +488,16 @@ class _OrderState extends State<Order> {
                               try {
                                 _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
                                 userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
-                                if(pharmacyData['FCMToken'] != null) {
+                                if(pharmacyData['FCMTokens'] != null) {
                                   List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
                                   if(tokens.isNotEmpty) {
                                     for(var token in tokens) {
+                                      print(token);
                                       _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
                                     }
                                   }
                                 }
+                                Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
                                   Snackbars.errorSnackBar(message: e.message, context: context);

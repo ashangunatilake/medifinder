@@ -5,12 +5,11 @@ class UserOrder {
   final String did;
   final String pid;
   final String url;
-  final double quantity;
+  final int quantity;
   final bool delivery;
   final bool isAccepted;
   final bool isCompleted;
   final GeoPoint? location;
-
 
   const UserOrder({
     required this.id,
@@ -24,52 +23,71 @@ class UserOrder {
     this.location,
   });
 
-  static UserOrder empty() => const UserOrder(id: '', did: '', pid: '', url: '', quantity: 0, delivery: false, isAccepted: false, isCompleted: false, location: null);
+  static UserOrder empty() => const UserOrder(
+    id: '',
+    did: '',
+    pid: '',
+    url: '',
+    quantity: 0,
+    delivery: false,
+    isAccepted: false,
+    isCompleted: false,
+    location: null,
+  );
 
   factory UserOrder.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
-    if(document.data() != null) {
-      final data = document.data()!;
+    final data = document.data();
+    if (data != null) {
       return UserOrder(
         id: document.id,
         did: data['DrugID'] ?? '',
         pid: data['PharmacyID'] ?? '',
         url: data['PrescriptionURL'] ?? '',
-        quantity: data['Quantity'] ?? 0,
+        quantity: (data['Quantity'] is int) ? data['Quantity'] as int : 0,
         delivery: data['DeliveryMethod'] ?? false,
         isAccepted: data['Accepted'] ?? false,
         isCompleted: data['Completed'] ?? false,
         location: data['UserLocation'],
       );
-    }
-    else {
+    } else {
       return UserOrder.empty();
     }
   }
 
   UserOrder.fromJson(String userID, Map<String, Object?> json)
-    :this(
-      id: userID,
-      did: json['DrugID'] as String,
-      pid: json['PharmacyID'] as String,
-      url: json['PrescriptionURL'] as String,
-      quantity: json['Quantity'] as double,
-      delivery: json['DeliveryMethod'] as bool,
-      isAccepted: json['Accepted'] as bool,
-      isCompleted: json['Completed'] as bool,
-      location: json['UserLocation'] as GeoPoint?,
-    );
+      : this(
+    id: userID,
+    did: json['DrugID'] as String,
+    pid: json['PharmacyID'] as String,
+    url: json['PrescriptionURL'] as String,
+    quantity: json['Quantity'] as int,
+    delivery: json['DeliveryMethod'] as bool,
+    isAccepted: json['Accepted'] as bool,
+    isCompleted: json['Completed'] as bool,
+    location: json['UserLocation'] as GeoPoint?,
+  );
 
   UserOrder copyWith({
     String? did,
     String? pid,
     String? url,
-    double? quantity,
+    int? quantity,
     bool? delivery,
     bool? isAccepted,
     bool? isCompleted,
     GeoPoint? location,
   }) {
-    return UserOrder(id: this.id, did: did ?? this.did, pid: pid ?? this.pid, url: url ?? this.url, quantity: quantity ?? this.quantity, delivery: delivery ?? this.delivery, isAccepted: isAccepted ?? this.isAccepted, isCompleted: isCompleted ?? this.isCompleted, location: location ?? this.location);
+    return UserOrder(
+      id: this.id,
+      did: did ?? this.did,
+      pid: pid ?? this.pid,
+      url: url ?? this.url,
+      quantity: quantity ?? this.quantity,
+      delivery: delivery ?? this.delivery,
+      isAccepted: isAccepted ?? this.isAccepted,
+      isCompleted: isCompleted ?? this.isCompleted,
+      location: location ?? this.location,
+    );
   }
 
   Map<String, Object?> toJson() {
