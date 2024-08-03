@@ -26,7 +26,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Forgot Password"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -37,7 +37,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),

@@ -56,7 +56,7 @@ class _ChangePasswordState extends State<ChangePassword> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Change Password"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -67,7 +67,7 @@ class _ChangePasswordState extends State<ChangePassword> {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),

@@ -18,7 +18,7 @@ class _InventoryState extends State<Inventory> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text('Inventory Management'),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
       ),
       body: FutureBuilder(
@@ -38,7 +38,7 @@ class _InventoryState extends State<Inventory> {
             return Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/background.png'),
+                  image: AssetImage('assets/images/background2.png'),
                   fit: BoxFit.cover,
                 ),
               ),

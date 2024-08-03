@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -28,7 +29,7 @@ class _OrderState extends State<Order> {
   XFile? _image;
   final picker = ImagePicker();
   int quantity = 0;
-  late String _imageUrl;
+  String _imageUrl = "";
   late String userUid;
   late DocumentSnapshot userDoc;
   late Map<String, dynamic> userData;
@@ -81,6 +82,90 @@ class _OrderState extends State<Order> {
     }
   }
 
+  Widget imageDialog(String imagePath, String pName, String uName) {
+    return Dialog(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.file(
+              File(imagePath),
+              height: 500.0,
+              fit: BoxFit.fill,
+              alignment: Alignment.center,
+            ),
+            const SizedBox(height: 10.0,),
+            const Text(
+              "Upload prescription?",
+              style: TextStyle(
+                fontSize: 18.0
+              ),
+            ),
+            const SizedBox(height: 10.0,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFFFFF),
+                      //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                      side: const BorderSide(color: Color(0xFF12E7C0))
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Color(0xFF12E7C0),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                      );
+                      _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
+                      Navigator.pop(context); // Close the progress indicator
+                      Snackbars.successSnackBar(message: "Prescription uploaded successfully", context: context);
+                      Navigator.pop(context); // Close the dialog
+                      setState(() {
+                        fileName = _image!.name;
+                      });
+                    } catch (e) {
+                      Navigator.pop(context); // Close the progress indicator
+                      Snackbars.errorSnackBar(message: "Error uploading prescription", context: context);
+                      Navigator.pop(context); // Close the dialog
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF12E7C0),
+                      //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                      side: const BorderSide(color: Color(0xFF12E7C0))),
+                  child: const Text(
+                    "Upload",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      )
+    );
+  }
+
   Future<XFile?> compressImage(String path) async {
     final lastIndex = path.lastIndexOf(RegExp(r'.png|.jp'));
     final fileName = path.substring(0,lastIndex);
@@ -117,14 +202,11 @@ class _OrderState extends State<Order> {
 
     if (pickedFile != null) {
       _image = await compressImage(pickedFile.path);
-      setState(() {
-        fileName = _image!.name;
-      });
-    }
-
-
-    if (_image != null) {
-      _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
+      await showDialog(
+        context: context,
+        builder: (_) => imageDialog(_image!.path, pName, uName),
+        barrierDismissible: false
+      );
     }
   }
 
@@ -134,14 +216,13 @@ class _OrderState extends State<Order> {
 
     if (pickedFile != null) {
       _image = await compressImage(pickedFile.path);
-      setState(() {
-        fileName = _image!.name;
-      });
+      await showDialog(
+          context: context,
+          builder: (_) => imageDialog(_image!.path, pName, uName),
+          barrierDismissible: false
+      );
     }
 
-    if (_image != null) {
-      _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
-    }
   }
 
   Future<void> showOptions(String pName, String uName) async {
@@ -187,7 +268,6 @@ class _OrderState extends State<Order> {
       );
       await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
       print('User order added successfully!');
-      Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Order placed successfully", context: context));
     } catch (e) {
       Snackbars.errorSnackBar(message: "Error placing the order", context: context);
     }
@@ -199,7 +279,7 @@ class _OrderState extends State<Order> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: (!loading) ? Text("${pharmacyData["Name"]} - Order") : Text("Order"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -210,7 +290,7 @@ class _OrderState extends State<Order> {
           : Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -418,7 +498,7 @@ class _OrderState extends State<Order> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _image == null
+                          fileName.isEmpty
                               ? const Text(
                             "Upload prescription",
                             style: TextStyle(
@@ -457,7 +537,7 @@ class _OrderState extends State<Order> {
                               Snackbars.errorSnackBar(message: "Quantity cannot be zero", context: context);
                               return;
                             }
-                            if (_image == null) {
+                            if (_imageUrl.isEmpty) {
                               Snackbars.errorSnackBar(message: "Please upload a prescription", context: context);
                               return;
                             }
@@ -475,6 +555,7 @@ class _OrderState extends State<Order> {
                                     }
                                   }
                                 }
+                                Snackbars.successSnackBar(message: "Order placed successfully", context: context);
                                 Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
@@ -497,6 +578,7 @@ class _OrderState extends State<Order> {
                                     }
                                   }
                                 }
+                                Snackbars.successSnackBar(message: "Order placed successfully", context: context);
                                 Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {

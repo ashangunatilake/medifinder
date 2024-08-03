@@ -95,7 +95,7 @@ class _ProfileState extends State<Profile> {
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),

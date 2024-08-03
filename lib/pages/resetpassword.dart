@@ -26,7 +26,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Reset Password"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -37,7 +37,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),

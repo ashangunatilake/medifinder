@@ -79,7 +79,7 @@ class _AddItemState extends State<AddItem> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Add New Drug"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -90,7 +90,7 @@ class _AddItemState extends State<AddItem> {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),

@@ -227,7 +227,7 @@ class _DrugStockState extends State<DrugStock> {
           extendBodyBehindAppBar: true,
           appBar: AppBar(
             title: const Text("Drugs in Store"),
-            backgroundColor: Colors.white54,
+            backgroundColor: Colors.white38,
             elevation: 0.0,
             titleTextStyle:
                 const TextStyle(fontSize: 18.0, color: Colors.black),
@@ -235,7 +235,7 @@ class _DrugStockState extends State<DrugStock> {
           body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.png'),
+                image: AssetImage('assets/images/background2.png'),
                 fit: BoxFit.cover,
               ),
             ),

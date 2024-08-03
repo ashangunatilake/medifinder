@@ -156,7 +156,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           title: (!accepted) ? Text("Pending Orders - ${userDoc["Name"]} ") : Text("Accepted Orders - ${userDoc["Name"]} "),
-          backgroundColor: Colors.white54,
+          backgroundColor: Colors.white38,
           elevation: 0.0,
           titleTextStyle: const TextStyle(
               fontSize: 16.0,
@@ -166,7 +166,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/background.png'),
+              image: AssetImage('assets/images/background2.png'),
               fit: BoxFit.cover
             )
           ),
