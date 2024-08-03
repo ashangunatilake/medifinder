@@ -8,6 +8,15 @@ class FullScreenImagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Prescription"),
+        backgroundColor: const Color(0xFF399479),
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+          fontSize: 18.0,
+          color: Colors.black,
+        ),
+      ),
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Center(
@@ -32,14 +41,14 @@ class FullScreenImagePage extends StatelessWidget {
                 )
                     : Image.asset(imageUrl),
               ),
-              Positioned(
-                top: 40,
-                right: 20,
-                child: IconButton(
-                  icon: Icon(Icons.close, color: Colors.black, size: 30),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
+              // Positioned(
+              //   top: 40,
+              //   right: 20,
+              //   child: IconButton(
+              //     icon: Icon(Icons.close, color: Colors.black, size: 30),
+              //     onPressed: () => Navigator.of(context).pop(),
+              //   ),
+              // ),
             ],
           ),
         ),

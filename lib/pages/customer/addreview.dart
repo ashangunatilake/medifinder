@@ -46,7 +46,7 @@ class _AddReviewState extends State<AddReview> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text("${pharmacyDoc["Name"]} - Add review"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -56,7 +56,7 @@ class _AddReviewState extends State<AddReview> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,),
         ),
         child: Column(

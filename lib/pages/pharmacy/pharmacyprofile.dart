@@ -6,6 +6,7 @@ import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/pages/locationpicker.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -25,6 +26,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
   late TextEditingController openingTimeController;
   late TextEditingController closingTimeController;
   late TextEditingController locationController;
+  final _formkey = GlobalKey<FormState>();
   bool enabled = false;
   bool nameFieldModified = false;
   bool mobileFieldModified = false;
@@ -191,7 +193,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -211,55 +213,58 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
             ),
             child: loaded ? ListView(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 10.0),
-                    Text(
-                      pharmacyDoc['Name'],
-                      style: const TextStyle(fontSize: 28.0, color: Colors.black),
-                    ),
-                    const SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          pharmacyDoc['Ratings'].toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 15.0,
+                Form(
+                  key: _formkey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 10.0),
+                      Text(
+                        pharmacyDoc['Name'],
+                        style: const TextStyle(fontSize: 28.0, color: Colors.black),
+                      ),
+                      const SizedBox(height: 10.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            pharmacyDoc['Ratings'].toStringAsFixed(1),
+                            style: const TextStyle(
+                              fontSize: 15.0,
+                            ),
                           ),
-                        ),
-                        Icon(
-                          Icons.star,
-                          color: Colors.amber,
-                          size: 24.0,
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 20.0),
-                    const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
-                      radius: 75.0,
-                    ),
-                    const SizedBox(height: 30.0),
-                    _buildTextFieldRow("Name", nameController, enabled),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Email", emailController, false),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Mobile No.", numberController, enabled),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Opening Time", openingTimeController, enabled),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Closing Time", closingTimeController, enabled),
-                    const SizedBox(height: 10.0),
-                    _buildTextFieldRow("Location", locationController, enabled),
-                    const SizedBox(height: 30.0),
-                    _buildActionButtons(context),
-                    const SizedBox(height: 20.0),
-                  ],
+                          const Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 24.0,
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 20.0),
+                      const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
+                        radius: 75.0,
+                      ),
+                      const SizedBox(height: 30.0),
+                      _buildTextFieldRow("Name", nameController, enabled),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Email", emailController, false),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Mobile No.", numberController, enabled),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Opening Time", openingTimeController, enabled),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Closing Time", closingTimeController, enabled),
+                      const SizedBox(height: 10.0),
+                      _buildTextFieldRow("Location", locationController, enabled),
+                      const SizedBox(height: 30.0),
+                      _buildActionButtons(context),
+                      const SizedBox(height: 20.0),
+                    ],
+                  ),
                 ),
               ],
             ) : const Center(child: CircularProgressIndicator(),),
@@ -298,6 +303,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
               enabled: enabled,
               readOnly: (label == "Opening Time" || label == "Closing Time" || label == "Location") ? true : false,
               controller: controller,
+              validator: (value) => (label == "Opening Time" || label == "Closing Time" || label == "Location" || label == "Name") ? Validator.validateEmptyText(label, value) : (label == "Mobile No." ? Validator.validateMobileNumber(value) : null),
               style: const TextStyle(fontSize: 14.0, color: Colors.black),
               onTap: () {
                 if ((label == "Opening Time" || label == "Closing Time") && enabled) {
@@ -335,7 +341,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
             context,
             "Change Password",
                 () {
-              // Add your change password logic here
+              Navigator.pushNamed(context, '/changepassword');
             },
           ),
         if (!enabled)
@@ -353,6 +359,9 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
             context,
             "Done",
                 () async {
+              if (!_formkey.currentState!.validate()) {
+                return;
+              }
               await _pharmacyDatabaseServices.updatePharmacy(pharmacyDoc.id, _updatePharmacyProfile(pharmacyDoc));
               print('Updated successfully!');
               // setState(() {

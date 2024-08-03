@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:medifinder/drugs/names.dart';
+import 'package:medifinder/pages/changepassword.dart';
 import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/activities.dart';
 import 'package:medifinder/pages/customer/addreview.dart';
@@ -16,10 +18,14 @@ import 'package:medifinder/pages/customer/search.dart';
 import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
+import 'package:medifinder/pages/forgotpassword.dart';
+import 'package:medifinder/pages/pharmacy/add_item.dart';
+import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/pharmacyprofile.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
 import 'package:medifinder/pages/pharmacy/orders.dart';
+import 'package:medifinder/pages/resetpassword.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/pages/message.dart';
 
@@ -29,7 +35,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // Function to listen to background changes
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
-  if(message.notification != null) {
+  if (message.notification != null) {
     print('Some notification received in background...');
   }
 }
@@ -55,7 +61,7 @@ void main() async {
 
   // On background notification tapped
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    if(message.notification != null) {
+    if (message.notification != null) {
       print('Background notification tapped');
       navigatorKey.currentState!.pushNamed('/message', arguments: message);
     }
@@ -65,17 +71,17 @@ void main() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     String payloadData = jsonEncode(message.data);
     print('Got a message in foreground');
-    if(message.notification != null) {
+    if (message.notification != null) {
       PushNotifications.showSimpleNotification(
-        title: message.notification!.title!,
-        body: message.notification!.body!,
-        payload: payloadData);
+          title: message.notification!.title!,
+          body: message.notification!.body!,
+          payload: payloadData);
     }
   });
 
   // For handling in terminated state
   final RemoteMessage? message =
-  await FirebaseMessaging.instance.getInitialMessage();
+      await FirebaseMessaging.instance.getInitialMessage();
   if (message != null) {
     print('Launched in terminated state');
     Future.delayed(Duration(seconds: 1), () {
@@ -98,7 +104,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Poppins",
       ),
-
       navigatorKey: navigatorKey,
       home: const SplashScreen(),
       routes: {
@@ -117,6 +122,11 @@ class MyApp extends StatelessWidget {
         '/orders': (context) => Orders(),
         '/order_details': (context) => OrderDetails(),
         '/pharmacy_profile': (context) => const PharmacyProfile(),
+        '/stock': (context) => DrugStock(),
+        '/adddrug': (context) => AddItem(),
+        '/changepassword': (context) => const ChangePassword(),
+        '/forgotpassword': (context) => const ForgotPassword(),
+        '/resetpassword': (context) => const ResetPassword(),
         '/message': (context) => const NotificationMessage(),
       },
     );

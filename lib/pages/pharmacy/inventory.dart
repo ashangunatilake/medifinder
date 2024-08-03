@@ -18,7 +18,7 @@ class _InventoryState extends State<Inventory> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text('Inventory Management'),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
       ),
       body: FutureBuilder(
@@ -32,12 +32,13 @@ class _InventoryState extends State<Inventory> {
           }
           if (!snapshot.hasData || snapshot.data == null) {
             return Text('No data available');
-          } else {
+          }
+          else {
             var docs = snapshot.data!;
             return Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/background.png'),
+                  image: AssetImage('assets/images/background2.png'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -71,7 +72,7 @@ class _InventoryState extends State<Inventory> {
                               'Drugs In Store',
                               Icons.local_pharmacy,
                               Color.fromRGBO(21, 201, 180, 1),
-                              Drugs(),
+                              DrugStock()
                           ),
                           _buildCard(
                             context,
@@ -100,16 +101,15 @@ class _InventoryState extends State<Inventory> {
             icon: Icon(Icons.shopping_cart),
             label: "Orders",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile")
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: "Profile"
+          )
         ],
         currentIndex: 0,
         onTap: (int n) {
-          if (n == 1)
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/orders', (route) => false);
-          if (n == 2)
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/pharmacy_profile', (route) => false);
+          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF12E7C0),
       ),

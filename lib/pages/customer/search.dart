@@ -36,7 +36,7 @@ class _SearchState extends State<Search> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Search"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -46,7 +46,7 @@ class _SearchState extends State<Search> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),

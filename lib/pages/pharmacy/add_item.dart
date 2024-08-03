@@ -1,12 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:medifinder/drugs/names.dart';
+import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/validators/validation.dart';
 import '../../models/drugs_model.dart';
 import '../../snackbars/snackbar.dart';
 
-class AddItem extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+class AddItem extends StatefulWidget {
+  @override
+  State<AddItem> createState() => _AddItemState();
+}
 
+class _AddItemState extends State<AddItem> {
+  final _formKey = GlobalKey<FormState>();
   final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
   TextEditingController namecontroller = TextEditingController();
   TextEditingController brandnamecontroller = TextEditingController();
@@ -18,11 +28,10 @@ class AddItem extends StatelessWidget {
     try {
       final String uid = await _pharmacyDatabaseServices.getCurrentPharmacyUid();
       final drugsCollection = FirebaseFirestore.instance.collection('Pharmacies').doc(uid).collection('Drugs');
-      final querySnapshot = await drugsCollection.where('Name', isEqualTo: namecontroller.text.trim()).get();
+      final querySnapshot = await drugsCollection.where('Name', isEqualTo: namecontroller.text.trim()).where('BrandName', isEqualTo: brandnamecontroller.text.trim()).where('Dosage', isEqualTo: dosagecontroller.text.trim()).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        print('A drug with the same name already exists.');
-        Snackbars.errorSnackBar(message: "A drug with the same name already exists", context: context);
+        Snackbars.errorSnackBar(message: "Drug already exists", context: context);
         return;
       }
 
@@ -36,11 +45,32 @@ class AddItem extends StatelessWidget {
 
       await _pharmacyDatabaseServices.addDrug(uid, drug);
       print('Drug added successfully!');
-      Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Drug added succcessfully", context: context));
+      Future.delayed(Duration.zero, () {
+        Snackbars.successSnackBar(message: "Drug added successfully", context: context);
+        FocusManager.instance.primaryFocus?.unfocus();
+        setState(() {
+          namecontroller.text = "";
+          brandnamecontroller.text = "";
+          dosagecontroller.text = "";
+          unitpricecontroller.text = "";
+          quantitycontroller.text = "";
+        });
+      });
+
     } catch (e) {
       print("Error adding drug: $e");
       Snackbars.errorSnackBar(message: "Error adding drug", context: context);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    namecontroller.dispose();
+    brandnamecontroller.dispose();
+    dosagecontroller.dispose();
+    quantitycontroller.dispose();
+    unitpricecontroller.dispose();
   }
 
   @override
@@ -49,7 +79,7 @@ class AddItem extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text("Add New Drug"),
-        backgroundColor: Colors.white54,
+        backgroundColor: Colors.white38,
         elevation: 0.0,
         titleTextStyle: const TextStyle(
             fontSize: 18.0,
@@ -60,7 +90,7 @@ class AddItem extends StatelessWidget {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
+            image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -81,61 +111,92 @@ class AddItem extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 20),
-                _buildTextField(
+                TypeAheadField<String>(
                   controller: namecontroller,
-                  labelText: 'Name',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the drug name';
+                  builder: (context, controller, focusNode) {
+                    return _buildTextField(
+                      controller: namecontroller,
+                      labelText: 'Name',
+                      validator: (value) => Validator.validateEmptyText("Name", value),
+                      focusNode: focusNode
+                    );
+                  },
+                  itemBuilder: (context, String? suggestion) {
+                    return ListTile(
+                      title: Text(suggestion!),
+                    );
+                  },
+                  onSelected: (String? suggestion) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    namecontroller.text = suggestion!;
+                  },
+                  suggestionsCallback: (textEditingValue) {
+                    if (textEditingValue != null && textEditingValue.length > 0) {
+                      List<String> suggestions = Drugs.names.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                      suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                      return suggestions;
                     }
-                    return null;
+                    else {
+                      return [];
+                    }
+                  },
+                  emptyBuilder: (context) {
+                    return SizedBox();
                   },
                 ),
                 SizedBox(height: 20),
-                _buildTextField(
+                TypeAheadField(
                   controller: brandnamecontroller,
-                  labelText: 'Brand Name',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the brand name';
+                  builder: (context, controller, focusNode) {
+                    return _buildTextField(
+                      controller: brandnamecontroller,
+                      labelText: 'Brand Name',
+                      validator: (value) => Validator.validateEmptyText("Brand Name", value),
+                      focusNode: focusNode
+                    );
+                  },
+                  itemBuilder: (context, dynamic suggestion) {
+                    return ListTile(
+                      title: Text(suggestion!),
+                    );
+                  },
+                  onSelected: (dynamic suggestion) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    brandnamecontroller.text = suggestion!;
+                  },
+                  suggestionsCallback: (textEditingValue) {
+                    if (textEditingValue != null && textEditingValue.length > 0) {
+                      List<String> suggestions = Drugs.brands.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                      suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                      return suggestions;
                     }
-                    return null;
+                    else {
+                      return [];
+                    }
+                  },
+                  emptyBuilder: (context) {
+                    return SizedBox();
                   },
                 ),
                 SizedBox(height: 20),
                 _buildTextField(
                   controller: dosagecontroller,
                   labelText: 'Dosage',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the dosage';
-                    }
-                    return null;
-                  },
+                  validator: (value) => Validator.validateEmptyText("Dosage", value),
                 ),
                 SizedBox(height: 20),
                 _buildTextField(
                   controller: unitpricecontroller,
                   labelText: 'Unit Price',
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the unit price';
-                    }
-                    return null;
-                  },
+                  validator: (value) => Validator.validateEmptyText("Unit Price", value),
                 ),
                 SizedBox(height: 20),
                 _buildTextField(
                   controller: quantitycontroller,
                   labelText: 'Quantity',
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter the quantity';
-                    }
-                    return null;
-                  },
+                  validator: (value) => Validator.validateEmptyText("Quantity", value),
                 ),
                 SizedBox(height: 30),
                 Center(
@@ -203,10 +264,13 @@ class AddItem extends StatelessWidget {
     required TextEditingController controller,
     required String labelText,
     required String? Function(String?) validator,
+    FocusNode? focusNode,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
+      autofocus: false,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: labelText,

@@ -31,8 +31,15 @@ class MapView extends StatelessWidget {
     }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Map View'),
+        title: const Text("Map view"),
+        backgroundColor: Colors.white38,
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
       ),
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
