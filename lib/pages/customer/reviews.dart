@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
-import '../../models/user_model.dart';
-import '../../services/database_services.dart';
+import 'package:medifinder/models/user_model.dart';
+import 'package:medifinder/services/database_services.dart';
 
 class Reviews extends StatefulWidget {
   const Reviews({super.key});

@@ -2,11 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:medifinder/pages/customer/signup.dart';
-import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:medifinder/services/push_notofications.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +17,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  PushNotifications pushNotifications = PushNotifications();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
@@ -36,10 +37,12 @@ class _LoginPageState extends State<LoginPage> {
       String userRole = await _userDatabaseServices.getUserRole(userUid);
       await prefs.setString('role', userRole);
       if(userRole == 'customer') {
+        await pushNotifications.addDeviceToken(userRole, userUid);
         Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamedAndRemoveUntil(context, "/customer_home", (route) => false);
       }
       else if(userRole == 'pharmacy') {
+        await pushNotifications.addDeviceToken(userRole, userUid);
         Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamedAndRemoveUntil(context, "/pharmacy_home", (route) => false);
       }

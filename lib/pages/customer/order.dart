@@ -11,7 +11,6 @@ import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import '../../services/database_services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import '../../services/exception_handling_services.dart';
 
 class Order extends StatefulWidget {
@@ -84,85 +83,86 @@ class _OrderState extends State<Order> {
 
   Widget imageDialog(String imagePath, String pName, String uName) {
     return Dialog(
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.file(
-                File(imagePath),
-                height: 500.0,
-                fit: BoxFit.fill,
-                alignment: Alignment.center,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.file(
+              File(imagePath),
+              height: 500.0,
+              fit: BoxFit.fill,
+              alignment: Alignment.center,
+            ),
+            const SizedBox(height: 10.0,),
+            const Text(
+              "Upload prescription?",
+              style: TextStyle(
+                fontSize: 18.0
               ),
-              const SizedBox(height: 10.0,),
-              const Text(
-                "Upload prescription?",
-                style: TextStyle(
-                    fontSize: 18.0
-                ),
-              ),
-              const SizedBox(height: 10.0,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFFFFF),
-                        //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                        side: const BorderSide(color: Color(0xFF12E7C0))
-                    ),
-                    child: const Text(
-                      "Cancel",
-                      style: TextStyle(
-                        color: Color(0xFF12E7C0),
-                      ),
+            ),
+            const SizedBox(height: 10.0,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFFFFF),
+                      //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                      side: const BorderSide(color: Color(0xFF12E7C0))
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Color(0xFF12E7C0),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                        );
-                        _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
-                        Navigator.pop(context); // Close the progress indicator
-                        Snackbars.successSnackBar(message: "Prescription uploaded successfully", context: context);
-                        Navigator.pop(context); // Close the dialog
-                        setState(() {
-                          fileName = _image!.name;
-                        });
-                      } catch (e) {
-                        Navigator.pop(context); // Close the progress indicator
-                        Snackbars.errorSnackBar(message: "Error uploading prescription", context: context);
-                        Navigator.pop(context); // Close the dialog
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF12E7C0),
-                        //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                        side: const BorderSide(color: Color(0xFF12E7C0))),
-                    child: const Text(
-                      "Upload",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                      );
+                      _imageUrl = await _userDatabaseServices.uploadPrescription(_image!, pName, uName);
+                      Navigator.pop(context); // Close the progress indicator
+                      Snackbars.successSnackBar(message: "Prescription uploaded successfully", context: context);
+                      Navigator.pop(context); // Close the dialog
+                      setState(() {
+                        fileName = _image!.name;
+                      });
+                    } catch (e) {
+                      Navigator.pop(context); // Close the progress indicator
+                      Snackbars.errorSnackBar(message: "Error uploading prescription", context: context);
+                      Navigator.pop(context); // Close the dialog
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF12E7C0),
+                      //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                      side: const BorderSide(color: Color(0xFF12E7C0))),
+                  child: const Text(
+                    "Upload",
+                    style: TextStyle(
+                      color: Colors.white,
                     ),
-                  )
-                ],
-              )
-            ],
-          ),
-        )
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      )
     );
   }
 
@@ -203,9 +203,9 @@ class _OrderState extends State<Order> {
     if (pickedFile != null) {
       _image = await compressImage(pickedFile.path);
       await showDialog(
-          context: context,
-          builder: (_) => imageDialog(_image!.path, pName, uName),
-          barrierDismissible: false
+        context: context,
+        builder: (_) => imageDialog(_image!.path, pName, uName),
+        barrierDismissible: false
       );
     }
   }
@@ -324,7 +324,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          drugName,
+                          "${drugData['BrandName']} ${drugData['Dosage']}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -544,7 +544,7 @@ class _OrderState extends State<Order> {
                             final GeoPoint location = GeoPoint(userLocation.latitude, userLocation.longitude);
                             if(deliver) {
                               try {
-                                await _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
+                                await _pharmacyDatabaseServices.checkDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
                                 userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, location);
                                 if (pharmacyData['FCMTokens'] != null) {
                                   List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
@@ -567,7 +567,7 @@ class _OrderState extends State<Order> {
                             }
                             else {
                               try {
-                                _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
+                                await _pharmacyDatabaseServices.checkDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
                                 userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
                                 if(pharmacyData['FCMTokens'] != null) {
                                   List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);

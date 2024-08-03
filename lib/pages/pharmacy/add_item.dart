@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:medifinder/drugs/names.dart';
-import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/validators/validation.dart';
-import '../../models/drugs_model.dart';
-import '../../snackbars/snackbar.dart';
+import 'package:medifinder/models/drugs_model.dart';
+import 'package:medifinder/snackbars/snackbar.dart';
 
 class AddItem extends StatefulWidget {
   @override

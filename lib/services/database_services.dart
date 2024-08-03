@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
-
 import 'exception_handling_services.dart';
 
 const String USERS_COLLECTION_REFERENCE = 'Users';

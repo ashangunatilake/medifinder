@@ -5,8 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/services/database_services.dart';
-import 'package:medifinder/snackbars/snackbar.dart';
-
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({Key? key}) : super(key: key);

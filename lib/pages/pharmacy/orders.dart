@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
-import 'orderDetails.dart';
 
 class Orders extends StatefulWidget {
   @override

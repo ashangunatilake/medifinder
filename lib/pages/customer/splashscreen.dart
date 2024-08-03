@@ -3,9 +3,7 @@ import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
-import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
@@ -32,6 +30,7 @@ class _OrderDetailsState extends State<OrderDetails> {
     UserOrder updatedOrder = UserOrder.fromSnapshot(orderDoc);
     updatedOrder = updatedOrder.copyWith(isAccepted: true);
     await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id, updatedOrder);
+    await _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, updatedOrder.did, updatedOrder.quantity);
     print('Order Accepted');
 
     try {

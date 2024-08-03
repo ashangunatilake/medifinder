@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
-import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:medifinder/main.dart';
@@ -57,7 +56,7 @@ class PushNotifications {
     if(userDoc.exists) {
       Map<String, dynamic>? userData = userDoc.data();
       if(userData != null) {
-        List<String> tokens =  List<String>.from(userData['tokens']);
+        List<String> tokens =  List<String>.from(userData['FCMTokens']);
         if(!tokens.contains(fCMToken)) {
           tokens.add(fCMToken!);
           await userDoc.reference.update({'FCMTokens': tokens,});

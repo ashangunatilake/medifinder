@@ -41,13 +41,39 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(pharmacyData["Name"]),
+      title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              pharmacyData['Name'], //"Pharmacy 1"
+              style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w500
+              ),
+            ),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    pharmacyData['Ratings'].toStringAsFixed(1),
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500
+                    ),
+                  ),
+                  Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                    size: 26.0,
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
         backgroundColor: Colors.white38,
         elevation: 0.0,
-        titleTextStyle: const TextStyle(
-          fontSize: 18.0,
-          color: Colors.black,
-        ),
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -86,40 +112,32 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          pharmacyData['Name'], //"Pharmacy 1"
+                          "${drugData['BrandName']} ${drugData['Dosage']}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
                         ),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                pharmacyData['Ratings'].toStringAsFixed(1),
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                ),
-                              ),
-                              Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 24.0,
-                              )
-                            ],
-                          ),
-                        )
                       ],
                     ),
                     SizedBox(
-                      height: 20.0,
+                      height: 12.0,
                     ),
-                    Text(
-                      "Rs. ${drugData['UnitPrice'].toString()}",
-                      style: TextStyle(fontSize: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Rs. ${drugData['UnitPrice'].toString()}",
+                          style: TextStyle(
+                            fontSize: 20.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5.0,
                     )
                   ],
                 ),

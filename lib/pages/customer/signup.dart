@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
@@ -10,8 +8,8 @@ import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/pharmacy_model.dart';
-import '../../services/database_services.dart';
+import 'package:medifinder/models/pharmacy_model.dart';
+import 'package:medifinder/services/database_services.dart';
 
 enum Delivery {available, notavailable}
 

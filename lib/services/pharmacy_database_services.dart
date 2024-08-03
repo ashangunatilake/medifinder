@@ -3,11 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:async/async.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
-import '../models/drugs_model.dart';
-import '../models/user_order_model.dart';
-import '../models/user_review_model.dart';
+import 'package:medifinder/models/drugs_model.dart';
+import 'package:medifinder/models/user_order_model.dart';
+import 'package:medifinder/models/user_review_model.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-
 import 'exception_handling_services.dart';
 
 const String PHARMACIES_COLLECTION_REFERENCE = 'Pharmacies';
@@ -196,35 +195,47 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Future<List<DocumentSnapshot>> getNearbyPharmacies(LatLng userPosition, String medication) {
+  Future<List<Map<String, dynamic>>> getNearbyPharmacies(LatLng userPosition, String medication) async {
     try {
       final geo = GeoFlutterFire();
       GeoFirePoint center = geo.point(latitude: userPosition.latitude, longitude: userPosition.longitude);
       var collectionReference = firestore.collection('Pharmacies');
-      double radius = 5.0; // radius in kilometers
+      double radius = 5.0;
       String field = 'Position';
       Stream<List<DocumentSnapshot>> nearbyPharmaciesStream = geo.collection(collectionRef: collectionReference)
           .within(center: center, radius: radius, field: field);
 
-      return filterByMedication(nearbyPharmaciesStream, medication);
+      return await filterByMedication(nearbyPharmaciesStream, medication);
     } catch (e) {
       throw Exception('Error getting nearby pharmacies: $e');
     }
   }
 
-  Future<List<DocumentSnapshot>> filterByMedication(Stream<List<DocumentSnapshot>> pharmaciesStream, String medication) async {
+  Future<List<Map<String, dynamic>>> filterByMedication(Stream<List<DocumentSnapshot>> pharmaciesStream, String medication) async {
     try {
-      List<DocumentSnapshot> filteredPharmacies = [];
-      List<DocumentSnapshot> newResult = await pharmaciesStream.first;
-      for (DocumentSnapshot document in newResult) {
-        CollectionReference drugsCollection = document.reference.collection('Drugs');
+      List<Map<String, dynamic>> filteredPharmacies = [];
+      List<DocumentSnapshot> nearbyPharmacies = await pharmaciesStream.first;
+
+      for (DocumentSnapshot pharmacy in nearbyPharmacies) {
+        CollectionReference drugsCollection = pharmacy.reference.collection('Drugs');
+
         QuerySnapshot drugsSnapshotName = await drugsCollection.where('Name', isEqualTo: medication).get();
         if (drugsSnapshotName.docs.isNotEmpty) {
-          filteredPharmacies.add(document);
+          for (var drug in drugsSnapshotName.docs) {
+            filteredPharmacies.add({
+              'pharmacy': pharmacy,
+              'drug': drug.data(),
+            });
+          }
         } else {
           QuerySnapshot drugsSnapshotBrandName = await drugsCollection.where('BrandName', isEqualTo: medication).get();
           if (drugsSnapshotBrandName.docs.isNotEmpty) {
-            filteredPharmacies.add(document);
+            for (var drug in drugsSnapshotBrandName.docs) {
+              filteredPharmacies.add({
+                'pharmacy': pharmacy,
+                'drug': drug.data(),
+              });
+            }
           }
         }
       }
@@ -254,6 +265,20 @@ class PharmacyDatabaseServices {
   // }
 
   Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
+    try {
+      CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
+      QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
+      if (querySnapshotName.docs.isNotEmpty) {
+        return querySnapshotName.docs.first;
+      } else {
+        throw DrugNameException('Drug not found');
+      }
+    } catch (e) {
+      throw Exception('Error getting drug by name: $e');
+    }
+  }
+
+  Future<DocumentSnapshot> getDrugByName2(String name, String pharmacyID) async {
     try {
       CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
       QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
@@ -417,7 +442,7 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Future<void> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
+  Future<void> checkDrugQuantity(String pharmacyID, String drugID, int quantity) async {
     try {
       final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
       final drugSnapshot = await drugDoc.get();
@@ -428,6 +453,26 @@ class PharmacyDatabaseServices {
 
         if (newQuantity < 0) {
           throw InsufficientQuantityException('The quantity you are ordering is greater than the available quantity');
+        }
+      } else {
+        throw DrugNameException('Drug not found.');
+      }
+    } catch (e) {
+      throw Exception('Error updating drug quantity: $e');
+    }
+  }
+
+  Future<void> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
+    try {
+      final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
+      final drugSnapshot = await drugDoc.get();
+
+      if(drugSnapshot.exists) {
+        final currentQuantity = drugSnapshot.data()?['Quantity'] ?? 0.0;
+        final newQuantity = currentQuantity - quantity;
+
+        if (newQuantity < 0) {
+          throw InsufficientQuantityException('Available quantity is not enough for this order');
         }
 
         await drugDoc.update({'Quantity': newQuantity});

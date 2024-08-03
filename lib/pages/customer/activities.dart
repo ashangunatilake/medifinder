@@ -8,7 +8,6 @@ import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
 
-
 class Activities extends StatefulWidget {
   const Activities({super.key});
 

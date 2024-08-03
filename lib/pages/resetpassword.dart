@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
-import 'package:medifinder/validators/validation.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});

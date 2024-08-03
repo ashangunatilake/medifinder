@@ -15,7 +15,7 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
-  List<DocumentSnapshot> filteredPharmacies = [];
+  List<Map<String, dynamic>> filteredPharmacies = [];
   bool searched = false;
   bool waiting = false;
   late LatLng location;
@@ -185,92 +185,91 @@ class _SearchState extends State<Search> {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   itemCount: filteredPharmacies.length,
                   itemBuilder: (context, index) {
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: _pharmacyDatabaseServices.getDrugByName(searchController.text.trim().toLowerCase(), filteredPharmacies[index].id),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData || !snapshot.data!.exists) {
-                          return Center(child: Text('No data available'));
-                        } else {
-                          DocumentSnapshot drugDoc = snapshot.data!;
-                          return Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': filteredPharmacies[index], 'searchedDrug': searchController.text.trim().toLowerCase(), 'searchedDrugDoc': drugDoc, 'userLocation': location});
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Color(0x40FFFFFF),
-                                        blurRadius: 4.0,
-                                        offset: Offset(0, 4),
+                    var pharmacy = filteredPharmacies[index]['pharmacy'];
+                    var drug = filteredPharmacies[index]['drug'];
+                    return Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': pharmacy, 'searchedDrug': searchController.text.trim().toLowerCase(), 'searchedDrugDoc': drug, 'userLocation': location});
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                            width: MediaQuery.of(context).size.width,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x40FFFFFF),
+                                  blurRadius: 4.0,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        pharmacy['Name'],
+                                        style: TextStyle(
+                                          fontSize: 20.0,
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      Container(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
                                             Text(
-                                              filteredPharmacies[index]['Name'],
+                                              pharmacy['Ratings'].toStringAsFixed(1),
                                               style: TextStyle(
-                                                fontSize: 20.0,
+                                                fontSize: 15.0,
                                               ),
                                             ),
-                                            Container(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    filteredPharmacies[index]['Ratings'].toStringAsFixed(1),
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                    ),
-                                                  ),
-                                                  Icon(
-                                                    Icons.star,
-                                                    color: Colors.amber,
-                                                    size: 24.0,
-                                                  ),
-                                                ],
-                                              ),
+                                            Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
+                                              size: 24.0,
                                             ),
                                           ],
                                         ),
-                                        SizedBox(
-                                          height: 20.0,
-                                        ),
-                                        Text(
-                                          "Rs. ${drugDoc['UnitPrice'].toString()}",
-                                          style: TextStyle(
-                                            fontSize: 20.0,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                  SizedBox(
+                                    height: 20.0,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "${drug['BrandName']} ${drug['Dosage']}",
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Rs. ${drug['UnitPrice'].toString()}",
+                                        style: TextStyle(
+                                          fontSize: 20.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              SizedBox(
-                                height: 7.0,
-                              ),
-                            ],
-                          );
-                        }
-                      },
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 7.0,
+                        )
+                      ],
                     );
                   },
                 ),
@@ -285,28 +284,6 @@ class _SearchState extends State<Search> {
           ],
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: "Home",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.shopping_cart),
-      //       label: "Orders",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.person),
-      //       label: "Profile",
-      //     ),
-      //   ],
-      //   onTap: (int n) {
-      //     if (n == 1) Navigator.pushNamed(context, '/activities');
-      //     if (n == 2) Navigator.pushNamed(context, '/profile');
-      //   },
-      //   currentIndex: 0,
-      //   selectedItemColor: const Color(0xFF12E7C0),
-      // ),
     );
   }
 }
