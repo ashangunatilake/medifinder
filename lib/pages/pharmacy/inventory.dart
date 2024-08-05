@@ -110,7 +110,7 @@ class _InventoryState extends State<Inventory> {
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
           if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
         },
-        selectedItemColor: const Color(0xFF12E7C0),
+        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }

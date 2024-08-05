@@ -592,9 +592,9 @@ class _OrderState extends State<Order> {
                             //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF12E7C0),
+                              backgroundColor: const Color(0xFF0CAC8F),
                               //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                              side: const BorderSide(color: Color(0xFF12E7C0))),
+                              side: const BorderSide(color: Color(0xFF0CAC8F))),
                           child: const Text(
                             "Place Order",
                             style: TextStyle(

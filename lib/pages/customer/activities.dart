@@ -283,11 +283,11 @@ class _ActivitiesState extends State<Activities> {
                                                           style: ElevatedButton
                                                               .styleFrom(
                                                               backgroundColor: const Color(
-                                                                  0xFF12E7C0),
+                                                                  0xFF0CAC8F),
                                                               //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
                                                               side: const BorderSide(
                                                                   color: Color(
-                                                                      0xFF12E7C0))
+                                                                      0xFF0CAC8F))
                                                           ),
                                                           child: const Text(
                                                             "Directions",
@@ -309,11 +309,11 @@ class _ActivitiesState extends State<Activities> {
                                                           style: ElevatedButton
                                                               .styleFrom(
                                                               backgroundColor: const Color(
-                                                                  0xFF12E7C0),
+                                                                  0xFF0CAC8F),
                                                               //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
                                                               side: const BorderSide(
                                                                   color: Color(
-                                                                      0xFF12E7C0))
+                                                                      0xFF0CAC8F))
                                                           ),
                                                           child: const Text(
                                                             "Call",
@@ -347,13 +347,13 @@ class _ActivitiesState extends State<Activities> {
                                                                   45.0, 11.0),
                                                               side: const BorderSide(
                                                                   color: Color(
-                                                                      0xFF12E7C0))
+                                                                      0xFF0CAC8F))
                                                           ),
                                                           child: const Text(
                                                             "Received",
                                                             style: TextStyle(
                                                               color: Color(
-                                                                  0xFF12E7C0),
+                                                                  0xFF0CAC8F),
                                                             ),
                                                           ),
                                                         ),
@@ -401,7 +401,7 @@ class _ActivitiesState extends State<Activities> {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
           if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
         },
-        selectedItemColor: const Color(0xFF12E7C0),
+        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }
@@ -451,12 +451,12 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFFFFFF),
                         //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                        side: const BorderSide(color: Color(0xFF12E7C0))
+                        side: const BorderSide(color: Color(0xFF0CAC8F))
                     ),
                     child: const Text(
                       "Cancel",
                       style: TextStyle(
-                        color: Color(0xFF12E7C0),
+                        color: Color(0xFF0CAC8F),
                       ),
                     ),
                   ),
@@ -497,9 +497,9 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF12E7C0),
+                        backgroundColor: const Color(0xFF0CAC8F),
                         //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                        side: const BorderSide(color: Color(0xFF12E7C0))
+                        side: const BorderSide(color: Color(0xFF0CAC8F))
                     ),
                     child: const Text(
                       "Confirm",

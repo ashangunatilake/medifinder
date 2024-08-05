@@ -229,12 +229,12 @@ class _AddReviewState extends State<AddReview> {
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFFFFFF),
                                   padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                  side: const BorderSide(color: Color(0xFF12E7C0))
+                                  side: const BorderSide(color: Color(0xFF0CAC8F))
                               ),
                               child: const Text(
                                 "Submit Review",
                                 style: TextStyle(
-                                  color: Color(0xFF12E7C0),
+                                  color: Color(0xFF0CAC8F),
                                 ),
                               ),
                             ),

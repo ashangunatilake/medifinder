@@ -230,7 +230,7 @@ class _OrdersState extends State<Orders> {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
           if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
         },
-        selectedItemColor: const Color(0xFF12E7C0),
+        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }

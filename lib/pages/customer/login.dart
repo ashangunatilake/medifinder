@@ -278,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
                                       userLogin();
                                     },
                                     style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF12E7C0),
+                                        backgroundColor: const Color(0xFF0CAC8F),
                                         padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0)
                                     ),
                                     child: const Text(
@@ -297,12 +297,12 @@ class _LoginPageState extends State<LoginPage> {
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFFFFFFFF),
                                         padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                        side: const BorderSide(color: Color(0xFF12E7C0))
+                                        side: const BorderSide(color: Color(0xFF0CAC8F))
                                     ),
                                     child: const Text(
                                       "Register",
                                       style: TextStyle(
-                                        color: Color(0xFF12E7C0),
+                                        color: Color(0xFF0CAC8F),
                                       ),
                                     ),
                                   )
@@ -311,7 +311,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             const SizedBox(
-                              height: 74.0,
+                              height: 30.0,
                             )
                           ],
                         ),
@@ -320,8 +320,7 @@ class _LoginPageState extends State<LoginPage> {
 
 
                     ),
-
-
+                    const SizedBox(height: 10.0,)
                   ],
                 ),
               ]
