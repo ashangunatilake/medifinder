@@ -224,7 +224,7 @@ class PharmacyDatabaseServices {
           for (var drug in drugsSnapshotName.docs) {
             filteredPharmacies.add({
               'pharmacy': pharmacy,
-              'drug': drug.data(),
+              'drug': drug,
             });
           }
         } else {
@@ -233,7 +233,7 @@ class PharmacyDatabaseServices {
             for (var drug in drugsSnapshotBrandName.docs) {
               filteredPharmacies.add({
                 'pharmacy': pharmacy,
-                'drug': drug.data(),
+                'drug': drug,
               });
             }
           }

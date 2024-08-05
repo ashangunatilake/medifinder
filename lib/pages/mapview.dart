@@ -11,7 +11,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   late LatLng location;
-  late List<DocumentSnapshot> pharmacies;
+  late List<Map<String, dynamic>> pharmacies;
   bool loaded = false;
   BitmapDescriptor? myLocationIcon;
 
@@ -21,8 +21,13 @@ class _MapViewState extends State<MapView> {
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       location = args['location'] as LatLng;
-      pharmacies = args['pharmacies'] as List<DocumentSnapshot>;
-      print(location);
+      Set<Map<String, dynamic>> uniquePharmacies = {};
+      for (var pharmacy in args['pharmacies']) {
+        Map<String, dynamic> data= {'id': pharmacy['pharmacy'].id};
+        data.addAll(pharmacy['pharmacy'].data() as Map<String, dynamic>);
+        uniquePharmacies.add(data);
+      }
+      pharmacies = uniquePharmacies.toList() ;
     } else {
       // Handle the case where args are null (optional)
       // You might want to throw an error or use default values
@@ -75,7 +80,7 @@ class _MapViewState extends State<MapView> {
               ...pharmacies.map((pharmacy) {
                 GeoPoint geoPoint = pharmacy['Position']['geopoint'] as GeoPoint;
                 return Marker(
-                  markerId: MarkerId(pharmacy.id),
+                  markerId: MarkerId(pharmacy['id']),
                   position: LatLng(geoPoint.latitude, geoPoint.longitude),
                   infoWindow: InfoWindow(
                     title: pharmacy['Name'] ?? 'Pharmacy',

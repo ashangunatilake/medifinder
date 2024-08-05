@@ -185,8 +185,8 @@ class _SearchState extends State<Search> {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   itemCount: filteredPharmacies.length,
                   itemBuilder: (context, index) {
-                    var pharmacy = filteredPharmacies[index]['pharmacy'];
-                    var drug = filteredPharmacies[index]['drug'];
+                    DocumentSnapshot pharmacy = filteredPharmacies[index]['pharmacy'];
+                    DocumentSnapshot drug = filteredPharmacies[index]['drug'];
                     return Column(
                       children: [
                         GestureDetector(
