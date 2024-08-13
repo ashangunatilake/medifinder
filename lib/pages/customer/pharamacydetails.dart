@@ -24,9 +24,12 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   late Map<String, dynamic> drugData;
   late String drugName;
   late LatLng userLocation;
+  double overallRating = 0;
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
@@ -35,9 +38,26 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       drugData = drugDoc.data() as Map<String, dynamic>;
       drugName = args['searchedDrug'] as String;
       userLocation = args['userLocation'] as LatLng;
+      listenToOverallRating(pharmacyDoc.id);
     } else {
       throw Exception('Something went wrong.');
     }
+  }
+
+  void listenToOverallRating(String pharmacyID) {
+    _databaseServices.getPharmacyDocReference(pharmacyID).snapshots().listen((snapshot) {
+      if (mounted) {
+        if (snapshot.exists) {
+          setState(() {
+            overallRating = snapshot['Ratings'];
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -56,7 +76,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    pharmacyData['Ratings'].toStringAsFixed(1),
+                    overallRating.toStringAsFixed(1),
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500

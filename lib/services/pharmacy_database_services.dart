@@ -71,6 +71,10 @@ class PharmacyDatabaseServices {
     }
   }
 
+  DocumentReference getPharmacyDocReference(String pharmacyID) {
+    return _pharmaciesRef.doc(pharmacyID);
+  }
+
   Stream<QuerySnapshot> getPharmacies() {
     return _pharmaciesRef.snapshots();
   }
@@ -116,18 +120,17 @@ class PharmacyDatabaseServices {
 
   Future<void> addPharmacyReview(String pharmacyID, String reviewID, UserReview review) async {
     try {
+      await _pharmaciesRef.doc(pharmacyID).collection('Reviews').doc(reviewID).set(review.toJson());
       FirebaseFirestore.instance.runTransaction((transaction) async {
-        // Add the new review
-        transaction.set(_pharmaciesRef.doc(pharmacyID).collection('Reviews').doc(reviewID), review.toJson());
         // Get all reviews
         final reviewsSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Reviews').get();
         final reviews = reviewsSnapshot.docs;
         //Calculate the new average rating
         double totalRating = 0;
-        reviews.forEach((review) {
+        for (var review in reviews) {
           totalRating += review['Rating'];
-        });
-        double newOverallRating = totalRating / reviews.length;
+        }
+        double newOverallRating = totalRating / (reviews.length);
         // Update the overall rating
         transaction.update(_pharmaciesRef.doc(pharmacyID), {
           'Ratings': newOverallRating,
@@ -158,7 +161,7 @@ class PharmacyDatabaseServices {
     return _pharmaciesRef.doc(pharmacyID).collection('Reviews').withConverter<UserReview>(
       fromFirestore: (snapshots, _) => UserReview.fromSnapshot(snapshots),
       toFirestore: (review, _) => review.toJson(),
-    ).limit(3).snapshots();
+    ).orderBy('DateTime', descending: true).limit(3).snapshots();
   }
 
   Stream<QuerySnapshot<UserOrder>> getPharmacyOrders(String pharmacyID) {

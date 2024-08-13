@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,30 @@ class _AddReviewState extends State<AddReview> {
   User? user = FirebaseAuth.instance.currentUser;
   double rating = 5;
   TextEditingController reviewcontroller = TextEditingController();
+  late DocumentSnapshot pharmacyDoc;
+  late Map<String, dynamic> data;
+  double overallRating = 0;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    pharmacyDoc = ModalRoute.of(context)!.settings.arguments as DocumentSnapshot;
+    data = pharmacyDoc.data() as Map<String, dynamic>;
+    listenToOverallRating(pharmacyDoc.id);
+  }
+
+  void listenToOverallRating(String pharmacyID) {
+    _databaseServices.getPharmacyDocReference(pharmacyID).snapshots().listen((snapshot) {
+      if (mounted) {
+        if (snapshot.exists) {
+          setState(() {
+            overallRating = snapshot['Ratings'];
+          });
+        }
+      }
+    });
+  }
 
   void userAddReview(String pharmacyId) {
     String comment = reviewcontroller.text;
@@ -31,7 +57,6 @@ class _AddReviewState extends State<AddReview> {
       _databaseServices.addPharmacyReview(pharmacyId, user!.uid, review);
       print('Review added successfully!');
       Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Review added succcessfully", context: context));
-      Navigator.pushNamed(context, '/reviews', arguments: {'selectedPharmacy': pharmacyId});
     } catch (e) {
       print("Error adding review: $e");
       Snackbars.errorSnackBar(message: "Error adding review", context: context);
@@ -39,9 +64,14 @@ class _AddReviewState extends State<AddReview> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    reviewcontroller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final pharmacyDoc = ModalRoute.of(context)!.settings.arguments as DocumentSnapshot;
-    Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -101,7 +131,7 @@ class _AddReviewState extends State<AddReview> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                data['Ratings'].toStringAsFixed(1),
+                                overallRating.toStringAsFixed(1),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),

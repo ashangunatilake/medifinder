@@ -17,18 +17,39 @@ class _ReviewsState extends State<Reviews> {
   final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
   final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   int selected = 1;
+  double overallRating = 0;
+  late DocumentSnapshot pharmacyDoc;
+  late Map<String, dynamic> data;
+
   @override
-  Widget build(BuildContext context) {
-    late DocumentSnapshot pharmacyDoc;
-    late Map<String, dynamic> data;
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
       data = pharmacyDoc.data() as Map<String, dynamic>;
+      listenToOverallRating(pharmacyDoc.id);
     } else {
       // Handle the case where args are null (optional)
       // You might want to throw an error or use default values
     }
+  }
+
+  void listenToOverallRating(String pharmacyID) {
+    _pharmacyDatabaseServices.getPharmacyDocReference(pharmacyID).snapshots().listen((snapshot) {
+      if (mounted) {
+        if (snapshot.exists) {
+          setState(() {
+            overallRating = snapshot['Ratings'];
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -88,7 +109,7 @@ class _ReviewsState extends State<Reviews> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                data['Ratings'].toStringAsFixed(1),
+                                overallRating.toStringAsFixed(1),
                                 style: TextStyle(
                                   fontSize: 15.0,
                                 ),

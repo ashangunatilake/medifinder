@@ -59,6 +59,16 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return (loaded) ? Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text("Map view"),
+        backgroundColor: const Color(0xFF399479),
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
+      ),
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: location,
