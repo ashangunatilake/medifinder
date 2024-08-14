@@ -469,7 +469,6 @@ class PharmacyDatabaseServices {
     try {
       final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
       final drugSnapshot = await drugDoc.get();
-
       if(drugSnapshot.exists) {
         final currentQuantity = drugSnapshot.data()?['Quantity'] ?? 0.0;
         final newQuantity = currentQuantity - quantity;

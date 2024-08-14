@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_review_model.dart';
@@ -135,7 +136,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "${drugData['BrandName']} ${drugData['Dosage']}",
+                          "${drugData['BrandName'].toString().capitalize} ${drugData['Dosage']}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -538,6 +539,7 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugNa
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
+                  Navigator.of(context).pop();
                   Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName, 'userLocation': userLocation});
 
                 },

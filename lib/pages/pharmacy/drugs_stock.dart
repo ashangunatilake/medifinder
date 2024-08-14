@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:get/get.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/models/drugs_model.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -120,8 +121,8 @@ class _DrugStockState extends State<DrugStock> {
 
   Future<void> pharmacyEditDrug(
       BuildContext context, String drugID, DrugsModel drug) async {
-    final nameController = TextEditingController(text: drug.name);
-    final brandNameController = TextEditingController(text: drug.brand);
+    final nameController = TextEditingController(text: drug.name.toString().capitalize);
+    final brandNameController = TextEditingController(text: drug.brand.toString().capitalize);
     final dosageController = TextEditingController(text: drug.dosage);
     final quantityController =
     TextEditingController(text: drug.quantity.toString());
@@ -335,7 +336,7 @@ class _DrugStockState extends State<DrugStock> {
                 SizedBox(height: 20),
                 Expanded(
                   child: StreamBuilder(
-                    stream: (!searched) ? _pharmacyDatabaseServices.getDrugs(uid) : _pharmacyDatabaseServices.searchDrugs(uid, searchController.text.trim()),
+                    stream: (!searched) ? _pharmacyDatabaseServices.getDrugs(uid) : _pharmacyDatabaseServices.searchDrugs(uid, searchController.text.trim().toLowerCase()),
                     builder: (context,  snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
@@ -357,7 +358,7 @@ class _DrugStockState extends State<DrugStock> {
                         itemCount: drugs.length,
                         itemBuilder: (context, index) {
                           var drug = drugs[index];
-                          drugNames.addAll([drug['Name'], drug['BrandName']]);
+                          drugNames.addAll([drug['Name'].toString().capitalize!, drug['BrandName'].toString().capitalize!]);
                           drugNames = drugNames.toSet().toList();
 
                           return Padding(
@@ -394,11 +395,11 @@ class _DrugStockState extends State<DrugStock> {
                                       CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          drug['Name'],
+                                          drug['Name'].toString().split(' ').map((word) => word.capitalize).join(' '),
                                           style: TextStyle(fontSize: 18),
                                         ),
                                         Text(
-                                          drug['BrandName'],
+                                          drug['BrandName'].toString().split(' ').map((word) => word.capitalize).join(' '),
                                           style: TextStyle(fontSize: 16),
                                         ),
                                         Text(

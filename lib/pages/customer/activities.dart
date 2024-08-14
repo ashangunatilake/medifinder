@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -234,7 +236,7 @@ class _ActivitiesState extends State<Activities> {
                                                     height: 5.0,
                                                   ),
                                                   Text(
-                                                    docs[index]['DrugID'],
+                                                    "${docs[index]['DrugName'].toString().capitalizeFirst}",
                                                     style: TextStyle(
                                                         fontSize: 16.0
                                                     ),
@@ -415,7 +417,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            "Confirm Received",
+            "Confirm Received?",
             textAlign: TextAlign.center,
           ),
           content: Column(
@@ -429,7 +431,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                 ),
               ),
               Text(
-                orderDoc['DrugID'],
+                "${orderDoc['DrugName'][0].toUpperCase()}${orderDoc['DrugName'].substring(1)}",
                 style: TextStyle(
                   fontSize: 16.0,
                 ),
@@ -474,15 +476,13 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                         UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
                         await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
 
-                        final Map<String, dynamic> pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
                         final DocumentSnapshot userDoc = await _userDatabaseServices.getUserDoc(uid);
-                        final Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
 
-                        if(pharmacyData['FCMToken'] != null) {
-                          List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                        if(pharmacyDoc['FCMTokens'] != null) {
+                          List<String> tokens = List<String>.from(pharmacyDoc['FCMTokens']);
                           if(tokens.isNotEmpty) {
                             for(var token in tokens) {
-                              _pushNotifications.sendNotificationToPharmacy(token, false, orderDoc['DrugID'], userData['Name']);
+                              _pushNotifications.sendNotificationToPharmacy(token, false, orderDoc['DrugName'].toString().capitalizeFirst!, userDoc['Name']);
                             }
                           }
                         }
