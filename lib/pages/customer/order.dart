@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -253,11 +254,12 @@ class _OrderState extends State<Order> {
     );
   }
 
-  Future<void> userAddOrder(String uid, String pid, String drugName, String imageUrl, int quantity, bool delivery, [GeoPoint? location]) async {
+  Future<void> userAddOrder(String uid, String pid, String drugID, String drugName, String imageUrl, int quantity, bool delivery, [GeoPoint? location]) async {
     try {
       UserOrder order = UserOrder(
         id: uid,
-        did: drugName,
+        did: drugID,
+        drugName: drugName,
         pid: pid,
         url: imageUrl,
         quantity: quantity,
@@ -324,7 +326,7 @@ class _OrderState extends State<Order> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "${drugData['BrandName']} ${drugData['Dosage']}",
+                          "${drugData['BrandName'].toString().capitalize} ${drugData['Dosage']}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -545,13 +547,13 @@ class _OrderState extends State<Order> {
                             if(deliver) {
                               try {
                                 await _pharmacyDatabaseServices.checkDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
-                                userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver, location);
+                                userAddOrder(userUid, pharmacyDoc.id, drugDoc.id, "${drugData['BrandName']} ${drugData['Dosage']}", _imageUrl, quantity, deliver, location);
                                 if (pharmacyData['FCMTokens'] != null) {
                                   List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
                                   if (tokens.isNotEmpty) {
                                     for (var token in tokens) {
                                       print(token);
-                                      _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                                      _pushNotifications.sendNotificationToPharmacy(token, false, "${drugData['BrandName'].toString().capitalize} ${drugData['Dosage']}", userData['Name']);
                                     }
                                   }
                                 }
@@ -568,13 +570,13 @@ class _OrderState extends State<Order> {
                             else {
                               try {
                                 await _pharmacyDatabaseServices.checkDrugQuantity(pharmacyDoc.id, drugDoc.id, quantity);
-                                userAddOrder(userUid, pharmacyDoc.id, drugName, _imageUrl, quantity, deliver);
+                                userAddOrder(userUid, pharmacyDoc.id, drugDoc.id, "${drugData['BrandName']} ${drugData['Dosage']}", _imageUrl, quantity, deliver);
                                 if(pharmacyData['FCMTokens'] != null) {
                                   List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
                                   if(tokens.isNotEmpty) {
                                     for(var token in tokens) {
                                       print(token);
-                                      _pushNotifications.sendNotificationToPharmacy(token, false, drugName, userData['Name']);
+                                      _pushNotifications.sendNotificationToPharmacy(token, false, "${drugData['BrandName'].toString().capitalize} ${drugData['Dosage']}", userData['Name']);
                                     }
                                   }
                                 }
@@ -592,9 +594,9 @@ class _OrderState extends State<Order> {
                             //Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
                           },
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF12E7C0),
+                              backgroundColor: const Color(0xFF0CAC8F),
                               //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                              side: const BorderSide(color: Color(0xFF12E7C0))),
+                              side: const BorderSide(color: Color(0xFF0CAC8F))),
                           child: const Text(
                             "Place Order",
                             style: TextStyle(

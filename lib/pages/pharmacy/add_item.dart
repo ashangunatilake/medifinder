@@ -25,7 +25,7 @@ class _AddItemState extends State<AddItem> {
     try {
       final String uid = await _pharmacyDatabaseServices.getCurrentPharmacyUid();
       final drugsCollection = FirebaseFirestore.instance.collection('Pharmacies').doc(uid).collection('Drugs');
-      final querySnapshot = await drugsCollection.where('Name', isEqualTo: namecontroller.text.trim()).where('BrandName', isEqualTo: brandnamecontroller.text.trim()).where('Dosage', isEqualTo: dosagecontroller.text.trim()).get();
+      final querySnapshot = await drugsCollection.where('Name', isEqualTo: namecontroller.text.trim().toLowerCase()).where('BrandName', isEqualTo: brandnamecontroller.text.trim().toLowerCase()).where('Dosage', isEqualTo: dosagecontroller.text.trim()).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         Snackbars.errorSnackBar(message: "Drug already exists", context: context);
@@ -33,8 +33,8 @@ class _AddItemState extends State<AddItem> {
       }
 
       DrugsModel drug = DrugsModel(
-          brand: brandnamecontroller.text.trim(),
-          name: namecontroller.text.trim(),
+          brand: brandnamecontroller.text.trim().toLowerCase(),
+          name: namecontroller.text.trim().toLowerCase(),
           dosage: dosagecontroller.text.trim(),
           quantity: int.parse(quantitycontroller.text.trim()),
           price: double.parse(unitpricecontroller.text.trim())

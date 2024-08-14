@@ -218,7 +218,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                             Navigator.pushNamed(context, '/search', arguments: {'location': currentP});
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF12E7C0),
+                            backgroundColor: const Color(0xFF0CAC8F),
                             padding: const EdgeInsets.fromLTRB(54.0, 13.0, 54.0, 11.0),
                           ),
                           child: const Text(
@@ -274,7 +274,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
           if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
         },
-        selectedItemColor: const Color(0xFF12E7C0),
+        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }

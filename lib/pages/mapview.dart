@@ -59,37 +59,43 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return (loaded) ? Scaffold(
-      body: Stack(
-        children: <Widget>[
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: location,
-              zoom: 14
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text("Map view"),
+        backgroundColor: const Color(0xFF399479),
+        elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
+      ),
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: location,
+          zoom: 14
+        ),
+        myLocationButtonEnabled: false,
+        zoomControlsEnabled: false,
+        markers: {
+          Marker(
+            markerId: MarkerId('user_location'),
+            position: location,
+            infoWindow: InfoWindow(
+              title: 'My Location',
             ),
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            markers: {
-              Marker(
-                markerId: MarkerId('user_location'),
-                position: location,
-                infoWindow: InfoWindow(
-                  title: 'My Location',
-                ),
-                icon: myLocationIcon!,
+            icon: myLocationIcon!,
+          ),
+          ...pharmacies.map((pharmacy) {
+            GeoPoint geoPoint = pharmacy['Position']['geopoint'] as GeoPoint;
+            return Marker(
+              markerId: MarkerId(pharmacy['id']),
+              position: LatLng(geoPoint.latitude, geoPoint.longitude),
+              infoWindow: InfoWindow(
+                title: pharmacy['Name'] ?? 'Pharmacy',
               ),
-              ...pharmacies.map((pharmacy) {
-                GeoPoint geoPoint = pharmacy['Position']['geopoint'] as GeoPoint;
-                return Marker(
-                  markerId: MarkerId(pharmacy['id']),
-                  position: LatLng(geoPoint.latitude, geoPoint.longitude),
-                  infoWindow: InfoWindow(
-                    title: pharmacy['Name'] ?? 'Pharmacy',
-                  ),
-                );
-              }).toSet(),
-            },
-          )
-        ],
+            );
+          }).toSet(),
+        },
       ),
     ) :  CircularProgressIndicator();
   }

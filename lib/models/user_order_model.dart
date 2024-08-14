@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserOrder {
   final String id;
   final String did;
+  final String drugName;
   final String pid;
   final String url;
   final int quantity;
@@ -14,6 +15,7 @@ class UserOrder {
   const UserOrder({
     required this.id,
     required this.did,
+    required this.drugName,
     required this.pid,
     required this.url,
     required this.quantity,
@@ -26,6 +28,7 @@ class UserOrder {
   static UserOrder empty() => const UserOrder(
     id: '',
     did: '',
+    drugName: '',
     pid: '',
     url: '',
     quantity: 0,
@@ -41,6 +44,7 @@ class UserOrder {
       return UserOrder(
         id: document.id,
         did: data['DrugID'] ?? '',
+        drugName: data['DrugName'],
         pid: data['PharmacyID'] ?? '',
         url: data['PrescriptionURL'] ?? '',
         quantity: (data['Quantity'] is int) ? data['Quantity'] as int : 0,
@@ -58,6 +62,7 @@ class UserOrder {
       : this(
     id: userID,
     did: json['DrugID'] as String,
+    drugName: json['DrugName'] as String,
     pid: json['PharmacyID'] as String,
     url: json['PrescriptionURL'] as String,
     quantity: json['Quantity'] as int,
@@ -69,6 +74,7 @@ class UserOrder {
 
   UserOrder copyWith({
     String? did,
+    String? drugName,
     String? pid,
     String? url,
     int? quantity,
@@ -80,6 +86,7 @@ class UserOrder {
     return UserOrder(
       id: this.id,
       did: did ?? this.did,
+      drugName: drugName ?? this.drugName,
       pid: pid ?? this.pid,
       url: url ?? this.url,
       quantity: quantity ?? this.quantity,
@@ -93,6 +100,7 @@ class UserOrder {
   Map<String, Object?> toJson() {
     return {
       'DrugID': did,
+      'DrugName': drugName,
       'PharmacyID': pid,
       'PrescriptionURL': url,
       'Quantity': quantity,

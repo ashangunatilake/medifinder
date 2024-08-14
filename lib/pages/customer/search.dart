@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/drugs/names.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -248,7 +249,7 @@ class _SearchState extends State<Search> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "${drug['BrandName']} ${drug['Dosage']}",
+                                        "${drug['BrandName'].toString().capitalize} ${drug['Dosage']}",
                                         style: TextStyle(
                                           fontSize: 16.0,
                                         ),

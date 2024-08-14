@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -234,7 +236,7 @@ class _ActivitiesState extends State<Activities> {
                                                     height: 5.0,
                                                   ),
                                                   Text(
-                                                    docs[index]['DrugID'],
+                                                    "${docs[index]['DrugName'].toString().capitalizeFirst}",
                                                     style: TextStyle(
                                                         fontSize: 16.0
                                                     ),
@@ -283,11 +285,11 @@ class _ActivitiesState extends State<Activities> {
                                                           style: ElevatedButton
                                                               .styleFrom(
                                                               backgroundColor: const Color(
-                                                                  0xFF12E7C0),
+                                                                  0xFF0CAC8F),
                                                               //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
                                                               side: const BorderSide(
                                                                   color: Color(
-                                                                      0xFF12E7C0))
+                                                                      0xFF0CAC8F))
                                                           ),
                                                           child: const Text(
                                                             "Directions",
@@ -309,11 +311,11 @@ class _ActivitiesState extends State<Activities> {
                                                           style: ElevatedButton
                                                               .styleFrom(
                                                               backgroundColor: const Color(
-                                                                  0xFF12E7C0),
+                                                                  0xFF0CAC8F),
                                                               //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
                                                               side: const BorderSide(
                                                                   color: Color(
-                                                                      0xFF12E7C0))
+                                                                      0xFF0CAC8F))
                                                           ),
                                                           child: const Text(
                                                             "Call",
@@ -347,13 +349,13 @@ class _ActivitiesState extends State<Activities> {
                                                                   45.0, 11.0),
                                                               side: const BorderSide(
                                                                   color: Color(
-                                                                      0xFF12E7C0))
+                                                                      0xFF0CAC8F))
                                                           ),
                                                           child: const Text(
                                                             "Received",
                                                             style: TextStyle(
                                                               color: Color(
-                                                                  0xFF12E7C0),
+                                                                  0xFF0CAC8F),
                                                             ),
                                                           ),
                                                         ),
@@ -401,7 +403,7 @@ class _ActivitiesState extends State<Activities> {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
           if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
         },
-        selectedItemColor: const Color(0xFF12E7C0),
+        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }
@@ -415,7 +417,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            "Confirm Received",
+            "Confirm Received?",
             textAlign: TextAlign.center,
           ),
           content: Column(
@@ -429,7 +431,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                 ),
               ),
               Text(
-                orderDoc['DrugID'],
+                "${orderDoc['DrugName'][0].toUpperCase()}${orderDoc['DrugName'].substring(1)}",
                 style: TextStyle(
                   fontSize: 16.0,
                 ),
@@ -451,12 +453,12 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                     style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFFFFFF),
                         //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                        side: const BorderSide(color: Color(0xFF12E7C0))
+                        side: const BorderSide(color: Color(0xFF0CAC8F))
                     ),
                     child: const Text(
                       "Cancel",
                       style: TextStyle(
-                        color: Color(0xFF12E7C0),
+                        color: Color(0xFF0CAC8F),
                       ),
                     ),
                   ),
@@ -474,15 +476,13 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                         UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
                         await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
 
-                        final Map<String, dynamic> pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
                         final DocumentSnapshot userDoc = await _userDatabaseServices.getUserDoc(uid);
-                        final Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
 
-                        if(pharmacyData['FCMToken'] != null) {
-                          List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+                        if(pharmacyDoc['FCMTokens'] != null) {
+                          List<String> tokens = List<String>.from(pharmacyDoc['FCMTokens']);
                           if(tokens.isNotEmpty) {
                             for(var token in tokens) {
-                              _pushNotifications.sendNotificationToPharmacy(token, false, orderDoc['DrugID'], userData['Name']);
+                              _pushNotifications.sendNotificationToPharmacy(token, false, orderDoc['DrugName'].toString().capitalizeFirst!, userDoc['Name']);
                             }
                           }
                         }
@@ -497,9 +497,9 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF12E7C0),
+                        backgroundColor: const Color(0xFF0CAC8F),
                         //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                        side: const BorderSide(color: Color(0xFF12E7C0))
+                        side: const BorderSide(color: Color(0xFF0CAC8F))
                     ),
                     child: const Text(
                       "Confirm",

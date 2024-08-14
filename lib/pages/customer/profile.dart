@@ -161,7 +161,7 @@ class _ProfileState extends State<Profile> {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
         },
-        selectedItemColor: const Color(0xFF12E7C0),
+        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }
@@ -255,11 +255,11 @@ class _ProfileState extends State<Profile> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFFFFFF),
                 padding: const EdgeInsets.symmetric(vertical: 13.0),
-                side: const BorderSide(color: Color(0xFF12E7C0)),
+                side: const BorderSide(color: Color(0xFF0CAC8F)),
               ),
               child: Text(
                 text,
-                style: const TextStyle(color: Color(0xFF12E7C0)),
+                style: const TextStyle(color: Color(0xFF0CAC8F)),
               ),
             ),
           ),

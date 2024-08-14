@@ -801,7 +801,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF12E7C0),
+                                    backgroundColor: const Color(0xFF0CAC8F),
                                     padding: const EdgeInsets.fromLTRB(54.0, 13.0, 54.0, 11.0)
                                 ),
                                 child: const Text(

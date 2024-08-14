@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
@@ -39,7 +40,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       List<String> tokens = List<String>.from(userData.tokens);
       if(tokens.isNotEmpty) {
         for(var token in tokens) {
-          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugID'], userData.name);
+          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugName'].toString().capitalizeFirst!, userData.name);
         }
       }
         } catch (e) {
@@ -102,7 +103,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                     List<String> tokens = List<String>.from(userData.tokens);
                     if(tokens.isNotEmpty) {
                       for(var token in tokens) {
-                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugID'], pharmacyData.name, reason);
+                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugName'].toString().capitalizeFirst!, pharmacyData.name, reason);
                       }
                     }
                   } catch (e) {
@@ -238,7 +239,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        docs[index]['DrugID'],
+                                        docs[index]['DrugName'].toString().capitalizeFirst!,
                                         style: TextStyle(
                                           fontSize: 18.0,
                                           fontWeight: FontWeight.w500

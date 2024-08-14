@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_review_model.dart';
@@ -24,9 +25,12 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   late Map<String, dynamic> drugData;
   late String drugName;
   late LatLng userLocation;
+  double overallRating = 0;
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
@@ -35,9 +39,26 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       drugData = drugDoc.data() as Map<String, dynamic>;
       drugName = args['searchedDrug'] as String;
       userLocation = args['userLocation'] as LatLng;
+      listenToOverallRating(pharmacyDoc.id);
     } else {
       throw Exception('Something went wrong.');
     }
+  }
+
+  void listenToOverallRating(String pharmacyID) {
+    _databaseServices.getPharmacyDocReference(pharmacyID).snapshots().listen((snapshot) {
+      if (mounted) {
+        if (snapshot.exists) {
+          setState(() {
+            overallRating = snapshot['Ratings'];
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -56,7 +77,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    pharmacyData['Ratings'].toStringAsFixed(1),
+                    overallRating.toStringAsFixed(1),
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500
@@ -115,7 +136,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "${drugData['BrandName']} ${drugData['Dosage']}",
+                          "${drugData['BrandName'].toString().capitalize} ${drugData['Dosage']}",
                           style: TextStyle(
                             fontSize: 20.0,
                           ),
@@ -344,11 +365,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                       padding: const EdgeInsets.fromLTRB(
                                           45.0, 13.0, 45.0, 11.0),
                                       side: const BorderSide(
-                                          color: Color(0xFF12E7C0))),
+                                          color: Color(0xFF0CAC8F))),
                                   child: const Text(
                                     "Get directions",
                                     style: TextStyle(
-                                      color: Color(0xFF12E7C0),
+                                      color: Color(0xFF0CAC8F),
                                     ),
                                   ),
                                 ),
@@ -370,11 +391,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                       padding: const EdgeInsets.fromLTRB(
                                           45.0, 13.0, 45.0, 11.0),
                                       side: const BorderSide(
-                                          color: Color(0xFF12E7C0))),
+                                          color: Color(0xFF0CAC8F))),
                                   child: const Text(
                                     "Call",
                                     style: TextStyle(
-                                      color: Color(0xFF12E7C0),
+                                      color: Color(0xFF0CAC8F),
                                     ),
                                   ),
                                 ),
@@ -396,11 +417,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                       padding: const EdgeInsets.fromLTRB(
                                           45.0, 13.0, 45.0, 11.0),
                                       side: const BorderSide(
-                                          color: Color(0xFF12E7C0))),
+                                          color: Color(0xFF0CAC8F))),
                                   child: const Text(
                                     "Order",
                                     style: TextStyle(
-                                      color: Color(0xFF12E7C0),
+                                      color: Color(0xFF0CAC8F),
                                     ),
                                   ),
                                 ),
@@ -423,11 +444,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                       padding: const EdgeInsets.fromLTRB(
                                           45.0, 13.0, 45.0, 11.0),
                                       side: const BorderSide(
-                                          color: Color(0xFF12E7C0))),
+                                          color: Color(0xFF0CAC8F))),
                                   child: const Text(
                                     "Add a review",
                                     style: TextStyle(
-                                      color: Color(0xFF12E7C0),
+                                      color: Color(0xFF0CAC8F),
                                     ),
                                   ),
                                 ),
@@ -502,12 +523,12 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugNa
                 style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFFFFF),
                     //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                    side: const BorderSide(color: Color(0xFF12E7C0))
+                    side: const BorderSide(color: Color(0xFF0CAC8F))
                 ),
                 child: const Text(
                   "Cancel",
                   style: TextStyle(
-                    color: Color(0xFF12E7C0),
+                    color: Color(0xFF0CAC8F),
                   ),
                 ),
               ),
@@ -518,13 +539,14 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugNa
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
+                  Navigator.of(context).pop();
                   Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName, 'userLocation': userLocation});
 
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF12E7C0),
+                    backgroundColor: const Color(0xFF0CAC8F),
                     //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                    side: const BorderSide(color: Color(0xFF12E7C0))
+                    side: const BorderSide(color: Color(0xFF0CAC8F))
                 ),
                 child: const Text(
                   "Continue",
