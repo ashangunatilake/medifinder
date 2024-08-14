@@ -105,7 +105,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                         _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugID'], pharmacyData.name, reason);
                       }
                     }
-                                    } catch (e) {
+                  } catch (e) {
                     Exception('Error getting FCM token: $e');
                   }
                 } else {
