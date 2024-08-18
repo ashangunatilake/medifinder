@@ -23,7 +23,6 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   late Map<String, dynamic> pharmacyData;
   late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
-  late String drugName;
   late LatLng userLocation;
   double overallRating = 0;
 
@@ -35,9 +34,8 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
     if (args != null) {
       pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
       pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
-      drugDoc = args['searchedDrugDoc'] as DocumentSnapshot;
+      drugDoc = args['searchedDrug'] as DocumentSnapshot;
       drugData = drugDoc.data() as Map<String, dynamic>;
-      drugName = args['searchedDrug'] as String;
       userLocation = args['userLocation'] as LatLng;
       listenToOverallRating(pharmacyDoc.id);
     } else {
@@ -62,7 +60,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-      title: Row(
+        title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -79,8 +77,8 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                   Text(
                     overallRating.toStringAsFixed(1),
                     style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w500
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w500
                     ),
                   ),
                   Icon(
@@ -410,7 +408,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     continueDialog(
-                                        context, pharmacyDoc, drugName, userLocation);
+                                        context, pharmacyDoc, drugDoc, userLocation);
                                   },
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFFFFFFFF),
@@ -470,98 +468,98 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, String drugName, LatLng userLocation) async {
+Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnapshot drugDoc, LatLng userLocation) async {
   Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
   return showDialog(
-  context: context,
-  barrierDismissible: false,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Delivery :",
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
-          ),
-          if(data['DeliveryServiceAvailability'])
-            Text(
-              "Available",
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Color(0xFF008000)
-              ),
-            ),
-          if(!data['DeliveryServiceAvailability'])
-            Text(
-              "Not-Available",
-              style: TextStyle(
-                  fontSize: 16.0,
-                  color: Color(0xFFFF0F0F)
-              ),
-            ),
-          SizedBox(
-            height: 10.0,
-          ),
-          Text(
-            "Note :\nPrescription should be uploaded"
-          ),
-        ],
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFFFFF),
-                    //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                    side: const BorderSide(color: Color(0xFF0CAC8F))
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Delivery :",
+                style: TextStyle(
+                  fontSize: 20.0,
                 ),
-                child: const Text(
-                  "Cancel",
+              ),
+              if(data['DeliveryServiceAvailability'])
+                Text(
+                  "Available",
                   style: TextStyle(
-                    color: Color(0xFF0CAC8F),
+                      fontSize: 16.0,
+                      color: Color(0xFF008000)
                   ),
                 ),
+              if(!data['DeliveryServiceAvailability'])
+                Text(
+                  "Not-Available",
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Color(0xFFFF0F0F)
+                  ),
+                ),
+              SizedBox(
+                height: 10.0,
               ),
-            ),
-            SizedBox(
-              width: 14.0,
-            ),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugName, 'userLocation': userLocation});
+              Text(
+                  "Note :\nPrescription should be uploaded"
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFFFFF),
+                        //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                        side: const BorderSide(color: Color(0xFF0CAC8F))
+                    ),
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Color(0xFF0CAC8F),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 14.0,
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugDoc, 'userLocation': userLocation});
 
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0CAC8F),
-                    //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                    side: const BorderSide(color: Color(0xFF0CAC8F))
-                ),
-                child: const Text(
-                  "Continue",
-                  style: TextStyle(
-                    color: Colors.white,
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0CAC8F),
+                        //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                        side: const BorderSide(color: Color(0xFF0CAC8F))
+                    ),
+                    child: const Text(
+                      "Continue",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              ],
+
+            )
           ],
-        
-        )
-      ],
-    );
+        );
 
-  }
-);
+      }
+  );
 }

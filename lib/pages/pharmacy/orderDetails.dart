@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
@@ -10,6 +11,7 @@ import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OrderDetails extends StatefulWidget {
   @override
@@ -40,7 +42,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       List<String> tokens = List<String>.from(userData.tokens);
       if(tokens.isNotEmpty) {
         for(var token in tokens) {
-          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugName'].toString().capitalizeFirst!, userData.name);
+          _pushNotifications.sendNotificationToCustomer(token, true, false, orderDoc['DrugName'].toString().capitalizeFirst!, pharmacyDoc['Name']);
         }
       }
         } catch (e) {
@@ -98,12 +100,11 @@ class _OrderDetailsState extends State<OrderDetails> {
                   print(userDoc['FCMTokens']);
                   try {
                     UserModel userData = userDoc.data() as UserModel;
-                    PharmacyModel pharmacyData = pharmacyDoc.data() as PharmacyModel;
                     print(userData.tokens);
                     List<String> tokens = List<String>.from(userData.tokens);
                     if(tokens.isNotEmpty) {
                       for(var token in tokens) {
-                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugName'].toString().capitalizeFirst!, pharmacyData.name, reason);
+                        _pushNotifications.sendNotificationToCustomer(token, false, false, orderDoc['DrugName'].toString().capitalizeFirst!, pharmacyDoc['Name'], reason);
                       }
                     }
                   } catch (e) {
@@ -126,13 +127,15 @@ class _OrderDetailsState extends State<OrderDetails> {
     initializeUserData();
   }
 
-  void initializeUserData() async{
+  void initializeUserData() async {
     try {
       pharmacyID = await _userDatabaseServices.getCurrentUserUid();
       pharmacyDoc = await _pharmacyDatabaseServices.getCurrentPharmacyDoc();
+      print("!!! $pharmacyDoc['Name']");
       final args = ModalRoute.of(context)!.settings.arguments as Map?;
       if (args != null) {
         userDoc = args['selectedUser'] as DocumentSnapshot;
+        print("!!! $userDoc['Name']");
         accepted = args['accepted'] as bool;
         user.add(userDoc);
       }
@@ -188,7 +191,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                     }
                     if (snapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const OrderDetailsSkeleton();
                     }
                     if (!snapshot.hasData || snapshot.data == null) {
                       return Text('No data available');
@@ -353,3 +356,167 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   }
 }
+
+class OrderDetailsSkeleton extends StatelessWidget {
+  const OrderDetailsSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          margin: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
+          width: MediaQuery.of(context).size.width,
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4.0,
+                    offset: Offset(0, 4)
+                )
+              ]
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: 200,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.all(8.0),
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8F8F8),
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        width: 150,
+                        height: 25.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                        height: 20.0
+                    ),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        width: 150,
+                        height: 20.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                        height: 10.0
+                    ),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        width: 150,
+                        height: 20.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey[400]!,
+                        highlightColor: Colors.grey[200]!,
+                        period: Duration(milliseconds: 800),
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      width: 100.0,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      width: 100.0,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20.0,)
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+

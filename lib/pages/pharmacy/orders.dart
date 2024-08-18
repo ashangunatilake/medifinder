@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Orders extends StatefulWidget {
   @override
@@ -131,9 +132,13 @@ class _OrdersState extends State<Orders> {
                         if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
                         }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return ListView.builder(
+                              itemCount: 5,
+                              itemBuilder: (context, index) {
+                                return const OrdersSkeleton();
+                              }
+                          );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
                           return Text('No data available');
@@ -149,10 +154,8 @@ class _OrdersState extends State<Orders> {
                                         .getUserDoc(
                                         docs[index].id),
                                     builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return Center(
-                                            child: CircularProgressIndicator());
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const OrdersSkeleton();
                                       }
                                       if (snapshot.hasError) {
                                         return Text('Error: ${snapshot.error}');
@@ -211,6 +214,7 @@ class _OrdersState extends State<Orders> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -221,6 +225,10 @@ class _OrdersState extends State<Orders> {
             label: "Orders",
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: "Notifications",
+          ),
+          BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: "Profile"
           )
@@ -228,9 +236,53 @@ class _OrdersState extends State<Orders> {
         currentIndex: 1,
         onTap: (int n) {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
+          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
+      ),
+    );
+  }
+}
+
+class OrdersSkeleton extends StatelessWidget {
+  const OrdersSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4.0,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  height: 20.0,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

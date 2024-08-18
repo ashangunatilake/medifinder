@@ -35,7 +35,6 @@ class _OrderState extends State<Order> {
   late Map<String, dynamic> userData;
   late DocumentSnapshot pharmacyDoc;
   late Map<String, dynamic> pharmacyData;
-  late String drugName;
   late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
   late LatLng userLocation;
@@ -62,8 +61,7 @@ class _OrderState extends State<Order> {
       {
         pharmacyDoc = args['selectedPharmacy'] as DocumentSnapshot;
         pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
-        drugName = args['searchedDrug'] as String;
-        drugDoc = await _pharmacyDatabaseServices.getDrugByName(drugName, pharmacyDoc.id);
+        drugDoc = args['searchedDrug'] as DocumentSnapshot;
         drugData = drugDoc.data() as Map<String, dynamic>;
         userLocation = args['userLocation'] as LatLng;
       }

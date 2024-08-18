@@ -61,6 +61,8 @@ dependencies:
   googleapis_auth:
   flutter_image_compress: ^2.3.0
   async: ^2.11.0
+  loading_animation_widget: ^1.2.1
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

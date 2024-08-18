@@ -91,6 +91,7 @@ class _InventoryState extends State<Inventory> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -101,6 +102,10 @@ class _InventoryState extends State<Inventory> {
             label: "Orders",
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: "Notifications",
+          ),
+          BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: "Profile"
           )
@@ -108,7 +113,8 @@ class _InventoryState extends State<Inventory> {
         currentIndex: 0,
         onTap: (int n) {
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
+          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
       ),

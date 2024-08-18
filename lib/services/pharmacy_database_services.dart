@@ -206,7 +206,7 @@ class PharmacyDatabaseServices {
       double radius = 5.0;
       String field = 'Position';
       Stream<List<DocumentSnapshot>> nearbyPharmaciesStream = geo.collection(collectionRef: collectionReference)
-          .within(center: center, radius: radius, field: field);
+          .within(center: center, radius: radius, field: field, strictMode: true);
 
       return await filterByMedication(nearbyPharmaciesStream, medication);
     } catch (e) {

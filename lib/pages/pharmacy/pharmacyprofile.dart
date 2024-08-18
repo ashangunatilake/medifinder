@@ -8,6 +8,7 @@ import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 
 class PharmacyProfile extends StatefulWidget {
@@ -267,20 +268,23 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
                   ),
                 ),
               ],
-            ) : const Center(child: CircularProgressIndicator(),),
+            ) : const PharmacyProfileSkeleton(),
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Orders"),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications",),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
-        currentIndex: 2,
+        currentIndex: 3,
         onTap: (int n) {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
       ),
@@ -406,4 +410,173 @@ String formatTimeOfDay(TimeOfDay time) {
   final hours = time.hour.toString().padLeft(2, '0');
   final minutes = time.minute.toString().padLeft(2, '0');
   return '$hours:$minutes';
+}
+
+class PharmacyProfileSkeleton extends StatelessWidget {
+  const PharmacyProfileSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 10.0),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                width: 200,
+                height: 30.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                width: 100,
+                height: 30.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            const CircleAvatar(
+              backgroundColor: Colors.grey,
+              child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
+              radius: 75.0,
+            ),
+            const SizedBox(height: 50.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 50.0),
+          ],
+        ),
+      ),
+    );
+  }
 }

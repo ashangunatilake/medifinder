@@ -310,6 +310,5 @@ class PushNotifications {
         print('Failed, to send FCM message: ${response.statusCode}');
       }
     }
-
   }
 }

@@ -27,14 +27,33 @@ import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:medifinder/pages/resetpassword.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/pages/message.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/mapview.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+void _saveNotification(RemoteMessage message) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> notifications = prefs.getStringList('notifications') ?? [];
+
+  // Notification map
+  Map<String, dynamic> notification = {
+    'title': message.notification?.title ?? 'No Title',
+    'body': message.notification?.body ?? 'No Body',
+    'data': message.data,
+    'timestamp': DateTime.now().toString(),
+  };
+
+  notifications.add(jsonEncode(notification));
+
+  prefs.setStringList('notifications', notifications);
+}
+
 // Function to listen to background changes
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
   if (message.notification != null) {
+    _saveNotification(message);
     print('Some notification received in background...');
   }
 }
@@ -76,12 +95,14 @@ void main() async {
           body: message.notification!.body!,
           payload: payloadData);
     }
+    _saveNotification(message);
   });
 
   // For handling in terminated state
   final RemoteMessage? message =
       await FirebaseMessaging.instance.getInitialMessage();
   if (message != null) {
+    _saveNotification(message);
     print('Launched in terminated state');
     Future.delayed(Duration(seconds: 1), () {
       navigatorKey.currentState!.pushNamed('/message', arguments: message);

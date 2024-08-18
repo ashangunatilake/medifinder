@@ -7,6 +7,7 @@ import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/services/push_notofications.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,6 +30,18 @@ class _LoginPageState extends State<LoginPage> {
     String email = emailcontroller.text;
     String password = passwordcontroller.text;
     try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+            child: LoadingAnimationWidget.beat(
+              color: Colors.white,
+              size: 100.0
+            ),
+          );
+        }
+      );
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       print("User logged in");
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -38,11 +51,13 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString('role', userRole);
       if(userRole == 'customer') {
         await pushNotifications.addDeviceToken(userRole, userUid);
+        Navigator.pop(context);
         Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamedAndRemoveUntil(context, "/customer_home", (route) => false);
       }
       else if(userRole == 'pharmacy') {
         await pushNotifications.addDeviceToken(userRole, userUid);
+        Navigator.pop(context);
         Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
         Navigator.pushNamedAndRemoveUntil(context, "/pharmacy_home", (route) => false);
       }
@@ -52,13 +67,14 @@ class _LoginPageState extends State<LoginPage> {
         }
 
     } on FirebaseAuthException catch(e) {
+      Navigator.pop(context);
       print(e.code);
       if (e.code == "user-not-found" || e.code == "wrong-password" || e.code == "invalid-credential") {
         print("User not found");
         Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
       }
       if (e.code == "too-many-requests") {
-        Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
+        Snackbars.errorSnackBar(message: "Too many requests. Try again later", context: context);
       }
       if (e.code == "network-request-failed") {
         Snackbars.errorSnackBar(message: "Network error occured", context: context);

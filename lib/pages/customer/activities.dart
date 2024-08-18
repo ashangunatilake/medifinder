@@ -1,11 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
@@ -138,9 +141,18 @@ class _ActivitiesState extends State<Activities> {
                         if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
                         }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return ListView.builder(
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                children: [
+                                  ActivitiesItemSkeleton(ongoing),
+                                  const SizedBox(height: 10.0)
+                                ],
+                              );
+                            }
+                          );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
                           return Text('No data available');
@@ -148,231 +160,211 @@ class _ActivitiesState extends State<Activities> {
                         else {
                           var docs = snapshot.data!;
                           print(docs.length);
-                          return ListView.builder(
-                              itemCount: docs.length,
-                              itemBuilder: (context, index) {
-                                return FutureBuilder<DocumentSnapshot>(
-                                    future: _pharmacyDatabaseServices
-                                        .getPharmacyDoc(
-                                        docs[index]['PharmacyID']),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return Center(
-                                            child: CircularProgressIndicator());
-                                      }
-                                      if (snapshot.hasError) {
-                                        return Text('Error: ${snapshot.error}');
-                                      }
-                                      if (!snapshot.hasData ||
-                                          snapshot.data == null) {
-                                        return Text('No data available');
-                                      }
-                                      var pharmacyDoc = snapshot.data!;
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment
-                                            .start,
-                                        children: [
-                                          Container(
-                                              padding: EdgeInsets.all(10.0),
-                                              decoration: const BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius: BorderRadius
-                                                      .all(Radius.circular(10)),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                        color: Color(
-                                                            0x40FFFFFF),
-                                                        blurRadius: 4.0,
-                                                        offset: Offset(0, 4)
-                                                    )
-                                                  ]
-                                              ),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start,
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: ListView.builder(
+                                    itemCount: docs.length,
+                                    itemBuilder: (context, index) {
+                                      return FutureBuilder<DocumentSnapshot>(
+                                          future: _pharmacyDatabaseServices.getPharmacyDoc(docs[index]['PharmacyID']),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                              return Column(
                                                 children: [
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment
-                                                        .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        pharmacyDoc['Name'],
-                                                        style: TextStyle(
-                                                            fontSize: 20.0
-                                                        ),
-                                                      ),
-                                                      if (!docs[index]['Completed']) Container(
-                                                        child: Row(
+                                                  ActivitiesItemSkeleton(ongoing),
+                                                  const SizedBox(height: 10.0)
+                                                ],
+                                              );
+                                            }
+                                            if (snapshot.hasError) {
+                                              return Text('Error: ${snapshot.error}');
+                                            }
+                                            if (!snapshot.hasData || snapshot.data == null) {
+                                              return Text('No data available');
+                                            }
+                                            var pharmacyDoc = snapshot.data!;
+                                            return Column(
+                                              crossAxisAlignment: CrossAxisAlignment
+                                                  .start,
+                                              children: [
+                                                Container(
+                                                    padding: EdgeInsets.all(10.0),
+                                                    decoration: const BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Color(0x40FFFFFF),
+                                                            blurRadius: 4.0,
+                                                            offset: Offset(0, 4)
+                                                          )
+                                                        ]
+                                                    ),
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
-                                                            Icon(
-                                                              Icons.circle,
-                                                              color: docs[index]['Accepted']
-                                                                  ? Color(
-                                                                  0xFF008000)
-                                                                  : Colors.grey,
-                                                              size: 8.0,
-                                                            ),
                                                             Text(
-                                                              docs[index]['Accepted']
-                                                                  ? " Accepted"
-                                                                  : " Pending",
+                                                              pharmacyDoc['Name'],
                                                               style: TextStyle(
-                                                                fontSize: 14.0,
-                                                                color: docs[index]['Accepted']
-                                                                    ? Color(
-                                                                    0xFF008000)
-                                                                    : Colors
-                                                                    .grey,
+                                                                  fontSize: 20.0
+                                                              ),
+                                                            ),
+                                                            if (!docs[index]['Completed']) Container(
+                                                              child: Row(
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons.circle,
+                                                                    color: docs[index]['Accepted'] ? Color(0xFF008000) : Colors.grey,
+                                                                    size: 8.0,
+                                                                  ),
+                                                                  Text(
+                                                                    docs[index]['Accepted'] ? " Accepted" : " Pending",
+                                                                    style: TextStyle(
+                                                                      fontSize: 14.0,
+                                                                      color: docs[index]['Accepted'] ? Color(0xFF008000) : Colors.grey,
+                                                                    ),
+                                                                  )
+                                                                ],
                                                               ),
                                                             )
                                                           ],
                                                         ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5.0,
-                                                  ),
-                                                  Text(
-                                                    "${docs[index]['DrugName'].toString().capitalizeFirst}",
-                                                    style: TextStyle(
-                                                        fontSize: 16.0
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5.0,
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "Method of Delivery : ",
-                                                        style: TextStyle(
-                                                            fontSize: 16.0
+                                                        SizedBox(
+                                                          height: 5.0,
                                                         ),
-                                                      ),
-                                                      Text(
-                                                        docs[index]['DeliveryMethod']
-                                                            ? "Deliver"
-                                                            : "Meet at Pharmacy",
-                                                        style: TextStyle(
-                                                            fontSize: 16.0
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5.0,
-                                                  ),
-                                                  Text(
-                                                    "Quantity : ${docs[index]['Quantity'].toInt()}",
-                                                    style: TextStyle(
-                                                        fontSize: 16.0
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 20.0,
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: ElevatedButton(
-                                                          onPressed: () {
-                                                            GeoPoint geopoint = pharmacyDoc['Position']['geopoint'];
-                                                            Launcher.openMap(geopoint);
-                                                          },
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                              backgroundColor: const Color(
-                                                                  0xFF0CAC8F),
-                                                              //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                                              side: const BorderSide(
-                                                                  color: Color(
-                                                                      0xFF0CAC8F))
+                                                        Text(
+                                                          "${docs[index]['DrugName'].toString().capitalizeFirst}",
+                                                          style: TextStyle(
+                                                              fontSize: 16.0
                                                           ),
-                                                          child: const Text(
-                                                            "Directions",
-                                                            style: TextStyle(
-                                                              color: Colors
-                                                                  .white,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5.0,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              "Method of Delivery : ",
+                                                              style: TextStyle(
+                                                                  fontSize: 16.0
+                                                              ),
                                                             ),
+                                                            Text(
+                                                              docs[index]['DeliveryMethod'] ? "Deliver" : "Meet at Pharmacy",
+                                                              style: TextStyle(
+                                                                  fontSize: 16.0
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5.0,
+                                                        ),
+                                                        Text(
+                                                          "Quantity : ${docs[index]['Quantity'].toInt()}",
+                                                          style: TextStyle(
+                                                              fontSize: 16.0
                                                           ),
                                                         ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: 10.0,
-                                                      ),
-                                                      Expanded(
-                                                        child: ElevatedButton(
-                                                          onPressed: () {
-                                                            Launcher.openDialler(pharmacyDoc['ContactNo']);
-                                                          },
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                              backgroundColor: const Color(
-                                                                  0xFF0CAC8F),
-                                                              //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                                              side: const BorderSide(
-                                                                  color: Color(
-                                                                      0xFF0CAC8F))
-                                                          ),
-                                                          child: const Text(
-                                                            "Call",
-                                                            style: TextStyle(
-                                                              color: Colors
-                                                                  .white,
+                                                        SizedBox(
+                                                          height: 20.0,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: ElevatedButton(
+                                                                onPressed: () {
+                                                                  GeoPoint geopoint = pharmacyDoc['Position']['geopoint'];
+                                                                  Launcher.openMap(geopoint);
+                                                                },
+                                                                style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: const Color(0xFF0CAC8F),
+                                                                    //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                                    side: const BorderSide(
+                                                                        color: Color(0xFF0CAC8F))
+                                                                ),
+                                                                child: const Text(
+                                                                  "Directions",
+                                                                  style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                      height: 10.0
-                                                  ),
-                                                  ongoing ? Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: ElevatedButton(
-                                                          onPressed: () {
-                                                            continueDialog(
-                                                                context, pharmacyDoc, docs[index], user!.uid, () {setState(() {docs.removeAt(index);});});
-                                                          },
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                              backgroundColor: const Color(
-                                                                  0xFFFFFFFF),
-                                                              padding: const EdgeInsets
-                                                                  .fromLTRB(
-                                                                  45.0, 13.0,
-                                                                  45.0, 11.0),
-                                                              side: const BorderSide(
-                                                                  color: Color(
-                                                                      0xFF0CAC8F))
-                                                          ),
-                                                          child: const Text(
-                                                            "Received",
-                                                            style: TextStyle(
-                                                              color: Color(
-                                                                  0xFF0CAC8F),
+                                                            SizedBox(
+                                                              width: 10.0,
                                                             ),
-                                                          ),
+                                                            Expanded(
+                                                              child: ElevatedButton(
+                                                                onPressed: () {
+                                                                  Launcher.openDialler(pharmacyDoc['ContactNo']);
+                                                                },
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                    backgroundColor: const Color(0xFF0CAC8F),
+                                                                    //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                                    side: const BorderSide(
+                                                                        color: Color(0xFF0CAC8F)
+                                                                    )
+                                                                ),
+                                                                child: const Text(
+                                                                  "Call",
+                                                                  style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      )
-                                                    ],
-                                                  ) : SizedBox(height: 0)
-                                                ],
-                                              )
-                                          ),
-                                          SizedBox(
-                                            height: 10.0,
-                                          ),
-                                        ],
+                                                        SizedBox(
+                                                            height: 10.0
+                                                        ),
+                                                        ongoing ? Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: ElevatedButton(
+                                                                onPressed: () {
+                                                                  continueDialog(context, pharmacyDoc, docs[index], user!.uid, () {setState(() {docs.removeAt(index);});});
+                                                                },
+                                                                style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: const Color(0xFFFFFFFF),
+                                                                    padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                                    side: const BorderSide(
+                                                                        color: Color(0xFF0CAC8F))
+                                                                ),
+                                                                child: const Text(
+                                                                  "Received",
+                                                                  style: TextStyle(
+                                                                    color: Color(0xFF0CAC8F),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ) : SizedBox(height: 0)
+                                                      ],
+                                                    )
+                                                ),
+                                                SizedBox(
+                                                  height: 10.0,
+                                                ),
+                                              ],
+                                            );
+                                          }
                                       );
                                     }
-                                );
-                              }
+                                ),
+                              ),
+                            ],
                           );
                         }
                       }
@@ -384,6 +376,7 @@ class _ActivitiesState extends State<Activities> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -394,6 +387,10 @@ class _ActivitiesState extends State<Activities> {
             label: "Activities",
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: "Notifications",
+          ),
+          BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: "Profile"
           )
@@ -401,7 +398,8 @@ class _ActivitiesState extends State<Activities> {
         currentIndex: 1,
         onTap: (int n) {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
+          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
       ),
@@ -410,6 +408,8 @@ class _ActivitiesState extends State<Activities> {
 }
 
 Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc, DocumentSnapshot orderDoc, String uid, Function updateState) async {
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
   final PushNotifications _pushNotifications = PushNotifications();
   return showDialog(
       context: context,
@@ -469,8 +469,6 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
-                      final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
                       if(orderDoc['Accepted'])
                       {
                         UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
@@ -482,7 +480,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                           List<String> tokens = List<String>.from(pharmacyDoc['FCMTokens']);
                           if(tokens.isNotEmpty) {
                             for(var token in tokens) {
-                              _pushNotifications.sendNotificationToPharmacy(token, false, orderDoc['DrugName'].toString().capitalizeFirst!, userDoc['Name']);
+                              _pushNotifications.sendNotificationToPharmacy(token, true, orderDoc['DrugName'].toString().capitalizeFirst!, userDoc['Name']);
                             }
                           }
                         }
@@ -517,6 +515,174 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
 
       }
   );
+}
+
+class ActivitiesItemSkeleton extends StatelessWidget {
+  const ActivitiesItemSkeleton(this.ongoing, {super.key});
+  final bool ongoing;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10.0),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x40FFFFFF),
+            blurRadius: 4.0,
+            offset: Offset(0, 4)
+          )
+        ]
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    width: 150,
+                    height: 20.0,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ),
+                ongoing ? Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    width: 50,
+                    height: 20.0,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ) : const SizedBox(width: 0,),
+              ],
+            ),
+            const SizedBox(
+              height: 20.0
+            ),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                width: 100,
+                height: 16.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                width: 150,
+                height: 16.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                width: 100,
+                height: 16.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 30.0,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 30.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10.0,
+                ),
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 30.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            ongoing ? Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 30.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ) : const SizedBox(height: 0),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 

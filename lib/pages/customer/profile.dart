@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/models/user_model.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -15,6 +18,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  final PushNotifications _pushNotifications = PushNotifications();
   late DocumentSnapshot<Map<String, dynamic>> userDoc;
   late TextEditingController nameController;
   late TextEditingController emailController;
@@ -146,20 +150,23 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ],
-            ) : const Center(child: CircularProgressIndicator(),),
+            ) : ProfileSkeleton(enabled),
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Activities"),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
-        currentIndex: 2,
+        currentIndex: 3,
         onTap: (int n) {
           if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
       ),
@@ -218,6 +225,20 @@ class _ProfileState extends State<Profile> {
                 () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.remove('isLoggedIn');
+
+              final String? deviceToken = await _pushNotifications.getDeviceToken();
+              if (deviceToken != null) {
+                Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+                print(userData['FCMTokens']);
+                List<String> tokens = List<String>.from(userData['FCMTokens']);
+                if (tokens.contains(deviceToken)) {
+                  tokens.remove(deviceToken);
+                  await userDoc.reference.update({'FCMTokens': tokens});
+                }
+              } else {
+                print('Error: Device token is null.');
+              }
+
               Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
             },
           ),
@@ -264,6 +285,189 @@ class _ProfileState extends State<Profile> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ProfileSkeleton extends StatelessWidget {
+  const ProfileSkeleton(this.enabled, {super.key});
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 10.0),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                width: 200,
+                height: 30.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            const CircleAvatar(
+              backgroundColor: Colors.grey,
+              child: Icon(Icons.person, size: 130.0, color: Colors.black),
+              radius: 75.0,
+            ),
+            const SizedBox(height: 50.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Container(
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30.0),
+            Column(
+              children: [
+                if (!enabled)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          period: Duration(milliseconds: 800),
+                          child: Container(
+                            height: 16.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 30.0),
+                if (!enabled)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          period: Duration(milliseconds: 800),
+                          child: Container(
+                            height: 30.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 30.0),
+                if (!enabled)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          period: Duration(milliseconds: 800),
+                          child: Container(
+                            height: 30.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 30.0),
+                if (enabled)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          period: Duration(milliseconds: 800),
+                          child: Container(
+                            height: 30.0,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.2),
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20.0),
+          ],
+        ),
       ),
     );
   }

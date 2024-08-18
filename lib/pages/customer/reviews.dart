@@ -77,62 +77,62 @@ class _ReviewsState extends State<Reviews> {
                 )
             ),
             Container(
-              margin: const EdgeInsets.only(left:10.0, right: 10.0),
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Color(0x40FFFFFF),
-                        blurRadius: 4.0,
-                        offset: Offset(0, 4)
-                    )
-                  ]
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                margin: const EdgeInsets.only(left:10.0, right: 10.0),
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Color(0x40FFFFFF),
+                          blurRadius: 4.0,
+                          offset: Offset(0, 4)
+                      )
+                    ]
+                ),
+                child: Padding(
+                    padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          data['Name'],
-                          style: TextStyle(
-                            fontSize: 20.0,
-                          ),
-                        ),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                overallRating.toStringAsFixed(1),
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              data['Name'],
+                              style: TextStyle(
+                                fontSize: 20.0,
                               ),
-                              Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 24.0,
-                              )
-                            ],
-                          ),
+                            ),
+                            Container(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    overallRating.toStringAsFixed(1),
+                                    style: TextStyle(
+                                      fontSize: 15.0,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: 24.0,
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 15.0,
                         )
                       ],
-                    ),
-                    SizedBox(
-                      height: 15.0,
                     )
-                  ],
                 )
-              )
             ),
             SizedBox(
-              height: 19.0
+                height: 19.0
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -149,13 +149,13 @@ class _ReviewsState extends State<Reviews> {
                         },
                         autofocus: true,
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: getColor(1, selected),
+                          backgroundColor: getColor(1, selected),
                         ),
                         child: Text(
                           "Newest",
                           style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.black
+                              fontSize: 14.0,
+                              color: Colors.black
                           ),
                         ),
                       )
@@ -173,7 +173,7 @@ class _ReviewsState extends State<Reviews> {
 
                         },
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: getColor(2, selected),
+                          backgroundColor: getColor(2, selected),
                         ),
                         child: Text(
                           "Highest",
@@ -196,7 +196,7 @@ class _ReviewsState extends State<Reviews> {
 
                         },
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: getColor(3, selected),
+                          backgroundColor: getColor(3, selected),
                         ),
                         child: Text(
                           "Lowest",
@@ -216,138 +216,138 @@ class _ReviewsState extends State<Reviews> {
             // ),
             Expanded(
                 child: StreamBuilder(
-                  stream: _pharmacyDatabaseServices.getPharmacyReviews(pharmacyDoc.id),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data == null) {
-                      return Text('No data available');
-                    }
-                    else{
-                      List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
-                      if (selected == 1) {
-                        reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                    stream: _pharmacyDatabaseServices.getPharmacyReviews(pharmacyDoc.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
                       }
-                      if (selected == 2) {
-                        reviews.sort((a, b) => b.rating.compareTo(a.rating));
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
                       }
-                      if (selected == 3) {
-                        reviews.sort((a, b) => a.rating.compareTo(b.rating));
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return Text('No data available');
                       }
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        itemCount: reviews.length,
-                        itemBuilder: (context, index) {
-                          UserReview review = reviews[index];
-                          print('Review Comment: ${review.comment}, Rating: ${review.rating}');
-                          return FutureBuilder<DocumentSnapshot>(
-                            future: _userDatabaseServices.getUserDoc(review.id),
-                            builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-                              if (userSnapshot.connectionState == ConnectionState.waiting) {
-                                return ListTile(
-                                  title: Text('Loading...'),
-                                );
-                              }
-                              if (userSnapshot.hasError) {
-                                return ListTile(
-                                  title: Text('Error loading data'),
-                                );
-                              }
-                              if (userSnapshot.hasData && userSnapshot.data != null) {
-                                UserModel userData = userSnapshot.data!.data() as UserModel;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                        decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Color(0x40FFFFFF),
-                                                  blurRadius: 4.0,
-                                                  offset: Offset(0, 4)
-                                              )
-                                            ]
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 10.0),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    userData.name, // Assuming UserModel has a 'name' property
-                                                    style: TextStyle(
-                                                        fontSize: 14.0,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  RatingBar(
-                                                    ignoreGestures: true,
-                                                    initialRating: review.rating,
-                                                    direction: Axis.horizontal,
-                                                    itemCount: 5,
-                                                    itemSize: 24.0,
-                                                    itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                                    ratingWidget: RatingWidget(
-                                                      full: Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
-                                                      ),
-                                                      half: Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
-                                                      ),
-                                                      empty: Icon(
-                                                        Icons.star,
-                                                        color: Colors.grey,
+                      else{
+                        List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
+                        if (selected == 1) {
+                          reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                        }
+                        if (selected == 2) {
+                          reviews.sort((a, b) => b.rating.compareTo(a.rating));
+                        }
+                        if (selected == 3) {
+                          reviews.sort((a, b) => a.rating.compareTo(b.rating));
+                        }
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          itemCount: reviews.length,
+                          itemBuilder: (context, index) {
+                            UserReview review = reviews[index];
+                            print('Review Comment: ${review.comment}, Rating: ${review.rating}');
+                            return FutureBuilder<DocumentSnapshot>(
+                              future: _userDatabaseServices.getUserDoc(review.id),
+                              builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                                if (userSnapshot.connectionState == ConnectionState.waiting) {
+                                  return ListTile(
+                                    title: Text('Loading...'),
+                                  );
+                                }
+                                if (userSnapshot.hasError) {
+                                  return ListTile(
+                                    title: Text('Error loading data'),
+                                  );
+                                }
+                                if (userSnapshot.hasData && userSnapshot.data != null) {
+                                  UserModel userData = userSnapshot.data!.data() as UserModel;
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                          decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: Color(0x40FFFFFF),
+                                                    blurRadius: 4.0,
+                                                    offset: Offset(0, 4)
+                                                )
+                                              ]
+                                          ),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 10.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      userData.name, // Assuming UserModel has a 'name' property
+                                                      style: TextStyle(
+                                                          fontSize: 14.0,
+                                                          fontWeight: FontWeight.bold
                                                       ),
                                                     ),
-                                                    onRatingUpdate: (rating) {
-                                                      print(rating);
-                                                    },
-                                                  ),
-                                                ],
+                                                    RatingBar(
+                                                      ignoreGestures: true,
+                                                      initialRating: review.rating,
+                                                      direction: Axis.horizontal,
+                                                      itemCount: 5,
+                                                      itemSize: 24.0,
+                                                      itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                                                      ratingWidget: RatingWidget(
+                                                        full: Icon(
+                                                          Icons.star,
+                                                          color: Colors.amber,
+                                                        ),
+                                                        half: Icon(
+                                                          Icons.star,
+                                                          color: Colors.amber,
+                                                        ),
+                                                        empty: Icon(
+                                                          Icons.star,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                      onRatingUpdate: (rating) {
+                                                        print(rating);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(height: 17.0),
-                                            Text(
-                                              review.comment,
-                                              style: TextStyle(
-                                                fontSize: 14.0,
+                                              const SizedBox(height: 17.0),
+                                              Text(
+                                                review.comment,
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(height: 20.0),
-                                          ],
+                                              SizedBox(height: 20.0),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(height: 20.0),
-                                  ],
+                                      SizedBox(height: 20.0),
+                                    ],
+                                  );
+                                }
+                                // Handle the case where snapshot has no data
+                                return ListTile(
+                                  title: Text('No data available'),
                                 );
-                              }
-                              // Handle the case where snapshot has no data
-                              return ListTile(
-                                title: Text('No data available'),
-                              );
-                            },
-                          );
-                        },
-                      );;
-                    }
+                              },
+                            );
+                          },
+                        );;
+                      }
 
-                  }
+                    }
                 )
             ),
             Padding(

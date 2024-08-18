@@ -255,6 +255,7 @@ class _CustomerHomeState extends State<CustomerHome> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -265,6 +266,10 @@ class _CustomerHomeState extends State<CustomerHome> {
             label: "Activities",
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: "Notifications",
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: "Profile",
           ),
@@ -272,7 +277,8 @@ class _CustomerHomeState extends State<CustomerHome> {
         currentIndex: 0,
         onTap: (int n) {
           if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
+          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
       ),

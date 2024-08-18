@@ -6,6 +6,7 @@ import 'package:medifinder/drugs/names.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -142,7 +143,6 @@ class _SearchState extends State<Search> {
                     );
                   },
                   onSelected: (String? suggestion) {
-                    FocusManager.instance.primaryFocus?.unfocus();
                     searchController.text = suggestion!;
                   },
                   suggestionsCallback: (textEditingValue) {
@@ -180,7 +180,24 @@ class _SearchState extends State<Search> {
                 ),
               ),
             ),
-            if (searched && !waiting)
+            if (waiting)
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  itemCount: 5, // Display 5 skeletons as a placeholder
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: const [
+                        PharmacyItemSkeleton(),
+                        SizedBox(
+                          height: 7.0,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              )
+            else if (searched && !waiting)
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -190,95 +207,18 @@ class _SearchState extends State<Search> {
                     DocumentSnapshot drug = filteredPharmacies[index]['drug'];
                     return Column(
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': pharmacy, 'searchedDrug': searchController.text.trim().toLowerCase(), 'searchedDrugDoc': drug, 'userLocation': location});
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-                            width: MediaQuery.of(context).size.width,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        pharmacy['Name'],
-                                        style: TextStyle(
-                                          fontSize: 20.0,
-                                        ),
-                                      ),
-                                      Container(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              pharmacy['Ratings'].toStringAsFixed(1),
-                                              style: TextStyle(
-                                                fontSize: 15.0,
-                                              ),
-                                            ),
-                                            Icon(
-                                              Icons.star,
-                                              color: Colors.amber,
-                                              size: 24.0,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20.0,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "${drug['BrandName'].toString().capitalize} ${drug['Dosage']}",
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Rs. ${drug['UnitPrice'].toString()}",
-                                        style: TextStyle(
-                                          fontSize: 20.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                        PharmacyItem(
+                          pharmacy: pharmacy,
+                          drug: drug,
+                          location: location,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 7.0,
-                        )
+                        ),
                       ],
                     );
                   },
                 ),
-              )
-            else if (waiting)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Center(child: CircularProgressIndicator()),
               )
             else
               Expanded(child: SizedBox()),
@@ -288,3 +228,194 @@ class _SearchState extends State<Search> {
     );
   }
 }
+
+class PharmacyItem extends StatelessWidget {
+  final DocumentSnapshot pharmacy;
+  final DocumentSnapshot drug;
+  final LatLng location;
+
+  const PharmacyItem({
+    Key? key,
+    required this.pharmacy,
+    required this.drug,
+    required this.location,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': pharmacy, 'searchedDrug': drug, 'userLocation': location,},);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+        width: MediaQuery.of(context).size.width,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x40FFFFFF),
+              blurRadius: 4.0,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    pharmacy['Name'],
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        pharmacy['Ratings'].toStringAsFixed(1),
+                        style: TextStyle(
+                          fontSize: 15.0,
+                        ),
+                      ),
+                      Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 24.0,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${drug['BrandName'].toString().capitalize} ${drug['Dosage']}",
+                    style: TextStyle(
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Text(
+                    "Rs. ${drug['UnitPrice'].toString()}",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PharmacyItemSkeleton extends StatelessWidget {
+  const PharmacyItemSkeleton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+      padding: const EdgeInsets.all(16.0),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x40FFFFFF),
+            blurRadius: 4.0,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: 150, // Approximate width of the pharmacy name
+                  height: 20, // Approximate height of the text
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: 50, // Approximate width for the rating text
+                  height: 20, // Approximate height of the text
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: 180, // Approximate width of the drug name and dosage
+                  height: 16, // Approximate height of the text
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: 80, // Approximate width for the price text
+                  height: 20, // Approximate height of the text
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
