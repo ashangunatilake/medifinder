@@ -147,9 +147,11 @@ class _OrderDetailsState extends State<OrderDetails> {
       print("Error fetching user data: $e");
     }
     finally {
-      setState(() {
-        loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
     }
   }
 

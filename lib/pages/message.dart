@@ -18,6 +18,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
   @override
   void initState() {
     super.initState();
+    checkRole();
     _loadNotifications();  // Load stored notifications on initialization
   }
 
@@ -27,16 +28,43 @@ class _NotificationMessageState extends State<NotificationMessage> {
     _handleIncomingData();  // Handle any new incoming data
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _removeReadNotifications(notifications);
+  }
+
+  Future<void> checkRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    role = prefs.getString('role') ?? 'customer';
+    if (!isLoggedIn) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+  }
+
   Future<void> _loadNotifications() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
-
-    // Decode stored notifications and add them to the list
-    setState(() {
-      notifications = storedNotifications.map((notification) {
-        return jsonDecode(notification) as Map<String, dynamic>;
-      }).toList();
+    prefs.reload().then((value) {
+      List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
+      print("Stored Noifications - ${storedNotifications.length}");
+      // Decode stored notifications and add them to the list
+      setState(() {
+        notifications = storedNotifications.map((notification) {
+          return jsonDecode(notification) as Map<String, dynamic>;
+        }).toList();
+      });
     });
+
+  }
+
+  Future<void> _removeReadNotifications(List<Map<String, dynamic>> notifications) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('notifications');
+    notifications.removeWhere((element) => element['read'] == true);
+    print(notifications.length);
+    final List<String> jsonList = notifications.map((e) => jsonEncode(e)).toList();
+    prefs.setStringList('notifications', jsonList);
   }
 
   void _handleIncomingData() {
@@ -49,7 +77,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
         newNotification = {
           'title': data.notification?.title ?? "No Title",
           'body': data.notification?.body ?? "No Body",
-          'timestamp': _formatTimestamp(data.sentTime),
+          'timestamp': data.sentTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
           'read': false,
         };
       }
@@ -59,7 +87,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
         newNotification = {
           'title': decodedPayload['title'] ?? "No Title",
           'body': decodedPayload['body'] ?? "No Body",
-          'timestamp': _formatTimestamp(DateTime.parse(decodedPayload['timestamp'])),
+          'timestamp': decodedPayload['timestamp'] ?? DateTime.now().toIso8601String(),
           'read': false,
         };
       }
@@ -105,69 +133,78 @@ class _NotificationMessageState extends State<NotificationMessage> {
             fit: BoxFit.cover,
           ),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemCount: notifications.length,
-          itemBuilder: (context, index) {
-            final notification = notifications[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    notifications[index]['read'] = true;
-                  });
-                },
-                child: AnimatedOpacity(
-                  opacity: notification['read'] ? 0.6 : 1.0,
-                  duration: Duration(milliseconds: 300),
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: notification['read'] ? Colors.grey[200] : Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 5.0,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          notification['title'],
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+        child: SafeArea(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final notification = notifications[index];
+              print(notifications[index]['timestamp']);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      notifications[index]['read'] = true;
+                      
+                    });
+                  },
+                  child: AnimatedOpacity(
+                    opacity: notification['read'] ? 0.6 : 1.0,
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: notification['read'] ? Colors.grey[200] : Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 5.0,
+                            offset: Offset(0, 2),
                           ),
-                        ),
-                        SizedBox(height: 8.0),
-                        Text(
-                          notification['body'],
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black87,
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            notification['title'],
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8.0),
-                        Text(
-                          notification['timestamp'],
-                          style: TextStyle(
-                            fontSize: 14.0,
-                            color: Colors.grey,
+                          SizedBox(height: 8.0),
+                          Text(
+                            notification['body'],
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 8.0),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                _formatTimestamp(DateTime.parse(notification['timestamp'])),
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -182,6 +219,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
         onTap: (int n) {
           if (n == 0) {
             if (role == 'customer') {
+              _removeReadNotifications(notifications);
               Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
             } else {
               Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);

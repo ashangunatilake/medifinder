@@ -36,17 +36,18 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void _saveNotification(RemoteMessage message) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   List<String> notifications = prefs.getStringList('notifications') ?? [];
-
+  print("Notifications length in save notification before ${notifications.length}");
   // Notification map
   Map<String, dynamic> notification = {
     'title': message.notification?.title ?? 'No Title',
     'body': message.notification?.body ?? 'No Body',
     'data': message.data,
     'timestamp': DateTime.now().toString(),
+    'read': false
   };
 
-  notifications.add(jsonEncode(notification));
-
+  notifications.insert(0, jsonEncode(notification));
+  print("Notifications length in save notification after ${notifications.length}");
   prefs.setStringList('notifications', notifications);
 }
 
