@@ -10,6 +10,7 @@ import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../services/database_services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../services/exception_handling_services.dart';
@@ -38,6 +39,7 @@ class _OrderState extends State<Order> {
   late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
   late LatLng userLocation;
+  late double radius;
   bool loading = false;
   String fileName = "";
 
@@ -64,6 +66,7 @@ class _OrderState extends State<Order> {
         drugDoc = args['searchedDrug'] as DocumentSnapshot;
         drugData = drugDoc.data() as Map<String, dynamic>;
         userLocation = args['userLocation'] as LatLng;
+        radius = args['radius'];
       }
       else {
         throw ErrorException();
@@ -286,7 +289,7 @@ class _OrderState extends State<Order> {
             color: Colors.black
         ),
       ),
-      body: (loading) ? const Center(child: CircularProgressIndicator())
+      body: (loading) ? const Center(child: PageSkeleton())
           : Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -393,14 +396,14 @@ class _OrderState extends State<Order> {
                       DropdownMenuItem(
                         child: Text(
                           "Deliver",
-                          style: pharmacyData['DeliveryServiceAvailability'] ? TextStyle(fontSize: 14.0)
+                          style: (pharmacyData['DeliveryServiceAvailability'] && radius == 5.0) ? TextStyle(fontSize: 14.0)
                               : TextStyle(
                               fontSize: 14.0,
                               color: Colors.grey
                           ),
                         ),
                         value: true,
-                        enabled: pharmacyData['DeliveryServiceAvailability'],
+                        enabled: (pharmacyData['DeliveryServiceAvailability'] && radius == 5.0) ? true : false,
                       ),
                     ],
                     isExpanded: true,
@@ -618,3 +621,231 @@ class _OrderState extends State<Order> {
     );
   }
 }
+
+class PageSkeleton extends StatelessWidget {
+  const PageSkeleton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/background2.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SafeArea(
+              child: SizedBox(
+                height: 21.0,
+              )),
+          Container(
+            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.4),
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 4))
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 16.0, bottom: 5.0, left: 14.0, right: 14.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[400]!,
+                        highlightColor: Colors.grey[200]!,
+                        period: Duration(milliseconds: 800),
+                        child: Container(
+                          height: 20.0,
+                          width: 150.0,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: Colors.grey[400]!,
+                        highlightColor: Colors.grey[200]!,
+                        period: Duration(milliseconds: 800),
+                        child: Container(
+                          height: 20.0,
+                          width: 80.0,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 5.0,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10.0,
+          ),
+          Container(
+            margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.4),
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 4))
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 31.0,
+                ),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    height: 18.0,
+                    width: 150.0,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 19.0,
+                ),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    height: 45.0,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 19.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        height: 18.0,
+                        width: 80.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        height: 35.0,
+                        width: 100.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 19.0,
+                ),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    height: 18.0,
+                    width: 150.0,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 19.0),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    height: 45.0,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 30.0,
+                ),
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[400]!,
+                  highlightColor: Colors.grey[200]!,
+                  period: Duration(milliseconds: 800),
+                  child: Container(
+                    height: 45.0,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 27.0)
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

@@ -198,12 +198,11 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getNearbyPharmacies(LatLng userPosition, String medication) async {
+  Future<List<Map<String, dynamic>>> getNearbyPharmacies(LatLng userPosition, String medication, double radius) async {
     try {
       final geo = GeoFlutterFire();
       GeoFirePoint center = geo.point(latitude: userPosition.latitude, longitude: userPosition.longitude);
       var collectionReference = firestore.collection('Pharmacies');
-      double radius = 5.0;
       String field = 'Position';
       Stream<List<DocumentSnapshot>> nearbyPharmaciesStream = geo.collection(collectionRef: collectionReference)
           .within(center: center, radius: radius, field: field, strictMode: true);

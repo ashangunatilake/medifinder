@@ -93,7 +93,7 @@ class PushNotifications {
 
   // On tap notification in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
-    navigatorKey.currentState!.pushNamed('/message', arguments: notificationResponse);
+    navigatorKey.currentState!.pushNamed('/message');
   }
 
   // Show a simple notification

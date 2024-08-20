@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:medifinder/drugs/names.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/validators/validation.dart';
@@ -23,6 +25,7 @@ class _SearchState extends State<Search> {
   late LatLng location;
   final TextEditingController searchController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+  double radius = 5.0;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +111,8 @@ class _SearchState extends State<Search> {
                               setState(() {
                                 waiting = true;
                               });
-                              filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
+                              radius = 5.0;
+                              filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase(), radius);
                               setState(() {
                                 searched = true;
                                 waiting = false;
@@ -129,7 +133,8 @@ class _SearchState extends State<Search> {
                           waiting = true;
                         });
                         print(searchController.text.trim().toLowerCase());
-                        filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase());
+                        radius = 5.0;
+                        filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase(), radius);
                         setState(() {
                           searched = true;
                           waiting = false;
@@ -198,6 +203,124 @@ class _SearchState extends State<Search> {
                 ),
               )
             else if (searched && !waiting)
+              (filteredPharmacies.isEmpty && radius == 5.0) ?
+                Column(
+                  children: [
+                    const SizedBox(height: 10.0,),
+                    Container(
+                      margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                      width: MediaQuery.of(context).size.width,
+                      decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x40FFFFFF),
+                          blurRadius: 4.0,
+                          offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 14.0, right: 14.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Lottie.network('https://lottie.host/76a6dd18-442e-4c72-b74b-621f93a5c093/dUL4MzxPZc.json'),
+                            SizedBox(height: 20.0),
+                            Text(
+                              "No nearby pharmacies found within 5 km radius that contain ${searchController.text.toString().capitalize}. Do you want to extend your search to 10 km radius?",
+                              style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold
+                              ),
+                            ),
+                            const SizedBox(height: 10.0,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      waiting = true;
+                                    });
+                                    print(searchController.text.trim().toLowerCase());
+                                    radius = 10.0;
+                                    filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase(), radius);
+                                    setState(() {
+                                      searched = true;
+                                      waiting = false;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0CAC8F),
+                                      padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0)
+                                  ),
+                                  child: const Text(
+                                    "Extend",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: ()
+                                  {
+                                    setState(() {
+                                      radius = 10.0;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFFFFFFF),
+                                      padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                      side: const BorderSide(color: Color(0xFF0CAC8F))
+                                  ),
+                                  child: const Text(
+                                    "Cancel",
+                                    style: TextStyle(
+                                      color: Color(0xFF0CAC8F),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            )
+                        ],
+                      ),
+                      ),
+                    ),
+                  ],
+                ): (filteredPharmacies.isEmpty && radius == 10.0) ?
+              Column(
+                children: [
+                  const SizedBox(height: 10.0,),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                    width: MediaQuery.of(context).size.width,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x40FFFFFF),
+                          blurRadius: 4.0,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 14.0, right: 14.0),
+                      child: Text(
+                        "Sorry! No nearby pharmacies found that contain ${searchController.text.toString().capitalize}.",
+                        style: const TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ) :
+
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -211,6 +334,7 @@ class _SearchState extends State<Search> {
                           pharmacy: pharmacy,
                           drug: drug,
                           location: location,
+                          radius: radius,
                         ),
                         const SizedBox(
                           height: 7.0,
@@ -233,19 +357,21 @@ class PharmacyItem extends StatelessWidget {
   final DocumentSnapshot pharmacy;
   final DocumentSnapshot drug;
   final LatLng location;
+  final double radius;
 
   const PharmacyItem({
     Key? key,
     required this.pharmacy,
     required this.drug,
     required this.location,
+    required this.radius,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': pharmacy, 'searchedDrug': drug, 'userLocation': location,},);
+        Navigator.pushNamed(context, '/pharmacydetails', arguments: {'selectedPharmacy': pharmacy, 'searchedDrug': drug, 'userLocation': location, 'radius': radius},);
       },
       child: Container(
         margin: const EdgeInsets.only(left: 10.0, right: 10.0),

@@ -5,6 +5,7 @@ import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/services/database_services.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Reviews extends StatefulWidget {
   const Reviews({super.key});
@@ -222,7 +223,16 @@ class _ReviewsState extends State<Reviews> {
                         return Text('Error: ${snapshot.error}');
                       }
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
+                        return ListView.builder(
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                children: [
+                                  ReviewItemSkeleton(),
+                                ],
+                              );
+                            }
+                        );
                       }
                       if (!snapshot.hasData || snapshot.data == null) {
                         return Text('No data available');
@@ -248,8 +258,11 @@ class _ReviewsState extends State<Reviews> {
                               future: _userDatabaseServices.getUserDoc(review.id),
                               builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                                 if (userSnapshot.connectionState == ConnectionState.waiting) {
-                                  return ListTile(
-                                    title: Text('Loading...'),
+                                  return Column(
+                                      children: [
+                                        ReviewItemSkeleton(),
+                                        SizedBox(height: 20.0),
+                                      ]
                                   );
                                 }
                                 if (userSnapshot.hasError) {
@@ -264,74 +277,7 @@ class _ReviewsState extends State<Reviews> {
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                          decoration: const BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                    color: Color(0x40FFFFFF),
-                                                    blurRadius: 4.0,
-                                                    offset: Offset(0, 4)
-                                                )
-                                              ]
-                                          ),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 10.0),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      userData.name, // Assuming UserModel has a 'name' property
-                                                      style: TextStyle(
-                                                          fontSize: 14.0,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    RatingBar(
-                                                      ignoreGestures: true,
-                                                      initialRating: review.rating,
-                                                      direction: Axis.horizontal,
-                                                      itemCount: 5,
-                                                      itemSize: 24.0,
-                                                      itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                                                      ratingWidget: RatingWidget(
-                                                        full: Icon(
-                                                          Icons.star,
-                                                          color: Colors.amber,
-                                                        ),
-                                                        half: Icon(
-                                                          Icons.star,
-                                                          color: Colors.amber,
-                                                        ),
-                                                        empty: Icon(
-                                                          Icons.star,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                      onRatingUpdate: (rating) {
-                                                        print(rating);
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 17.0),
-                                              Text(
-                                                review.comment,
-                                                style: TextStyle(
-                                                  fontSize: 14.0,
-                                                ),
-                                              ),
-                                              SizedBox(height: 20.0),
-                                            ],
-                                          ),
-                                        ),
+                                        child: ReviewItem(userData: userData, review: review),
                                       ),
                                       SizedBox(height: 20.0),
                                     ],
@@ -404,6 +350,178 @@ class _ReviewsState extends State<Reviews> {
       //   },
       //   selectedItemColor: const Color(0xFF12E7C0),
       // ),
+    );
+  }
+}
+
+class ReviewItem extends StatelessWidget {
+  const ReviewItem({
+    super.key,
+    required this.userData,
+    required this.review,
+  });
+
+  final UserModel userData;
+  final UserReview review;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.0),
+      decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+                color: Color(0x40FFFFFF),
+                blurRadius: 4.0,
+                offset: Offset(0, 4)
+            )
+          ]
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  userData.name, // Assuming UserModel has a 'name' property
+                  style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                RatingBar(
+                  ignoreGestures: true,
+                  initialRating: review.rating,
+                  direction: Axis.horizontal,
+                  itemCount: 5,
+                  itemSize: 24.0,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                  ratingWidget: RatingWidget(
+                    full: Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    half: Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    empty: Icon(
+                      Icons.star,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 17.0),
+          Text(
+            review.comment,
+            style: TextStyle(
+              fontSize: 14.0,
+            ),
+          ),
+          SizedBox(height: 20.0),
+        ],
+      ),
+    );
+  }
+}
+
+class ReviewItemSkeleton extends StatelessWidget {
+  const ReviewItemSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.95, // Set a shorter width
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x40FFFFFF),
+                blurRadius: 4.0,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.3, // Reduced width for the name
+                        height: 14.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: List.generate(5, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey[400]!,
+                            highlightColor: Colors.grey[200]!,
+                            period: Duration(milliseconds: 800),
+                            child: Container(
+                              width: 24.0,
+                              height: 24.0,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.2),
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 17.0),
+              Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.87, // Adjusted to be shorter
+                  height: 14.0,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20.0),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

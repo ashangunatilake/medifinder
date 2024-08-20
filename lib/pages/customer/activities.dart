@@ -12,6 +12,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
+import 'package:badges/badges.dart' as badges;
 
 class Activities extends StatefulWidget {
   const Activities({super.key});

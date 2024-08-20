@@ -224,7 +224,8 @@ class _ProfileState extends State<Profile> {
             "Log out",
                 () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.remove('isLoggedIn');
+              //prefs.remove('isLoggedIn');
+              await prefs.clear();
 
               final String? deviceToken = await _pushNotifications.getDeviceToken();
               if (deviceToken != null) {

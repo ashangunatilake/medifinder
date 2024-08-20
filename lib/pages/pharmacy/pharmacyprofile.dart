@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/pages/locationpicker.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,7 @@ class PharmacyProfile extends StatefulWidget {
 
 class _PharmacyProfileState extends State<PharmacyProfile> {
   final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
+  final PushNotifications _pushNotifications = PushNotifications();
   late DocumentSnapshot<Map<String, dynamic>> pharmacyDoc;
   late TextEditingController nameController;
   late TextEditingController emailController;
@@ -354,7 +356,22 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
             "Log out",
                 () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.remove('isLoggedIn');
+              //prefs.remove('isLoggedIn');
+              await prefs.clear();
+
+              final String? deviceToken = await _pushNotifications.getDeviceToken();
+              if (deviceToken != null) {
+                Map<String, dynamic> userData = pharmacyDoc.data() as Map<String, dynamic>;
+                print(userData['FCMTokens']);
+                List<String> tokens = List<String>.from(userData['FCMTokens']);
+                if (tokens.contains(deviceToken)) {
+                  tokens.remove(deviceToken);
+                  await pharmacyDoc.reference.update({'FCMTokens': tokens});
+                }
+              } else {
+                print('Error: Device token is null.');
+              }
+
               Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
             },
           ),

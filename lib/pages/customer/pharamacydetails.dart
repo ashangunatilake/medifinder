@@ -8,6 +8,7 @@ import 'package:medifinder/models/user_review_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/pages/launcher.dart';
 import 'package:medifinder/services/database_services.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PharmacyDetails extends StatefulWidget {
   const PharmacyDetails({super.key});
@@ -24,6 +25,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   late DocumentSnapshot drugDoc;
   late Map<String, dynamic> drugData;
   late LatLng userLocation;
+  late double radius;
   double overallRating = 0;
 
   @override
@@ -37,6 +39,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
       drugDoc = args['searchedDrug'] as DocumentSnapshot;
       drugData = drugDoc.data() as Map<String, dynamic>;
       userLocation = args['userLocation'] as LatLng;
+      radius = args['radius'] as double;
       listenToOverallRating(pharmacyDoc.id);
     } else {
       throw Exception('Something went wrong.');
@@ -226,8 +229,16 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                 }
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return Center(
-                                      child: CircularProgressIndicator());
+                                  return ListView.builder(
+                                      itemCount: 5,
+                                      itemBuilder: (context, index) {
+                                        return Column(
+                                          children: [
+                                            LatestReviewItemSkeleton(),
+                                          ],
+                                        );
+                                      }
+                                  );
                                 }
                                 if (!snapshot.hasData || snapshot.data == null) {
                                   return Text('No data available');
@@ -249,8 +260,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                               userSnapshot) {
                                             if (userSnapshot.connectionState ==
                                                 ConnectionState.waiting) {
-                                              return ListTile(
-                                                title: Text('Loading...'),
+                                              return Column(
+                                                  children: [
+                                                    LatestReviewItemSkeleton(),
+                                                    SizedBox(height: 5.0),
+                                                  ]
                                               );
                                             }
                                             if (userSnapshot.hasError) {
@@ -264,76 +278,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                               as UserModel;
                                               return Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                        const EdgeInsets.only(
-                                                            left: 9.0,
-                                                            top: 9.0),
-                                                        child: Text(
-                                                          userData.name,
-                                                          style: TextStyle(
-                                                              fontSize: 14.0,
-                                                              fontWeight:
-                                                              FontWeight
-                                                                  .bold),
-                                                        ),
-                                                      ),
-                                                      RatingBar(
-                                                        ignoreGestures: true,
-                                                        initialRating:
-                                                        review.rating,
-                                                        direction:
-                                                        Axis.horizontal,
-                                                        itemCount: 5,
-                                                        itemSize: 24.0,
-                                                        itemPadding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 2.0),
-                                                        ratingWidget:
-                                                        RatingWidget(
-                                                          full: Icon(
-                                                            Icons.star,
-                                                            color: Colors.amber,
-                                                          ),
-                                                          half: Icon(
-                                                            Icons.star,
-                                                            color: Colors.amber,
-                                                          ),
-                                                          empty: Icon(
-                                                            Icons.star,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        ),
-                                                        onRatingUpdate:
-                                                            (rating) {
-                                                          print(rating);
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 5.0),
-                                                  Padding(
-                                                    padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 9.0),
-                                                    child: Text(
-                                                      review.comment,
-                                                      style: TextStyle(
-                                                          fontSize: 14.0),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    height: 5.0,
-                                                  ),
-                                                ],
+                                                  LatestReviewItem(userData: userData, review: review),
+                                                  //SizedBox(height: 5.0),
+                                                  ]
                                               );
                                             } else {
                                               return ListTile(
@@ -408,7 +357,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     continueDialog(
-                                        context, pharmacyDoc, drugDoc, userLocation);
+                                        context, pharmacyDoc, drugDoc, userLocation, radius);
                                   },
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFFFFFFFF),
@@ -468,7 +417,171 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
   }
 }
 
-Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnapshot drugDoc, LatLng userLocation) async {
+class LatestReviewItem extends StatelessWidget {
+  const LatestReviewItem({
+    super.key,
+    required this.userData,
+    required this.review,
+  });
+
+  final UserModel userData;
+  final UserReview review;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment:
+          MainAxisAlignment
+              .spaceBetween,
+          children: [
+            Padding(
+              padding:
+              const EdgeInsets.only(
+                  left: 9.0,
+                  top: 9.0),
+              child: Text(
+                userData.name,
+                style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight:
+                    FontWeight
+                        .bold),
+              ),
+            ),
+            RatingBar(
+              ignoreGestures: true,
+              initialRating:
+              review.rating,
+              direction:
+              Axis.horizontal,
+              itemCount: 5,
+              itemSize: 24.0,
+              itemPadding:
+              EdgeInsets.symmetric(
+                  horizontal: 2.0),
+              ratingWidget:
+              RatingWidget(
+                full: Icon(
+                  Icons.star,
+                  color: Colors.amber,
+                ),
+                half: Icon(
+                  Icons.star,
+                  color: Colors.amber,
+                ),
+                empty: Icon(
+                  Icons.star,
+                  color: Colors.grey,
+                ),
+              ),
+              onRatingUpdate:
+                  (rating) {
+                print(rating);
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 5.0),
+        Padding(
+          padding:
+          const EdgeInsets.symmetric(
+              horizontal: 9.0),
+          child: Text(
+            review.comment,
+            style: TextStyle(
+                fontSize: 14.0),
+          ),
+        ),
+        const SizedBox(
+          height: 5.0,
+        ),
+      ],
+    );
+  }
+}
+
+class LatestReviewItemSkeleton extends StatelessWidget {
+  const LatestReviewItemSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 9.0, top: 9.0),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[400]!,
+                highlightColor: Colors.grey[200]!,
+                period: Duration(milliseconds: 800),
+                child: Container(
+                  width: 100.0, // Adjust width as necessary
+                  height: 14.0,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              height: 24.0,
+              child: Row(
+                children: List.generate(5, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey[400]!,
+                      highlightColor: Colors.grey[200]!,
+                      period: Duration(milliseconds: 800),
+                      child: Container(
+                        width: 24.0,
+                        height: 24.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 9.0),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[400]!,
+            highlightColor: Colors.grey[200]!,
+            period: Duration(milliseconds: 800),
+            child: Container(
+              width: double.infinity,
+              height: 14.0,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.2),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5.0),
+      ],
+    );
+  }
+}
+
+Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnapshot drugDoc, LatLng userLocation, double radius) async {
   Map<String, dynamic> data = pharmacyDoc.data() as Map<String, dynamic>;
   return showDialog(
       context: context,
@@ -485,12 +598,20 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
                   fontSize: 20.0,
                 ),
               ),
-              if(data['DeliveryServiceAvailability'])
+              if(data['DeliveryServiceAvailability'] && radius == 5.0)
                 Text(
                   "Available",
                   style: TextStyle(
                       fontSize: 16.0,
                       color: Color(0xFF008000)
+                  ),
+                ),
+              if(data['DeliveryServiceAvailability'] && radius == 10.0)
+                Text(
+                  "Not-Available",
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Color(0xFFFF0F0F)
                   ),
                 ),
               if(!data['DeliveryServiceAvailability'])
@@ -538,7 +659,7 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugDoc, 'userLocation': userLocation});
+                      Navigator.pushNamed(context, '/order', arguments: {'selectedPharmacy': pharmacyDoc, 'searchedDrug': drugDoc, 'userLocation': userLocation, 'radius': radius});
 
                     },
                     style: ElevatedButton.styleFrom(

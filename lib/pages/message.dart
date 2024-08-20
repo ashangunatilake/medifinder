@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:badges/badges.dart' as badges;
 
 class NotificationMessage extends StatefulWidget {
   const NotificationMessage({super.key});
@@ -13,6 +12,7 @@ class NotificationMessage extends StatefulWidget {
 
 class _NotificationMessageState extends State<NotificationMessage> {
   List<Map<String, dynamic>> notifications = [];
+  late SharedPreferences prefs;
   String role = "";
 
   @override
@@ -20,18 +20,6 @@ class _NotificationMessageState extends State<NotificationMessage> {
     super.initState();
     checkRole();
     _loadNotifications();  // Load stored notifications on initialization
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _handleIncomingData();  // Handle any new incoming data
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _removeReadNotifications(notifications);
   }
 
   Future<void> checkRole() async {
@@ -44,7 +32,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
   }
 
   Future<void> _loadNotifications() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     prefs.reload().then((value) {
       List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
       print("Stored Noifications - ${storedNotifications.length}");
@@ -56,46 +44,6 @@ class _NotificationMessageState extends State<NotificationMessage> {
       });
     });
 
-  }
-
-  Future<void> _removeReadNotifications(List<Map<String, dynamic>> notifications) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('notifications');
-    notifications.removeWhere((element) => element['read'] == true);
-    print(notifications.length);
-    final List<String> jsonList = notifications.map((e) => jsonEncode(e)).toList();
-    prefs.setStringList('notifications', jsonList);
-  }
-
-  void _handleIncomingData() {
-    final data = ModalRoute.of(context)!.settings.arguments;
-    if (data != null) {
-      Map<String, dynamic> newNotification = {};
-
-      // For background and terminated state
-      if (data is RemoteMessage) {
-        newNotification = {
-          'title': data.notification?.title ?? "No Title",
-          'body': data.notification?.body ?? "No Body",
-          'timestamp': data.sentTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
-          'read': false,
-        };
-      }
-      // For foreground state
-      if (data is NotificationResponse) {
-        final decodedPayload = jsonDecode(data.payload!);
-        newNotification = {
-          'title': decodedPayload['title'] ?? "No Title",
-          'body': decodedPayload['body'] ?? "No Body",
-          'timestamp': decodedPayload['timestamp'] ?? DateTime.now().toIso8601String(),
-          'read': false,
-        };
-      }
-
-      setState(() {
-        notifications.insert(0, newNotification);  // Add new notification at the top
-      });
-    }
   }
 
   String _formatTimestamp(DateTime? timestamp) {
@@ -144,61 +92,65 @@ class _NotificationMessageState extends State<NotificationMessage> {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: GestureDetector(
                   onTap: () {
+                    notifications[index]['read'] = true;
+                    prefs.remove('notifications');
+                    notifications.removeAt(index);
+                    final List<String> jsonList = notifications.map((e) => jsonEncode(e)).toList();
+                    prefs.setStringList('notifications', jsonList);
+                    List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
+                    print("Stored Noifications - ${storedNotifications.length}");
                     setState(() {
-                      notifications[index]['read'] = true;
-                      
+                      notifications = storedNotifications.map((notification) {
+                        return jsonDecode(notification) as Map<String, dynamic>;
+                      }).toList();
                     });
                   },
-                  child: AnimatedOpacity(
-                    opacity: notification['read'] ? 0.6 : 1.0,
-                    duration: Duration(milliseconds: 300),
-                    child: Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: notification['read'] ? Colors.grey[200] : Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 5.0,
-                            offset: Offset(0, 2),
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5.0,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          notification['title'],
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            notification['title'],
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          notification['body'],
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black87,
                           ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            notification['body'],
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 8.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                _formatTimestamp(DateTime.parse(notification['timestamp'])),
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey,
-                                ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              _formatTimestamp(DateTime.parse(notification['timestamp'])),
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                color: Colors.grey,
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -219,7 +171,6 @@ class _NotificationMessageState extends State<NotificationMessage> {
         onTap: (int n) {
           if (n == 0) {
             if (role == 'customer') {
-              _removeReadNotifications(notifications);
               Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
             } else {
               Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);

@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart' as firestore_interface;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:medifinder/pages/changepassword.dart';
 import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/activities.dart';
@@ -19,7 +18,6 @@ import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
 import 'package:medifinder/pages/forgotpassword.dart';
 import 'package:medifinder/pages/pharmacy/add_item.dart';
-import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/pages/pharmacy/pharmacyprofile.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
@@ -35,20 +33,22 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void _saveNotification(RemoteMessage message) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> notifications = prefs.getStringList('notifications') ?? [];
-  print("Notifications length in save notification before ${notifications.length}");
-  // Notification map
-  Map<String, dynamic> notification = {
-    'title': message.notification?.title ?? 'No Title',
-    'body': message.notification?.body ?? 'No Body',
-    'data': message.data,
-    'timestamp': DateTime.now().toString(),
-    'read': false
-  };
+  prefs.reload().then((value) {
+    List<String> notifications = prefs.getStringList('notifications') ?? [];
+    print("Notifications length in save notification before ${notifications.length}");
+    // Notification map
+    Map<String, dynamic> notification = {
+      'title': message.notification?.title ?? 'No Title',
+      'body': message.notification?.body ?? 'No Body',
+      'data': message.data,
+      'timestamp': DateTime.now().toString(),
+      'read': false
+    };
 
-  notifications.insert(0, jsonEncode(notification));
-  print("Notifications length in save notification after ${notifications.length}");
-  prefs.setStringList('notifications', notifications);
+    notifications.insert(0, jsonEncode(notification));
+    print("Notifications length in save notification after ${notifications.length}");
+    prefs.setStringList('notifications', notifications);
+  });
 }
 
 // Function to listen to background changes
@@ -106,7 +106,10 @@ void main() async {
     _saveNotification(message);
     print('Launched in terminated state');
     Future.delayed(Duration(seconds: 1), () {
-      navigatorKey.currentState!.pushNamed('/message', arguments: message);
+      navigatorKey.currentState!.pushNamedAndRemoveUntil(
+        '/message',
+            (route) => false,
+      );
     });
   }
 
@@ -143,7 +146,6 @@ class MyApp extends StatelessWidget {
         '/orders': (context) => Orders(),
         '/order_details': (context) => OrderDetails(),
         '/pharmacy_profile': (context) => const PharmacyProfile(),
-        '/stock': (context) => DrugStock(),
         '/adddrug': (context) => AddItem(),
         '/changepassword': (context) => const ChangePassword(),
         '/forgotpassword': (context) => const ForgotPassword(),

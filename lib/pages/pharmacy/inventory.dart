@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:medifinder/pages/pharmacy/add_item.dart';
 import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -27,12 +28,11 @@ class _InventoryState extends State<Inventory> {
             return Text('Error: ${snapshot.error}');
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return _buildLoadingSkeleton();
           }
           if (!snapshot.hasData || snapshot.data == null) {
             return Text('No data available');
-          }
-          else {
+          } else {
             var docs = snapshot.data!;
             return Container(
               decoration: BoxDecoration(
@@ -71,7 +71,7 @@ class _InventoryState extends State<Inventory> {
                               'Drugs In Store',
                               Icons.local_pharmacy,
                               Color.fromRGBO(21, 201, 180, 1),
-                              DrugStock()
+                              DrugStock(pharmacyDoc: docs)
                           ),
                           _buildCard(
                             context,
@@ -117,6 +117,67 @@ class _InventoryState extends State<Inventory> {
           if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
         },
         selectedItemColor: const Color(0xFF0CAC8F),
+      ),
+    );
+  }
+
+  Widget _buildLoadingSkeleton() {
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/background2.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SafeArea(child: SizedBox()),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[400]!,
+              highlightColor: Colors.grey[200]!,
+              period: Duration(milliseconds: 800),
+              child: Container(
+                height: 28,
+                width: 150,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: GridView.count(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                crossAxisCount: 1,
+                mainAxisSpacing: 40.0,
+                crossAxisSpacing: 50.0,
+                childAspectRatio: 3 / 2,
+                children: List.generate(2, (index) {
+                  return Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    period: Duration(milliseconds: 800),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 5,
+                      color: Colors.grey.withOpacity(0.2),
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
