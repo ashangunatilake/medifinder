@@ -1,34 +1,41 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:medifinder/snackbars/snackbar.dart';
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/controllers/verifyemailcontroller.dart';
 
-class ResetPassword extends StatefulWidget {
-  const ResetPassword({super.key});
+class VerifyEmail extends StatefulWidget {
+  const VerifyEmail({super.key});
 
   @override
-  State<ResetPassword> createState() => _ResetPasswordState();
+  State<VerifyEmail> createState() => _VerifyEmailState();
 }
 
-class _ResetPasswordState extends State<ResetPassword> {
+class _VerifyEmailState extends State<VerifyEmail> {
+  String email = "";
 
   @override
-  Widget build(BuildContext context) {
-    String email = "";
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as Map?;
     if (args != null) {
       email = args['email'];
-    } else {
-      throw Exception('Something went wrong.');
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.put(VerifyEmailController(context));
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text("Reset Password"),
         backgroundColor: Colors.white38,
         elevation: 0.0,
-        titleTextStyle: const TextStyle(
-            fontSize: 18.0,
-            color: Colors.black
+        leading: BackButton(
+          onPressed: () => {
+            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false)
+          },
         ),
       ),
       body: Container(
@@ -40,12 +47,10 @@ class _ResetPasswordState extends State<ResetPassword> {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SafeArea(child: SizedBox()),
-              Container(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: SafeArea(
+              child: Container(
                 padding: const EdgeInsets.all(10.0),
                 width: MediaQuery.of(context).size.width - 20.0,
                 decoration: const BoxDecoration(
@@ -64,22 +69,31 @@ class _ResetPasswordState extends State<ResetPassword> {
                   children: [
                     const SizedBox(height: 10.0,),
                     const Image(
-                      image: AssetImage('assets/images/resetpassword.png')
+                      image: AssetImage('assets/images/notes-email.png'),
+                      width: 150,
+                    ),
+                    const SizedBox(height: 20.0,),
+                    const Text(
+                      "Verify your email address!",
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black
+                      )
+                    ),
+                    const SizedBox(height: 10.0,),
+                    Text(
+                      email,
+                      style: TextStyle(
+                        fontSize: 16.0
+                      ),
                     ),
                     const SizedBox(height: 10.0,),
                     const Text(
-                      "Password Reset Email Sent",
+                      "Congratulations! Your account has been created. Verify your email address to start using MediFinder.",
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                      ),
-                    ),
-                    const SizedBox(height: 20.0,),
-                    Text(
-                      "We have sent you a secure link to reset your password. Please check your email $email",
-                      style: const TextStyle(
-                          fontSize: 14.0
+                        fontSize: 14.0
                       ),
                     ),
                     const SizedBox(height: 20.0,),
@@ -88,13 +102,13 @@ class _ResetPasswordState extends State<ResetPassword> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                              controller.checkEmailVerificationStatus();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0CAC8F),
                             ),
                             child: const Text(
-                              "Done",
+                              "Continue",
                               style: TextStyle(
                                 color: Colors.white,
                               ),
@@ -110,18 +124,14 @@ class _ResetPasswordState extends State<ResetPassword> {
                           child: Center(
                             child: GestureDetector(
                               onTap: () async {
-                                try {
-                                  await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-                                  Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Email sent successfully", context: context));
-                                } on FirebaseAuthException catch (e) {
-                                  print(e.code);
-                                }
+                                print("hello");
+                                controller.sendEmailVerification();
                               },
                               child: const Text(
                                 "Resend Email",
                                 style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Color(0xFF0386D0)
+                                    fontSize: 14.0,
+                                    color: Color(0xFF0386D0)
                                 ),
                               ),
                             ),
@@ -132,8 +142,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                     const SizedBox(height: 20.0,),
                   ],
                 ),
-              )
-            ],
+              ),
+            ),
           ),
         ),
       ),

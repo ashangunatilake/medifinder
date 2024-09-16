@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore_interface;
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +24,7 @@ import 'package:medifinder/pages/pharmacy/inventory.dart';
 import 'package:medifinder/pages/pharmacy/orderDetails.dart';
 import 'package:medifinder/pages/pharmacy/orders.dart';
 import 'package:medifinder/pages/resetpassword.dart';
+import 'package:medifinder/pages/verify_email.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/pages/message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,7 +107,7 @@ void main() async {
   if (message != null) {
     _saveNotification(message);
     print('Launched in terminated state');
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       navigatorKey.currentState!.pushNamedAndRemoveUntil(
         '/message',
             (route) => false,
@@ -134,7 +136,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        '/pharmacy_home': (context) => Inventory(),
+        '/pharmacy_home': (context) => const Inventory(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
@@ -142,15 +144,16 @@ class MyApp extends StatelessWidget {
         '/order': (context) => const Order(),
         '/profile': (context) => const Profile(),
         '/activities': (context) => const Activities(),
-        '/mapview': (context) => MapView(),
-        '/orders': (context) => Orders(),
-        '/order_details': (context) => OrderDetails(),
+        '/mapview': (context) => const MapView(),
+        '/orders': (context) => const Orders(),
+        '/order_details': (context) => const OrderDetails(),
         '/pharmacy_profile': (context) => const PharmacyProfile(),
-        '/adddrug': (context) => AddItem(),
+        '/adddrug': (context) => const AddItem(),
         '/changepassword': (context) => const ChangePassword(),
         '/forgotpassword': (context) => const ForgotPassword(),
         '/resetpassword': (context) => const ResetPassword(),
         '/message': (context) => const NotificationMessage(),
+        '/emailverification': (context) => const VerifyEmail(),
       },
     );
   }

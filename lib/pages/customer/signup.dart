@@ -35,10 +35,11 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController locationcontroller = TextEditingController();
   TimeOfDay openingTime = TimeOfDay.now();
   TimeOfDay closingTime = TimeOfDay.now();
-  LatLng location = LatLng(0, 0);
+  LatLng location = const LatLng(0, 0);
   Delivery? selected = Delivery.available;
   bool deliveryAvailable = true;
   final _formkey = GlobalKey<FormState>();
+  bool pressed = false;
 
   // Future<void> storeUserData(String userID) async {
   //   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -64,6 +65,9 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = passwordcontroller.text;
 
     try {
+      setState(() {
+        pressed = true;
+      });
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -79,8 +83,11 @@ class _SignUpPageState extends State<SignUpPage> {
       //storeUserData(userCredential.user!.uid);
       print("User account created");
       Snackbars.successSnackBar(message: "Account created", context: context);
-      Navigator.pushNamed(context, "/login");
+      Navigator.pushNamed(context, '/emailverification', arguments: {'email': email});
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        pressed = false;
+      });
       print(e.code);
       if (e.code == "email-already-in-use") {
         print("Email already in use");
@@ -93,6 +100,9 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> pharmacySignUp() async {
+    if (!_formkey.currentState!.validate()) {
+      return;
+    }
     String name = namecontroller.text.trim();
     String email = emailcontroller.text.trim();
     String mobile = mobilecontroller.text.trim();
@@ -102,6 +112,9 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = passwordcontroller.text;
 
     try {
+      setState(() {
+        pressed = true;
+      });
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       PharmacyModel pharmacy = PharmacyModel(id: userCredential.user!.uid, name: name, address: email, contact: mobile, ratings: 0, isDeliveryAvailable: delivery, operationHours: operationHours, position: pharmacyLocation);
@@ -113,9 +126,15 @@ class _SignUpPageState extends State<SignUpPage> {
       Snackbars.successSnackBar(message: "Account created", context: context);
       Navigator.pushNamed(context, "/login");
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        pressed = false;
+      });
       print(e.code);
       if (e.code == "email-already-in-use") {
         Snackbars.errorSnackBar(message: "Email already in use", context: context);
+      }
+      if (e.code == "network-request-failed") {
+        Snackbars.errorSnackBar(message: "Network error occured", context: context);
       }
     }
   }
@@ -367,7 +386,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         validator: (value) => Validator.validateEmptyText("Name", value),
                                         controller: namecontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -394,7 +413,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.person,
                                               color: Color(0xFFC4C4C4),
                                             )
@@ -412,7 +431,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         validator: (value) => Validator.validateEmail(value),
                                         controller: emailcontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -439,7 +458,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.email_outlined,
                                               color: Color(0xFFC4C4C4),
                                             )
@@ -464,7 +483,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               getTime("Opening Time");
                                             },
                                             decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                                 border: OutlineInputBorder(
                                                   borderSide: const BorderSide(
                                                     color: Color(0xFFCCC9C9),
@@ -491,7 +510,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                                   fontSize: 15.0,
                                                   color: Color(0xFFC4C4C4),
                                                 ),
-                                                suffixIcon: Icon(
+                                                suffixIcon: const Icon(
                                                   Icons.timelapse,
                                                   color: Color(0xFFC4C4C4),
                                                 )
@@ -513,7 +532,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                             },
                                             readOnly: true,
                                             decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                                 border: OutlineInputBorder(
                                                   borderSide: const BorderSide(
                                                     color: Color(0xFFCCC9C9),
@@ -540,7 +559,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                                   fontSize: 15.0,
                                                   color: Color(0xFFC4C4C4),
                                                 ),
-                                                suffixIcon: Icon(
+                                                suffixIcon: const Icon(
                                                   Icons.timelapse,
                                                   color: Color(0xFFC4C4C4),
                                                 )
@@ -570,7 +589,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                                         });
                                                       }
                                                   ),
-                                                  Text("Available", style: TextStyle(fontSize: 15.0),)
+                                                  const Text("Available", style: TextStyle(fontSize: 15.0),)
                                                 ],
                                               ),
                                               Padding(
@@ -588,7 +607,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                                           });
                                                         }
                                                     ),
-                                                    Text("Not available", style: TextStyle(fontSize: 15.0),)
+                                                    const Text("Not available", style: TextStyle(fontSize: 15.0),)
                                                   ],
                                                 ),
                                               ),
@@ -610,7 +629,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                             },
                                             readOnly: true,
                                             decoration: InputDecoration(
-                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                                 border: OutlineInputBorder(
                                                   borderSide: const BorderSide(
                                                     color: Color(0xFFCCC9C9),
@@ -637,7 +656,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                                   fontSize: 15.0,
                                                   color: Color(0xFFC4C4C4),
                                                 ),
-                                                suffixIcon: Icon(
+                                                suffixIcon: const Icon(
                                                   Icons.location_on,
                                                   color: Color(0xFFC4C4C4),
                                                 )
@@ -657,7 +676,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         validator: (value) => Validator.validateMobileNumber(value),
                                         controller: mobilecontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -684,7 +703,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.phone_android_outlined,
                                               color: Color(0xFFC4C4C4),
                                             )
@@ -702,7 +721,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         validator: (value) => Validator.validatePassword(value),
                                         controller: passwordcontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -729,7 +748,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.lock_outline,
                                               color: Color(0xFFC4C4C4),
                                             )
@@ -748,7 +767,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         validator: (value) => Validator.validateConfirmPassword(passwordcontroller.text, value),
                                         controller: confirmpasswordcontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -775,7 +794,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.lock_outline,
                                               color: Color(0xFFC4C4C4),
                                             )
@@ -791,7 +810,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                onPressed: () async {
+                                onPressed: pressed ? null : () async {
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   if(isPressedUser) {
                                     await userSignUp();

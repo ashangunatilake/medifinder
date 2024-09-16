@@ -24,7 +24,7 @@ class UserDatabaseServices {
 
   Future<String> getCurrentUserUid() async {
     try {
-      User? user = await FirebaseAuth.instance.currentUser;
+      User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         return user.uid;
       } else {
@@ -37,7 +37,7 @@ class UserDatabaseServices {
 
   Future<DocumentSnapshot> getCurrentUserDoc() async {
     try {
-      User? user = await FirebaseAuth.instance.currentUser;
+      User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         String uid = user.uid;
         DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(uid).get();

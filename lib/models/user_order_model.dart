@@ -84,7 +84,7 @@ class UserOrder {
     GeoPoint? location,
   }) {
     return UserOrder(
-      id: this.id,
+      id: id,
       did: did ?? this.did,
       drugName: drugName ?? this.drugName,
       pid: pid ?? this.pid,

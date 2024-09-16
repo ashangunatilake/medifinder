@@ -76,7 +76,7 @@ class PushNotifications {
   Future localNotiInit() async {
     // Initialize the plugin, app_icon needs to be added as a drawable resource
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    final InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
 

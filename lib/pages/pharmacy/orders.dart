@@ -6,6 +6,8 @@ import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:shimmer/shimmer.dart';
 
 class Orders extends StatefulWidget {
+  const Orders({super.key});
+
   @override
   State<Orders> createState() => _OrdersState();
 }
@@ -31,9 +33,9 @@ class _OrdersState extends State<Orders> {
           child: Column(
             children: [
               Container(
-                margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
+                margin: const EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -48,17 +50,17 @@ class _OrdersState extends State<Orders> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                         height:20.0
                     ),
-                    Text(
+                    const Text(
                       "Customer Orders",
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 30.0,
                     ),
                     Row(
@@ -71,16 +73,16 @@ class _OrdersState extends State<Orders> {
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
-                                        color: !accepted ? Colors.grey : Color(0xFFFFFFFF),
+                                        color: !accepted ? Colors.grey : const Color(0xFFFFFFFF),
                                         width: 2.0,
                                       )
                                   )
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Pending",
                                 style: TextStyle(
                                     fontSize: 14.0
@@ -98,16 +100,16 @@ class _OrdersState extends State<Orders> {
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
-                                        color: accepted ? Colors.grey : Color(0xFFFFFFFF),
+                                        color: accepted ? Colors.grey : const Color(0xFFFFFFFF),
                                         width: 2.0,
                                       )
                                   )
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Accepted",
                                 style: TextStyle(
                                     fontSize: 14.0
@@ -123,7 +125,7 @@ class _OrdersState extends State<Orders> {
                 ),
               ),
               Expanded(
-                child: Container(
+                child: SizedBox(
                   //margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                   width: MediaQuery.of(context).size.width,
                   child: StreamBuilder<List<DocumentSnapshot>>(
@@ -141,7 +143,7 @@ class _OrdersState extends State<Orders> {
                           );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
-                          return Text('No data available');
+                          return const Text('No data available');
                         }
                         else {
                           var docs = snapshot.data!;
@@ -162,7 +164,7 @@ class _OrdersState extends State<Orders> {
                                       }
                                       if (!snapshot.hasData ||
                                           snapshot.data == null) {
-                                        return Text('No data available');
+                                        return const Text('No data available');
                                       }
                                       var userDoc = snapshot.data!;
                                       return Padding(
@@ -181,7 +183,7 @@ class _OrdersState extends State<Orders> {
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius: BorderRadius.circular(10),
-                                              boxShadow: [
+                                              boxShadow: const [
                                                 BoxShadow(
                                                   color: Colors.black26,
                                                   blurRadius: 4.0,
@@ -192,7 +194,7 @@ class _OrdersState extends State<Orders> {
                                             padding: const EdgeInsets.all(16.0),
                                             child: Text(
                                               userDoc['Name'],
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 18.0,
                                               ),
@@ -213,34 +215,6 @@ class _OrdersState extends State<Orders> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: "Notifications",
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 1,
-        onTap: (int n) {
-          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
-      ),
     );
   }
 }
@@ -256,7 +230,7 @@ class OrdersSkeleton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 4.0,
@@ -271,12 +245,12 @@ class OrdersSkeleton extends StatelessWidget {
               child: Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[200]!,
-                period: Duration(milliseconds: 800),
+                period: const Duration(milliseconds: 800),
                 child: Container(
                   height: 20.0,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),

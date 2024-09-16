@@ -15,6 +15,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   final TextEditingController oldpassowrdController = TextEditingController();
   final TextEditingController newpasswordController = TextEditingController();
   final TextEditingController confirmpasswordController = TextEditingController();
+  bool pressed = false;
 
   Future<void> changePassword() async {
     if (!_formKey.currentState!.validate()) {
@@ -24,11 +25,17 @@ class _ChangePasswordState extends State<ChangePassword> {
     String newpassword = newpasswordController.text;
     User? currentUser = FirebaseAuth.instance.currentUser;
     try {
+      setState(() {
+        pressed = true;
+      });
       var cred = EmailAuthProvider.credential(email: currentUser!.email!, password: oldpassword);
       await currentUser.reauthenticateWithCredential(cred).then((value) => currentUser.updatePassword(newpassword));
       Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Password changed successfully", context: context));
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        pressed = false;
+      });
       print(e.code);
       if (e.code == "invalid-credential") {
         Snackbars.errorSnackBar(message: "Invalid old password", context: context);
@@ -65,20 +72,20 @@ class _ChangePasswordState extends State<ChangePassword> {
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SafeArea(child: SizedBox()),
+                const SafeArea(child: SizedBox()),
                 Container(
                   padding: const EdgeInsets.all(10.0),
                   width: MediaQuery.of(context).size.width - 20.0,
@@ -101,7 +108,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                         validator: (value) => Validator.validateEmptyText("Old password", oldpassowrdController.text),
                         controller: oldpassowrdController,
                         decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                             border: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Color(0xFFCCC9C9),
@@ -129,7 +136,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                               fontSize: 15.0,
                               color: Color(0xFFC4C4C4),
                             ),
-                            suffixIcon: Icon(
+                            suffixIcon: const Icon(
                               Icons.lock_outline,
                               color: Color(0xFFC4C4C4),
                             )
@@ -141,7 +148,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                         validator: (value) => Validator.validatePassword(newpasswordController.text),
                         controller: newpasswordController,
                         decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                             border: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Color(0xFFCCC9C9),
@@ -169,7 +176,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                               fontSize: 15.0,
                               color: Color(0xFFC4C4C4),
                             ),
-                            suffixIcon: Icon(
+                            suffixIcon: const Icon(
                               Icons.lock_outline,
                               color: Color(0xFFC4C4C4),
                             )
@@ -181,7 +188,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                         validator: (value) => Validator.validateConfirmPassword(newpasswordController.text, value),
                         controller: confirmpasswordController,
                         decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                             border: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Color(0xFFCCC9C9),
@@ -209,7 +216,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                               fontSize: 15.0,
                               color: Color(0xFFC4C4C4),
                             ),
-                            suffixIcon: Icon(
+                            suffixIcon: const Icon(
                               Icons.lock_outline,
                               color: Color(0xFFC4C4C4),
                             )
@@ -232,22 +239,22 @@ class _ChangePasswordState extends State<ChangePassword> {
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFFFFFF),
                                   //padding: const EdgeInsets.symmetric(vertical: 13.0),
-                                  side: const BorderSide(color: Color(0xFF12E7C0))
+                                  side: const BorderSide(color: Color(0xFF0CAC8F),)
                               ),
                               child: const Text(
                                 "Cancel",
                                 style: TextStyle(
-                                  color: Color(0xFF12E7C0),
+                                  color: Color(0xFF0CAC8F),
                                 ),
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () async {
+                              onPressed: (pressed) ? null : () async {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 changePassword();
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color.fromARGB(218, 3, 240, 212),
+                                backgroundColor: const Color(0xFF0CAC8F),
                                 //padding: const EdgeInsets.symmetric(vertical: 13.0),
                               ),
                               child: const Text(

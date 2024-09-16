@@ -1,10 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -12,7 +9,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
-import 'package:badges/badges.dart' as badges;
 
 class Activities extends StatefulWidget {
   const Activities({super.key});
@@ -41,9 +37,9 @@ class _ActivitiesState extends State<Activities> {
           child: Column(
             children: [
               Container(
-                margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
+                margin: const EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -58,17 +54,17 @@ class _ActivitiesState extends State<Activities> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                         height:20.0
                     ),
-                    Text(
+                    const Text(
                       "Your Activities",
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 30.0,
                     ),
                     Row(
@@ -81,16 +77,16 @@ class _ActivitiesState extends State<Activities> {
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
-                                        color: ongoing ? Colors.grey : Color(0xFFFFFFFF),
+                                        color: ongoing ? Colors.grey : const Color(0xFFFFFFFF),
                                         width: 2.0,
                                       )
                                   )
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Ongoing",
                                 style: TextStyle(
                                     fontSize: 14.0
@@ -108,16 +104,16 @@ class _ActivitiesState extends State<Activities> {
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
-                                        color: !ongoing ? Colors.grey : Color(0xFFFFFFFF),
+                                        color: !ongoing ? Colors.grey : const Color(0xFFFFFFFF),
                                         width: 2.0,
                                       )
                                   )
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Completed",
                                 style: TextStyle(
                                     fontSize: 14.0
@@ -134,7 +130,7 @@ class _ActivitiesState extends State<Activities> {
               ),
               Expanded(
                 child: Container(
-                  margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
+                  margin: const EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                   width: MediaQuery.of(context).size.width,
                   child: StreamBuilder<List<DocumentSnapshot>>(
                       stream: ongoing ? _userDatabaseServices.getOngoingUserOrders(user!.uid) : _userDatabaseServices.getCompletedUserOrders(user!.uid),
@@ -156,7 +152,7 @@ class _ActivitiesState extends State<Activities> {
                           );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
-                          return Text('No data available');
+                          return const Text('No data available');
                         }
                         else {
                           var docs = snapshot.data!;
@@ -183,7 +179,7 @@ class _ActivitiesState extends State<Activities> {
                                               return Text('Error: ${snapshot.error}');
                                             }
                                             if (!snapshot.hasData || snapshot.data == null) {
-                                              return Text('No data available');
+                                              return const Text('No data available');
                                             }
                                             var pharmacyDoc = snapshot.data!;
                                             return Column(
@@ -191,7 +187,7 @@ class _ActivitiesState extends State<Activities> {
                                                   .start,
                                               children: [
                                                 Container(
-                                                    padding: EdgeInsets.all(10.0),
+                                                    padding: const EdgeInsets.all(10.0),
                                                     decoration: const BoxDecoration(
                                                         color: Colors.white,
                                                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -212,7 +208,7 @@ class _ActivitiesState extends State<Activities> {
                                                           children: [
                                                             Text(
                                                               pharmacyDoc['Name'],
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   fontSize: 20.0
                                                               ),
                                                             ),
@@ -221,14 +217,14 @@ class _ActivitiesState extends State<Activities> {
                                                                 children: [
                                                                   Icon(
                                                                     Icons.circle,
-                                                                    color: docs[index]['Accepted'] ? Color(0xFF008000) : Colors.grey,
+                                                                    color: docs[index]['Accepted'] ? const Color(0xFF008000) : Colors.grey,
                                                                     size: 8.0,
                                                                   ),
                                                                   Text(
                                                                     docs[index]['Accepted'] ? " Accepted" : " Pending",
                                                                     style: TextStyle(
                                                                       fontSize: 14.0,
-                                                                      color: docs[index]['Accepted'] ? Color(0xFF008000) : Colors.grey,
+                                                                      color: docs[index]['Accepted'] ? const Color(0xFF008000) : Colors.grey,
                                                                     ),
                                                                   )
                                                                 ],
@@ -236,21 +232,30 @@ class _ActivitiesState extends State<Activities> {
                                                             )
                                                           ],
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
+                                                          height: 5.0,
+                                                        ),
+                                                        Text(
+                                                          "Pharmacy Open Hours - ${pharmacyDoc['HoursOfOperation']}",
+                                                          style: const TextStyle(
+                                                            fontSize: 16.0
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
                                                           height: 5.0,
                                                         ),
                                                         Text(
                                                           "${docs[index]['DrugName'].toString().capitalizeFirst}",
-                                                          style: TextStyle(
+                                                          style: const TextStyle(
                                                               fontSize: 16.0
                                                           ),
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
                                                           height: 5.0,
                                                         ),
                                                         Row(
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               "Method of Delivery : ",
                                                               style: TextStyle(
                                                                   fontSize: 16.0
@@ -258,22 +263,22 @@ class _ActivitiesState extends State<Activities> {
                                                             ),
                                                             Text(
                                                               docs[index]['DeliveryMethod'] ? "Deliver" : "Meet at Pharmacy",
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   fontSize: 16.0
                                                               ),
                                                             )
                                                           ],
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
                                                           height: 5.0,
                                                         ),
                                                         Text(
                                                           "Quantity : ${docs[index]['Quantity'].toInt()}",
-                                                          style: TextStyle(
+                                                          style: const TextStyle(
                                                               fontSize: 16.0
                                                           ),
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
                                                           height: 20.0,
                                                         ),
                                                         Row(
@@ -299,7 +304,7 @@ class _ActivitiesState extends State<Activities> {
                                                                 ),
                                                               ),
                                                             ),
-                                                            SizedBox(
+                                                            const SizedBox(
                                                               width: 10.0,
                                                             ),
                                                             Expanded(
@@ -326,7 +331,7 @@ class _ActivitiesState extends State<Activities> {
                                                             ),
                                                           ],
                                                         ),
-                                                        SizedBox(
+                                                        const SizedBox(
                                                             height: 10.0
                                                         ),
                                                         ongoing ? Row(
@@ -351,11 +356,11 @@ class _ActivitiesState extends State<Activities> {
                                                               ),
                                                             )
                                                           ],
-                                                        ) : SizedBox(height: 0)
+                                                        ) : const SizedBox(height: 0)
                                                       ],
                                                     )
                                                 ),
-                                                SizedBox(
+                                                const SizedBox(
                                                   height: 10.0,
                                                 ),
                                               ],
@@ -376,48 +381,20 @@ class _ActivitiesState extends State<Activities> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: "Activities",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: "Notifications",
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 1,
-        onTap: (int n) {
-          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
-      ),
     );
   }
 }
 
 Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc, DocumentSnapshot orderDoc, String uid, Function updateState) async {
-  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
-  final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
-  final PushNotifications _pushNotifications = PushNotifications();
+  final UserDatabaseServices userDatabaseServices = UserDatabaseServices();
+  final PharmacyDatabaseServices pharmacyDatabaseServices = PharmacyDatabaseServices();
+  final PushNotifications pushNotifications = PushNotifications();
   return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             "Confirm Received?",
             textAlign: TextAlign.center,
           ),
@@ -427,17 +404,17 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
             children: [
               Text(
                 pharmacyDoc['Name'],
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20.0,
                 ),
               ),
               Text(
                 "${orderDoc['DrugName'][0].toUpperCase()}${orderDoc['DrugName'].substring(1)}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16.0,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
             ],
@@ -464,7 +441,7 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 14.0,
                 ),
                 Expanded(
@@ -473,15 +450,15 @@ Future<void> continueDialog(BuildContext context,  DocumentSnapshot pharmacyDoc,
                       if(orderDoc['Accepted'])
                       {
                         UserOrder updatedOrder = UserOrder.fromJson(uid, orderDoc.data() as Map<String, dynamic>).copyWith(isCompleted: true);
-                        await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
+                        await pharmacyDatabaseServices.updatePharmacyOrder(pharmacyDoc.id, uid, orderDoc.id, updatedOrder);
 
-                        final DocumentSnapshot userDoc = await _userDatabaseServices.getUserDoc(uid);
+                        final DocumentSnapshot userDoc = await userDatabaseServices.getUserDoc(uid);
 
                         if(pharmacyDoc['FCMTokens'] != null) {
                           List<String> tokens = List<String>.from(pharmacyDoc['FCMTokens']);
                           if(tokens.isNotEmpty) {
                             for(var token in tokens) {
-                              _pushNotifications.sendNotificationToPharmacy(token, true, orderDoc['DrugName'].toString().capitalizeFirst!, userDoc['Name']);
+                              pushNotifications.sendNotificationToPharmacy(token, true, orderDoc['DrugName'].toString().capitalizeFirst!, userDoc['Name']);
                             }
                           }
                         }
@@ -547,26 +524,26 @@ class ActivitiesItemSkeleton extends StatelessWidget {
                 Shimmer.fromColors(
                   baseColor: Colors.grey[400]!,
                   highlightColor: Colors.grey[200]!,
-                  period: Duration(milliseconds: 800),
+                  period: const Duration(milliseconds: 800),
                   child: Container(
                     width: 150,
                     height: 20.0,
                     decoration: BoxDecoration(
                       color: Colors.grey.withOpacity(0.2),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
                 ),
                 ongoing ? Shimmer.fromColors(
                   baseColor: Colors.grey[400]!,
                   highlightColor: Colors.grey[200]!,
-                  period: Duration(milliseconds: 800),
+                  period: const Duration(milliseconds: 800),
                   child: Container(
                     width: 50,
                     height: 20.0,
                     decoration: BoxDecoration(
                       color: Colors.grey.withOpacity(0.2),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
                 ) : const SizedBox(width: 0,),
@@ -578,13 +555,13 @@ class ActivitiesItemSkeleton extends StatelessWidget {
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 width: 100,
                 height: 16.0,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
@@ -594,13 +571,13 @@ class ActivitiesItemSkeleton extends StatelessWidget {
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 width: 150,
                 height: 16.0,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
@@ -610,13 +587,13 @@ class ActivitiesItemSkeleton extends StatelessWidget {
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 width: 100,
                 height: 16.0,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
@@ -629,12 +606,12 @@ class ActivitiesItemSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 30.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -646,12 +623,12 @@ class ActivitiesItemSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 30.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -667,12 +644,12 @@ class ActivitiesItemSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 30.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),

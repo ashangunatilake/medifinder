@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Snackbars {
@@ -14,11 +15,17 @@ class Snackbars {
             borderRadius: BorderRadius.circular(30),
             color: Colors.grey.withOpacity(0.9),
           ),
-          child: Center(
-            child: Text(
-              message,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+          child: Row(
+            children: [
+              Flexible(
+                child: Center(
+                  child: Text(
+                    message,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -72,19 +79,27 @@ class Snackbars {
           children: [
             icon,
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                Text(
-                  message,
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          message,
+                          style: const TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

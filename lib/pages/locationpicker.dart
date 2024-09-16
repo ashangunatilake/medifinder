@@ -13,10 +13,10 @@ class LocationPicker extends StatefulWidget {
 
 class _LocationPickerState extends State<LocationPicker> {
   GoogleMapController? _controller;
-  Location _locationController = Location();
+  final Location _locationController = Location();
   LatLng? currentP;
   LatLng? source;
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
   bool markerPlaced = false;
   bool mapLoaded = false; // To track whether map is loaded
   BitmapDescriptor? myLocationIcon;
@@ -38,7 +38,7 @@ class _LocationPickerState extends State<LocationPicker> {
 
   Future<void> loadCustomMarker() async {
     final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(200, 200)),
+      const ImageConfiguration(size: Size(200, 200)),
       'assets/images/location-pin.png',
     );
     if (mounted) {
@@ -75,14 +75,14 @@ class _LocationPickerState extends State<LocationPicker> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             markers: _markers,
-            onCameraMove: (CameraPosition _position) {
-              currentP = LatLng(_position.target.latitude, _position.target.longitude);
+            onCameraMove: (CameraPosition position) {
+              currentP = LatLng(position.target.latitude, position.target.longitude);
               if (mounted) {
                 setState(() {
                   _markers.clear();
                   _markers.add(
                     Marker(
-                      markerId: MarkerId('marker_id'),
+                      markerId: const MarkerId('marker_id'),
                       position: currentP!,
                       icon: myLocationIcon!,
                     ),
@@ -103,7 +103,7 @@ class _LocationPickerState extends State<LocationPicker> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.fromLTRB(14.0, 20.0, 14.0, 15.0),
+                  padding: const EdgeInsets.fromLTRB(14.0, 20.0, 14.0, 15.0),
                   width: MediaQuery.of(context).size.width - 20,
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -112,17 +112,17 @@ class _LocationPickerState extends State<LocationPicker> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Set location on map",
                         style: TextStyle(
                           fontSize: 12.0,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5.0,
                       ),
                       if (currentP != null) Text(locationString(currentP!)),
-                      SizedBox(
+                      const SizedBox(
                         height: 10.0,
                       ),
                       Row(
@@ -134,7 +134,7 @@ class _LocationPickerState extends State<LocationPicker> {
                                 Navigator.pop(context, currentP);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Please select a location')),
+                                  const SnackBar(content: Text('Please select a location')),
                                 );
                               }
                             },
@@ -180,21 +180,21 @@ class _LocationPickerState extends State<LocationPicker> {
   }
 
   void getLocationUpdates() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-    _serviceEnabled = await _locationController.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await _locationController.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await _locationController.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _locationController.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
 
-    _permissionGranted = await _locationController.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await _locationController.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await _locationController.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _locationController.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }

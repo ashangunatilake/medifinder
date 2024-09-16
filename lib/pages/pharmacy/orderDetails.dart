@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/pages/launcher.dart';
 import 'package:medifinder/pages/pharmacy/full_screen_image.dart';
+import 'package:medifinder/pages/pharmacy/pharmacyview.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
@@ -14,6 +14,8 @@ import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:shimmer/shimmer.dart';
 
 class OrderDetails extends StatefulWidget {
+  const OrderDetails({super.key});
+
   @override
   State<OrderDetails> createState() => _OrderDetailsState();
 }
@@ -51,7 +53,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
     Future.delayed(Duration.zero, () {
       Snackbars.successSnackBar(message: "Order accepted successfully", context: context);
-      Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView(index: 1,)), (route) => false);
     });
   }
 
@@ -61,15 +63,15 @@ class _OrderDetailsState extends State<OrderDetails> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Cancel Order'),
+          title: const Text('Cancel Order'),
           content: TextField(
             controller: reasonController,
             decoration:
-                InputDecoration(hintText: 'Enter reason for cancellation'),
+                const InputDecoration(hintText: 'Enter reason for cancellation'),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(color: Colors.blueGrey),
               ),
@@ -78,7 +80,7 @@ class _OrderDetailsState extends State<OrderDetails> {
               },
             ),
             TextButton(
-              child: Text(
+              child: const Text(
                 'Submit',
                 style: TextStyle(color: Colors.black),
               ),
@@ -196,7 +198,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                       return const OrderDetailsSkeleton();
                     }
                     if (!snapshot.hasData || snapshot.data == null) {
-                      return Text('No data available');
+                      return const Text('No data available');
                     }
                     else {
                       var docs = snapshot.data!;
@@ -223,14 +225,14 @@ class _OrderDetailsState extends State<OrderDetails> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'Order Details',
                                   style: TextStyle(
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                SizedBox(height: 16.0),
+                                const SizedBox(height: 16.0),
                                 Container(
                                   width: MediaQuery.of(context).size.width,
                                   padding: const EdgeInsets.all(8.0),
@@ -245,7 +247,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                     children: [
                                       Text(
                                         docs[index]['DrugName'].toString().capitalizeFirst!,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 18.0,
                                           fontWeight: FontWeight.w500
                                         ),
@@ -255,13 +257,13 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       ),
                                       Text(
                                         "Quantity - ${docs[index]['Quantity'].toInt()}",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16.0,
                                         ),
                                       ),
                                       Text(
                                         (docs[index]['DeliveryMethod']) ? "Method of Delivery - Deliver" : "Method of Delivery - Meet at Pharmacy",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontSize: 16.0
                                         ),
                                       ),
@@ -269,17 +271,17 @@ class _OrderDetailsState extends State<OrderDetails> {
                                   ),
                                 ),
                                 Card(
-                                  color: Color.fromRGBO(8, 253, 228, 1),
+                                  color: const Color.fromRGBO(8, 253, 228, 1),
                                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                                   child: ListTile(
-                                    title: Text('View Prescription'),
-                                    trailing: Icon(Icons.photo),
+                                    title: const Text('View Prescription'),
+                                    trailing: const Icon(Icons.photo),
                                     onTap: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => FullScreenImagePage(imageUrl: docs[index]['PrescriptionURL']),));
                                     },
                                   ),
                                 ),
-                                SizedBox(height: 10.0),
+                                const SizedBox(height: 10.0),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
@@ -389,17 +391,17 @@ class OrderDetailsSkeleton extends StatelessWidget {
               Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[200]!,
-                period: Duration(milliseconds: 800),
+                period: const Duration(milliseconds: 800),
                 child: Container(
                   width: 200,
                   height: 30.0,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Container(
                 width: MediaQuery.of(context).size.width,
                 padding: const EdgeInsets.all(8.0),
@@ -415,13 +417,13 @@ class OrderDetailsSkeleton extends StatelessWidget {
                     Shimmer.fromColors(
                       baseColor: Colors.grey[400]!,
                       highlightColor: Colors.grey[200]!,
-                      period: Duration(milliseconds: 800),
+                      period: const Duration(milliseconds: 800),
                       child: Container(
                         width: 150,
                         height: 25.0,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                     ),
@@ -431,13 +433,13 @@ class OrderDetailsSkeleton extends StatelessWidget {
                     Shimmer.fromColors(
                       baseColor: Colors.grey[400]!,
                       highlightColor: Colors.grey[200]!,
-                      period: Duration(milliseconds: 800),
+                      period: const Duration(milliseconds: 800),
                       child: Container(
                         width: 150,
                         height: 20.0,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                     ),
@@ -447,13 +449,13 @@ class OrderDetailsSkeleton extends StatelessWidget {
                     Shimmer.fromColors(
                       baseColor: Colors.grey[400]!,
                       highlightColor: Colors.grey[200]!,
-                      period: Duration(milliseconds: 800),
+                      period: const Duration(milliseconds: 800),
                       child: Container(
                         width: 150,
                         height: 20.0,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                     ),
@@ -468,12 +470,12 @@ class OrderDetailsSkeleton extends StatelessWidget {
                       child: Shimmer.fromColors(
                         baseColor: Colors.grey[400]!,
                         highlightColor: Colors.grey[200]!,
-                        period: Duration(milliseconds: 800),
+                        period: const Duration(milliseconds: 800),
                         child: Container(
                           height: 40,
                           decoration: BoxDecoration(
                             color: Colors.grey.withOpacity(0.2),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderRadius: const BorderRadius.all(Radius.circular(10)),
                           ),
                         ),
                       ),
@@ -481,33 +483,33 @@ class OrderDetailsSkeleton extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 100.0,
                       height: 30,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 100.0,
                       height: 30,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
