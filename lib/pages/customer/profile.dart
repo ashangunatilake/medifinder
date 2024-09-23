@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medifinder/controllers/customercontroller.dart';
+import 'package:medifinder/pages/customer/customerview.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
@@ -30,7 +31,6 @@ class _ProfileState extends State<Profile> {
   bool nameFieldModified = false;
   bool mobileFieldModified = false;
   bool loaded = false;
-  final CustomerController customerController = Get.find();
 
   @override
   void initState() {
@@ -157,38 +157,6 @@ class _ProfileState extends State<Profile> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: customerController.activitiesCount.value > 0,
-              badgeContent: Text('${customerController.activitiesCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )),
-            label: "Activities",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: customerController.notificationCount.value > 0,
-              badgeContent: Text('${customerController.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )),
-            label: "Notifications",
-          ),
-          const BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: 3,
-        onTap: (int n) {
-          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
-          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
-      ),
     );
   }
 
@@ -278,7 +246,7 @@ class _ProfileState extends State<Profile> {
               //   mobileFieldModified = false;
               // });
               Snackbars.successSnackBar(message: "Updated successfully", context: context);
-              Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView(index: 3)), (route) => false);
             },
           ),
       ],

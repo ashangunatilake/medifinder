@@ -15,6 +15,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   final TextEditingController oldpassowrdController = TextEditingController();
   final TextEditingController newpasswordController = TextEditingController();
   final TextEditingController confirmpasswordController = TextEditingController();
+  bool pressed = false;
 
   Future<void> changePassword() async {
     if (!_formKey.currentState!.validate()) {
@@ -24,11 +25,17 @@ class _ChangePasswordState extends State<ChangePassword> {
     String newpassword = newpasswordController.text;
     User? currentUser = FirebaseAuth.instance.currentUser;
     try {
+      setState(() {
+        pressed = true;
+      });
       var cred = EmailAuthProvider.credential(email: currentUser!.email!, password: oldpassword);
       await currentUser.reauthenticateWithCredential(cred).then((value) => currentUser.updatePassword(newpassword));
       Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Password changed successfully", context: context));
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        pressed = false;
+      });
       print(e.code);
       if (e.code == "invalid-credential") {
         Snackbars.errorSnackBar(message: "Invalid old password", context: context);
@@ -242,7 +249,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () async {
+                              onPressed: (pressed) ? null : () async {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 changePassword();
                               },

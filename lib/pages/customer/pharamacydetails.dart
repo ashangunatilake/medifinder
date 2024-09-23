@@ -63,33 +63,44 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              pharmacyData['Name'], //"Pharmacy 1"
-              style: const TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w500
-              ),
-            ),
-            Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    overallRating.toStringAsFixed(1),
-                    style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w500
-                    ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  pharmacyData['Name'], //"Pharmacy 1"
+                  style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500
                   ),
-                  const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                    size: 26.0,
-                  )
-                ],
+                ),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        overallRating.toStringAsFixed(1),
+                        style: const TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w500
+                        ),
+                      ),
+                      const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 26.0,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Text(
+              "Hours of Operation - ${pharmacyData['HoursOfOperation']}",
+              style: const TextStyle(
+                  fontSize: 14.0
               ),
             )
           ],
@@ -277,11 +288,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                               userSnapshot.data!.data()
                                               as UserModel;
                                               return Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  LatestReviewItem(userData: userData, review: review),
-                                                  //SizedBox(height: 5.0),
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    LatestReviewItem(userData: userData, review: review),
+                                                    //SizedBox(height: 5.0),
                                                   ]
                                               );
                                             } else {
@@ -680,6 +691,7 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
             )
           ],
         );
+
       }
   );
 }

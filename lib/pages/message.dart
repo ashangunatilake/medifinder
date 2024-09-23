@@ -1,10 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:medifinder/controllers/customercontroller.dart';
-import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:badges/badges.dart' as badges;
 
 class NotificationMessage extends StatefulWidget {
   const NotificationMessage({super.key});
@@ -17,8 +13,6 @@ class _NotificationMessageState extends State<NotificationMessage> {
   List<Map<String, dynamic>> notifications = [];
   late SharedPreferences prefs;
   String role = "";
-  PharmacyController? pharmacyController;
-  CustomerController? customerController;
 
   @override
   void initState() {
@@ -33,11 +27,6 @@ class _NotificationMessageState extends State<NotificationMessage> {
     role = prefs.getString('role') ?? 'customer';
     if (!isLoggedIn) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-    }
-    if (role == 'customer') {
-      customerController = Get.put(CustomerController());
-    } else {
-      pharmacyController = Get.put(PharmacyController());
     }
   }
 
@@ -168,76 +157,6 @@ class _NotificationMessageState extends State<NotificationMessage> {
             },
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          (role == 'customer')
-              ? BottomNavigationBarItem(
-            icon: customerController != null ? Obx(() => badges.Badge(
-              showBadge: customerController!.activitiesCount.value > 0,
-              badgeContent: Text('${customerController!.activitiesCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )) : const Icon(Icons.shopping_cart),
-            label: "Activities",
-          )
-              : BottomNavigationBarItem(
-            icon: pharmacyController != null ? Obx(() => badges.Badge(
-              showBadge: pharmacyController!.ordersCount.value > 0,
-              badgeContent: Text('${pharmacyController!.ordersCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )) : const Icon(Icons.shopping_cart),
-            label: "Orders",
-          ),
-          (role == 'customer')
-              ? BottomNavigationBarItem(
-            icon: customerController != null ? Obx(() => badges.Badge(
-              showBadge: customerController!.notificationCount.value > 0,
-              badgeContent: Text('${customerController!.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )) : const Icon(Icons.notifications),
-            label: "Notifications",
-          )
-              : BottomNavigationBarItem(
-            icon: pharmacyController != null ? Obx(() => badges.Badge(
-              showBadge: pharmacyController!.notificationCount.value > 0,
-              badgeContent: Text('${pharmacyController!.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )) : const Icon(Icons.notifications),
-            label: "Notifications",
-          ),
-          const BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: 2,
-        onTap: (int n) {
-          if (n == 0) {
-            if (role == 'customer') {
-              Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
-            } else {
-              Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
-            }
-          }
-          if (n == 1) {
-            if (role == 'customer') {
-              Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
-            } else {
-              Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
-            }
-          }
-          if (n == 3) {
-            if (role == 'customer') {
-              Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
-            } else {
-              Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
-            }
-          }
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }

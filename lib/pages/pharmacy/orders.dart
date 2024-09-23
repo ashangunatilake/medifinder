@@ -1,12 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:badges/badges.dart' as badges;
 
 class Orders extends StatefulWidget {
   const Orders({super.key});
@@ -19,7 +16,6 @@ class _OrdersState extends State<Orders> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   User? user = FirebaseAuth.instance.currentUser;
-  final PharmacyController pharmacyController = Get.find();
 
   bool accepted = false;
 
@@ -218,44 +214,6 @@ class _OrdersState extends State<Orders> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: pharmacyController.ordersCount.value > 0,
-              badgeContent: Text('${pharmacyController.ordersCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: pharmacyController.notificationCount.value > 0,
-              badgeContent: Text('${pharmacyController.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )),
-            label: "Notifications",
-          ),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 1,
-        onTap: (int n) {
-          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }

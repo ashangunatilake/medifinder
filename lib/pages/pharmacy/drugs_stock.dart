@@ -161,184 +161,184 @@ class _DrugStockState extends State<DrugStock> {
 
   @override
   Widget build(BuildContext context) {
-        final String uid = widget.pharmacyDoc.id;
-        final DocumentSnapshot pharmacyDoc = widget.pharmacyDoc;
+    final String uid = widget.pharmacyDoc.id;
+    final DocumentSnapshot pharmacyDoc = widget.pharmacyDoc;
 
-        return Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            title: const Text("Drugs in Store"),
-            backgroundColor: Colors.white38,
-            elevation: 0.0,
-            titleTextStyle:
-            const TextStyle(fontSize: 18.0, color: Colors.black),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: const Text("Drugs in Store"),
+        backgroundColor: Colors.white38,
+        elevation: 0.0,
+        titleTextStyle:
+        const TextStyle(fontSize: 18.0, color: Colors.black),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background2.png'),
+            fit: BoxFit.cover,
           ),
-          body: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background2.png'),
-                fit: BoxFit.cover,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SafeArea(
+              child: SizedBox(
+                height: 10.0,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SafeArea(
-                  child: SizedBox(
-                    height: 10.0,
-                  ),
+            Center(
+              child: Text(
+                pharmacyDoc['Name'],
+                style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
                 ),
-                Center(
-                  child: Text(
-                    pharmacyDoc['Name'],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TypeAheadField(
-                    controller: searchController,
-                    builder: (context, controller, focusNode) {
-                      return TextField(
-                        controller: searchController,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                            hintText: 'Search drugs...',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 15,
-                            ),
-                            suffixIcon: IconButton(
-                              onPressed: ()  {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                setState(() {
-                                  if (searchController.text.trim().isEmpty) {
-                                    searched = false;
-                                  }
-                                  else {
-                                    searched = true;
-                                  }
-                                });
-
-                              },
-                              icon: const Icon(
-                                Icons.search,
-                                color: Color(0xFFC4C4C4),
-                              ),
-                            )),
-                        onSubmitted: (value) {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          setState(() {
-                            if (searchController.text.trim().isEmpty) {
-                              searched = false;
-                            }
-                            else {
-                              searched = true;
-                            }
-                          });
-                        },
-                      );
-                    },
-                    itemBuilder: (context, dynamic suggestion) {
-                      return ListTile(
-                        title: Text(suggestion!),
-                      );
-                    },
-                    onSelected: (dynamic suggestion) {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      searchController.text = suggestion!;
-                    },
-                    suggestionsCallback: (textEditingValue) {
-                      if (textEditingValue.isNotEmpty) {
-                        List<String> suggestions = drugNames.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
-                        suggestions.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-                        return suggestions;
-                      } else {
-                        return [];
-                      }
-                    },
-                    emptyBuilder: (context) {
-                      return const SizedBox();
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: StreamBuilder(
-                    stream: (!searched) ? _pharmacyDatabaseServices.getDrugs(uid) : _pharmacyDatabaseServices.searchDrugs(uid, searchController.text.trim().toLowerCase()),
-                    builder: (context,  snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          itemCount: 6, // Display 6 skeleton items
-                          itemBuilder: (context, index) {
-                            return const DrugItemSkeleton();
-                          },
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-                      if (!snapshot.hasData) {
-                        return const Center(child: Text('No drugs available'));
-                      }
-                      List<DocumentSnapshot> drugs = [];
-                      List<dynamic> querySnapshot = snapshot.data!.toList();
-                      for (var query in querySnapshot) {
-                        drugs.addAll(query.docs);
-                      }
-
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        itemCount: drugs.length,
-                        itemBuilder: (context, index) {
-                          var drug = drugs[index];
-                          drugNames.addAll([drug['Name'].toString().capitalize!, drug['BrandName'].toString().capitalize!]);
-                          drugNames = drugNames.toSet().toList();
-
-                          return DrugItem(
-                              name: drug['Name'].toString().split(' ').map((word) => word.capitalize).join(' '),
-                              brandName: drug['BrandName'].toString().split(' ').map((word) => word.capitalize).join(' '),
-                              dosage: drug['Dosage'],
-                              quantity: drug['Quantity'],
-                              price: drug['UnitPrice'],
-                              onEdit: () {
-                                pharmacyEditDrug(
-                                    context, drugs[index].id,
-                                    DrugsModel(
-                                        brand: drug['BrandName'],
-                                        name: drug['Name'],
-                                        dosage: drug['Dosage'],
-                                        quantity: drug['Quantity'],
-                                        price: drug['UnitPrice']
-                                    )
-                                );
-                              },
-                              onDelete: () {
-                                pharmacyDeleteDrug(context, drugs[index].id);
-                              },
-                            );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        );
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TypeAheadField(
+                controller: searchController,
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    controller: searchController,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                        hintText: 'Search drugs...',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 15,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: ()  {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            setState(() {
+                              if (searchController.text.trim().isEmpty) {
+                                searched = false;
+                              }
+                              else {
+                                searched = true;
+                              }
+                            });
+
+                          },
+                          icon: const Icon(
+                            Icons.search,
+                            color: Color(0xFFC4C4C4),
+                          ),
+                        )),
+                    onSubmitted: (value) {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      setState(() {
+                        if (searchController.text.trim().isEmpty) {
+                          searched = false;
+                        }
+                        else {
+                          searched = true;
+                        }
+                      });
+                    },
+                  );
+                },
+                itemBuilder: (context, dynamic suggestion) {
+                  return ListTile(
+                    title: Text(suggestion!),
+                  );
+                },
+                onSelected: (dynamic suggestion) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  searchController.text = suggestion!;
+                },
+                suggestionsCallback: (textEditingValue) {
+                  if (textEditingValue.isNotEmpty) {
+                    List<String> suggestions = drugNames.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
+                    suggestions.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+                    return suggestions;
+                  } else {
+                    return [];
+                  }
+                },
+                emptyBuilder: (context) {
+                  return const SizedBox();
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: StreamBuilder(
+                stream: (!searched) ? _pharmacyDatabaseServices.getDrugs(uid) : _pharmacyDatabaseServices.searchDrugs(uid, searchController.text.trim().toLowerCase()),
+                builder: (context,  snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      itemCount: 6, // Display 6 skeleton items
+                      itemBuilder: (context, index) {
+                        return const DrugItemSkeleton();
+                      },
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData) {
+                    return const Center(child: Text('No drugs available'));
+                  }
+                  List<DocumentSnapshot> drugs = [];
+                  List<dynamic> querySnapshot = snapshot.data!.toList();
+                  for (var query in querySnapshot) {
+                    drugs.addAll(query.docs);
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    itemCount: drugs.length,
+                    itemBuilder: (context, index) {
+                      var drug = drugs[index];
+                      drugNames.addAll([drug['Name'].toString().capitalize!, drug['BrandName'].toString().capitalize!]);
+                      drugNames = drugNames.toSet().toList();
+
+                      return DrugItem(
+                        name: drug['Name'].toString().split(' ').map((word) => word.capitalize).join(' '),
+                        brandName: drug['BrandName'].toString().split(' ').map((word) => word.capitalize).join(' '),
+                        dosage: drug['Dosage'],
+                        quantity: drug['Quantity'],
+                        price: drug['UnitPrice'],
+                        onEdit: () {
+                          pharmacyEditDrug(
+                              context, drugs[index].id,
+                              DrugsModel(
+                                  brand: drug['BrandName'],
+                                  name: drug['Name'],
+                                  dosage: drug['Dosage'],
+                                  quantity: drug['Quantity'],
+                                  price: drug['UnitPrice']
+                              )
+                          );
+                        },
+                        onDelete: () {
+                          pharmacyDeleteDrug(context, drugs[index].id);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -351,7 +351,7 @@ class DrugItem extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  const DrugItem({super.key, 
+  const DrugItem({super.key,
     required this.name,
     required this.brandName,
     required this.dosage,
@@ -382,7 +382,7 @@ class DrugItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   image: const DecorationImage(
-                    image: AssetImage('assets/images/product_img.png'), // Replace with relevant image
+                    image: AssetImage('assets/images/storyline-pill-bottle-opened.png'), // Replace with relevant image
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -576,6 +576,5 @@ class DrugItemSkeleton extends StatelessWidget {
     );
   }
 }
-
 
 

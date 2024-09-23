@@ -39,6 +39,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Delivery? selected = Delivery.available;
   bool deliveryAvailable = true;
   final _formkey = GlobalKey<FormState>();
+  bool pressed = false;
 
   // Future<void> storeUserData(String userID) async {
   //   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -64,6 +65,9 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = passwordcontroller.text;
 
     try {
+      setState(() {
+        pressed = true;
+      });
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -79,8 +83,11 @@ class _SignUpPageState extends State<SignUpPage> {
       //storeUserData(userCredential.user!.uid);
       print("User account created");
       Snackbars.successSnackBar(message: "Account created", context: context);
-      Navigator.pushNamed(context, "/login");
+      Navigator.pushNamed(context, '/emailverification', arguments: {'email': email});
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        pressed = false;
+      });
       print(e.code);
       if (e.code == "email-already-in-use") {
         print("Email already in use");
@@ -105,6 +112,9 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = passwordcontroller.text;
 
     try {
+      setState(() {
+        pressed = true;
+      });
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       PharmacyModel pharmacy = PharmacyModel(id: userCredential.user!.uid, name: name, address: email, contact: mobile, ratings: 0, isDeliveryAvailable: delivery, operationHours: operationHours, position: pharmacyLocation);
@@ -116,6 +126,9 @@ class _SignUpPageState extends State<SignUpPage> {
       Snackbars.successSnackBar(message: "Account created", context: context);
       Navigator.pushNamed(context, "/login");
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        pressed = false;
+      });
       print(e.code);
       if (e.code == "email-already-in-use") {
         Snackbars.errorSnackBar(message: "Email already in use", context: context);
@@ -797,7 +810,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                onPressed: () async {
+                                onPressed: pressed ? null : () async {
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   if(isPressedUser) {
                                     await userSignUp();

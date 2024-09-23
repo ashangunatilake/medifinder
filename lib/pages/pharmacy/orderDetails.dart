@@ -5,6 +5,7 @@ import 'package:medifinder/models/user_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/pages/launcher.dart';
 import 'package:medifinder/pages/pharmacy/full_screen_image.dart';
+import 'package:medifinder/pages/pharmacy/pharmacyview.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
@@ -51,7 +52,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
     Future.delayed(Duration.zero, () {
       Snackbars.successSnackBar(message: "Order accepted successfully", context: context);
-      Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView(index: 1,)), (route) => false);
     });
   }
 

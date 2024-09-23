@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:medifinder/pages/pharmacy/add_item.dart';
 import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
-import 'package:badges/badges.dart' as badges;
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -16,7 +13,6 @@ class Inventory extends StatefulWidget {
 
 class _InventoryState extends State<Inventory> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
-  final pharmacyController = Get.put(PharmacyController());
 
   @override
   Widget build(BuildContext context) {
@@ -95,44 +91,6 @@ class _InventoryState extends State<Inventory> {
             );
           }
         },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: pharmacyController.ordersCount.value > 0,
-              badgeContent: Text('${pharmacyController.ordersCount.value}',
-              style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: pharmacyController.notificationCount.value > 0,
-              badgeContent: Text('${pharmacyController.notificationCount.value}',
-              style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )),
-            label: "Notifications",
-          ),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 0,
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
       ),
     );
   }

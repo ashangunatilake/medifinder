@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:medifinder/controllers/customercontroller.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -10,7 +9,6 @@ import 'package:shimmer/shimmer.dart';
 import '../../models/user_order_model.dart';
 import '../../services/database_services.dart';
 import '../launcher.dart';
-import 'package:badges/badges.dart' as badges;
 
 class Activities extends StatefulWidget {
   const Activities({super.key});
@@ -24,7 +22,6 @@ class _ActivitiesState extends State<Activities> {
   final PharmacyDatabaseServices _pharmacyDatabaseServices = PharmacyDatabaseServices();
   User? user = FirebaseAuth.instance.currentUser;
   bool ongoing = true;
-  final CustomerController customerController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -143,15 +140,15 @@ class _ActivitiesState extends State<Activities> {
                         }
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return ListView.builder(
-                            itemCount: 5,
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  ActivitiesItemSkeleton(ongoing),
-                                  const SizedBox(height: 10.0)
-                                ],
-                              );
-                            }
+                              itemCount: 5,
+                              itemBuilder: (context, index) {
+                                return Column(
+                                  children: [
+                                    ActivitiesItemSkeleton(ongoing),
+                                    const SizedBox(height: 10.0)
+                                  ],
+                                );
+                              }
                           );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
@@ -196,9 +193,9 @@ class _ActivitiesState extends State<Activities> {
                                                         borderRadius: BorderRadius.all(Radius.circular(10)),
                                                         boxShadow: [
                                                           BoxShadow(
-                                                            color: Color(0x40FFFFFF),
-                                                            blurRadius: 4.0,
-                                                            offset: Offset(0, 4)
+                                                              color: Color(0x40FFFFFF),
+                                                              blurRadius: 4.0,
+                                                              offset: Offset(0, 4)
                                                           )
                                                         ]
                                                     ),
@@ -234,6 +231,15 @@ class _ActivitiesState extends State<Activities> {
                                                               ),
                                                             )
                                                           ],
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 5.0,
+                                                        ),
+                                                        Text(
+                                                          "Pharmacy Open Hours - ${pharmacyDoc['HoursOfOperation']}",
+                                                          style: const TextStyle(
+                                                              fontSize: 16.0
+                                                          ),
                                                         ),
                                                         const SizedBox(
                                                           height: 5.0,
@@ -375,44 +381,6 @@ class _ActivitiesState extends State<Activities> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: customerController.activitiesCount.value > 0,
-              badgeContent: Text('${customerController.activitiesCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )),
-            label: "Activities",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: customerController.notificationCount.value > 0,
-              badgeContent: Text('${customerController.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )),
-            label: "Notifications",
-          ),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile"
-          )
-        ],
-        currentIndex: 1,
-        onTap: (int n) {
-          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/customer_home', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
-      ),
     );
   }
 }
@@ -535,15 +503,15 @@ class ActivitiesItemSkeleton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10.0),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x40FFFFFF),
-            blurRadius: 4.0,
-            offset: Offset(0, 4)
-          )
-        ]
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+                color: Color(0x40FFFFFF),
+                blurRadius: 4.0,
+                offset: Offset(0, 4)
+            )
+          ]
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -582,7 +550,7 @@ class ActivitiesItemSkeleton extends StatelessWidget {
               ],
             ),
             const SizedBox(
-              height: 20.0
+                height: 20.0
             ),
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
@@ -694,5 +662,4 @@ class ActivitiesItemSkeleton extends StatelessWidget {
     );
   }
 }
-
 

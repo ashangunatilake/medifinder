@@ -1,13 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:medifinder/controllers/customercontroller.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/services/database_services.dart';
-import 'package:badges/badges.dart' as badges;
+import 'package:http/http.dart' as http;
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -27,9 +27,11 @@ class _CustomerHomeState extends State<CustomerHome> {
   bool mapLoaded = false;
   BitmapDescriptor? myLocationIcon;
   StreamSubscription<LocationData>? _locationSubscription;
+  final searchController = TextEditingController();
+  List<dynamic> listOfLocations = [];
+  final String token = '1234567890';
 
   late Future<Map<String, dynamic>> _userDataFuture;
-  final customerController = Get.put(CustomerController());
 
   @override
   void initState() {
@@ -258,46 +260,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           Icons.my_location_outlined,
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: customerController.activitiesCount.value > 0,
-              badgeContent: Text('${customerController.activitiesCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )),
-            label: "Activities",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: customerController.notificationCount.value > 0,
-              badgeContent: Text('${customerController.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )),
-            label: "Notifications",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-        ],
-        currentIndex: 0,
-        onTap: (int n) {
-          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-          if (n == 3) Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
-      ),
     );
   }
 }
-
 

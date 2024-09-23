@@ -1,18 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/pages/locationpicker.dart';
+import 'package:medifinder/pages/pharmacy/pharmacyview.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:badges/badges.dart' as badges;
 
 class PharmacyProfile extends StatefulWidget {
   const PharmacyProfile({super.key});
@@ -40,7 +38,6 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
   bool loaded = false;
   LatLng location = const LatLng(0, 0);
   late GeoPoint point;
-  final PharmacyController pharmacyController = Get.find();
 
   @override
   void initState() {
@@ -67,8 +64,8 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
     locationController.addListener(() {
       if (locationController.text != "(${point.latitude.toStringAsFixed(4)},${point.longitude.toStringAsFixed(4)})") {
         setState(() {
-        locationFieldModified = true;
-      });
+          locationFieldModified = true;
+        });
       }
     });
     openingTimeController.addListener(() {
@@ -278,40 +275,8 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: pharmacyController.ordersCount.value > 0,
-              badgeContent: Text('${pharmacyController.ordersCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.shopping_cart),
-            )),
-            label: "Orders",
-          ),
-          BottomNavigationBarItem(
-            icon: Obx(() => badges.Badge(
-              showBadge: pharmacyController.notificationCount.value > 0,
-              badgeContent: Text('${pharmacyController.notificationCount.value}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),),
-              child: const Icon(Icons.notifications),
-            )),
-            label: "Notifications",
-          ),
-          const BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
-        currentIndex: 3,
-        onTap: (int n) {
-          if (n == 0) Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_home', (route) => false);
-          if (n == 1) Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
-          if (n == 2) Navigator.pushNamedAndRemoveUntil(context, '/message', (route) => false);
-        },
-        selectedItemColor: const Color(0xFF0CAC8F),
-      ),
     );
-}
+  }
 
   Widget _buildTextFieldRow(String label, TextEditingController controller, bool enabled) {
     return Padding(
@@ -411,7 +376,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
               //   mobileFieldModified = false;
               // });
               Snackbars.successSnackBar(message: "Updated successfully", context: context);
-              Navigator.pushNamedAndRemoveUntil(context, '/pharmacy_profile', (route) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView(index: 3)), (route) => false);
             },
           ),
       ],

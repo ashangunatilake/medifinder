@@ -7,6 +7,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medifinder/models/user_order_model.dart';
+import 'package:medifinder/pages/customer/customerview.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -115,12 +116,12 @@ class _OrderState extends State<Order> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFFFFF),
                       //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                      side: const BorderSide(color: Color(0xFF12E7C0))
+                      side: const BorderSide(color: Color(0xFF0CAC8F))
                   ),
                   child: const Text(
                     "Cancel",
                     style: TextStyle(
-                      color: Color(0xFF12E7C0),
+                      color: Color(0xFF0CAC8F),
                     ),
                   ),
                 ),
@@ -150,9 +151,9 @@ class _OrderState extends State<Order> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF12E7C0),
+                      backgroundColor: const Color(0xFF0CAC8F),
                       //padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                      side: const BorderSide(color: Color(0xFF12E7C0))),
+                      side: const BorderSide(color: Color(0xFF0CAC8F))),
                   child: const Text(
                     "Upload",
                     style: TextStyle(
@@ -559,7 +560,7 @@ class _OrderState extends State<Order> {
                                   }
                                 }
                                 Snackbars.successSnackBar(message: "Order placed successfully", context: context);
-                                Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView(index: 1,)), (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
                                   Snackbars.errorSnackBar(message: e.message, context: context);
@@ -582,7 +583,7 @@ class _OrderState extends State<Order> {
                                   }
                                 }
                                 Snackbars.successSnackBar(message: "Order placed successfully", context: context);
-                                Navigator.pushNamedAndRemoveUntil(context, '/activities', (route) => false);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView(index: 1,)), (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
                                   Snackbars.errorSnackBar(message: e.message, context: context);

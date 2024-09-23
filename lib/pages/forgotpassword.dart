@@ -137,12 +137,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFFFFFF),
                                   padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                  side: const BorderSide(color: Color(0xFF12E7C0))
+                                  side: const BorderSide(color: Color(0xFF0CAC8F))
                               ),
                               child: const Text(
                                 "Cancel",
                                 style: TextStyle(
-                                  color: Color(0xFF12E7C0),
+                                  color: Color(0xFF0CAC8F),
                                 ),
                               ),
                             ),
@@ -160,7 +160,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 }
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(218, 3, 240, 212),
+                                backgroundColor: const Color(0xFF0CAC8F),
                                   padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0)
                               ),
                               child: const Text(

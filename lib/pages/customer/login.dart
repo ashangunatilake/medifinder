@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:medifinder/pages/customer/customerview.dart';
 import 'package:medifinder/pages/customer/signup.dart';
+import 'package:medifinder/pages/pharmacy/pharmacyview.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,29 +45,36 @@ class _LoginPageState extends State<LoginPage> {
         }
       );
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      print("User logged in");
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      String userUid = userCredential.user!.uid;
-      String userRole = await _userDatabaseServices.getUserRole(userUid);
-      await prefs.setString('role', userRole);
-      if(userRole == 'customer') {
-        await pushNotifications.addDeviceToken(userRole, userUid);
-        Navigator.pop(context);
-        Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
-        Navigator.pushNamedAndRemoveUntil(context, "/customer_home", (route) => false);
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        Navigator.pushNamed(context, "/emailverification", arguments: {'email': email});
       }
-      else if(userRole == 'pharmacy') {
-        await pushNotifications.addDeviceToken(userRole, userUid);
-        Navigator.pop(context);
-        Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
-        Navigator.pushNamedAndRemoveUntil(context, "/pharmacy_home", (route) => false);
-      }
-      else
+      else {
+        print("User logged in");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        String userUid = userCredential.user!.uid;
+        String userRole = await _userDatabaseServices.getUserRole(userUid);
+        await prefs.setString('role', userRole);
+        if(userRole == 'customer') {
+          await pushNotifications.addDeviceToken(userRole, userUid);
+          await prefs.setStringList('notifications', []);
+          Navigator.pop(context);
+          Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView()), (route) => false);
+        }
+        else if(userRole == 'pharmacy') {
+          await pushNotifications.addDeviceToken(userRole, userUid);
+          await prefs.setStringList('notifications', []);
+          Navigator.pop(context);
+          Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView()), (route) => false);
+        }
+        else
         {
           throw Exception('Error logging in.');
         }
-
+      }
     } on FirebaseAuthException catch(e) {
       Navigator.pop(context);
       print(e.code);
