@@ -8,6 +8,8 @@ import 'package:medifinder/models/drugs_model.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 
 class AddItem extends StatefulWidget {
+  const AddItem({super.key});
+
   @override
   State<AddItem> createState() => _AddItemState();
 }
@@ -85,21 +87,21 @@ class _AddItemState extends State<AddItem> {
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SafeArea(child: SizedBox(height: 10.0,)),
-                Text(
+                const Text(
                   'Add New Drug Details',
                   style: TextStyle(
                     fontSize: 24,
@@ -107,7 +109,7 @@ class _AddItemState extends State<AddItem> {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TypeAheadField<String>(
                   controller: namecontroller,
                   builder: (context, controller, focusNode) {
@@ -128,7 +130,7 @@ class _AddItemState extends State<AddItem> {
                     namecontroller.text = suggestion!;
                   },
                   suggestionsCallback: (textEditingValue) {
-                    if (textEditingValue != null && textEditingValue.length > 0) {
+                    if (textEditingValue.isNotEmpty) {
                       List<String> suggestions = Drugs.names.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
                       suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
                       return suggestions;
@@ -138,10 +140,10 @@ class _AddItemState extends State<AddItem> {
                     }
                   },
                   emptyBuilder: (context) {
-                    return SizedBox();
+                    return const SizedBox();
                   },
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TypeAheadField(
                   controller: brandnamecontroller,
                   builder: (context, controller, focusNode) {
@@ -162,7 +164,7 @@ class _AddItemState extends State<AddItem> {
                     brandnamecontroller.text = suggestion!;
                   },
                   suggestionsCallback: (textEditingValue) {
-                    if (textEditingValue != null && textEditingValue.length > 0) {
+                    if (textEditingValue.isNotEmpty) {
                       List<String> suggestions = Drugs.brands.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
                       suggestions.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
                       return suggestions;
@@ -172,30 +174,30 @@ class _AddItemState extends State<AddItem> {
                     }
                   },
                   emptyBuilder: (context) {
-                    return SizedBox();
+                    return const SizedBox();
                   },
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildTextField(
                   controller: dosagecontroller,
                   labelText: 'Dosage',
                   validator: (value) => Validator.validateEmptyText("Dosage", value),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildTextField(
                   controller: unitpricecontroller,
                   labelText: 'Unit Price',
                   keyboardType: TextInputType.number,
                   validator: (value) => Validator.validateEmptyText("Unit Price", value),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildTextField(
                   controller: quantitycontroller,
                   labelText: 'Quantity',
                   keyboardType: TextInputType.number,
                   validator: (value) => Validator.validateEmptyText("Quantity", value),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -209,8 +211,8 @@ class _AddItemState extends State<AddItem> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(218, 3, 240, 212),
-                          padding: EdgeInsets.symmetric(
+                          backgroundColor: const Color.fromARGB(218, 3, 240, 212),
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 30,
                             vertical: 15,
                           ),
@@ -218,7 +220,7 @@ class _AddItemState extends State<AddItem> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Add to Stock',
                           style: TextStyle(color: Colors.white),
                         ),
@@ -233,7 +235,7 @@ class _AddItemState extends State<AddItem> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 30,
                             vertical: 15,
                           ),
@@ -241,7 +243,7 @@ class _AddItemState extends State<AddItem> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Cancel',
                           style: TextStyle(color: Colors.white),
                         ),

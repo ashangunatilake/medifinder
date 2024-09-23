@@ -3,7 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapView extends StatefulWidget {
-  MapView({super.key});
+  const MapView({super.key});
 
   @override
   State<MapView> createState() => _MapViewState();
@@ -31,7 +31,7 @@ class _MapViewState extends State<MapView> {
     } else {
       // Handle the case where args are null (optional)
       // You might want to throw an error or use default values
-      location = LatLng(0.0, 0.0); // Default location
+      location = const LatLng(0.0, 0.0); // Default location
       pharmacies = [];
       print('No arguments passed');
     }
@@ -48,7 +48,7 @@ class _MapViewState extends State<MapView> {
 
   Future<void> loadCustomMarker() async {
     final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(200, 200)),
+      const ImageConfiguration(size: Size(200, 200)),
       'assets/images/location-pin.png',
     );
     setState(() {
@@ -78,9 +78,9 @@ class _MapViewState extends State<MapView> {
         zoomControlsEnabled: false,
         markers: {
           Marker(
-            markerId: MarkerId('user_location'),
+            markerId: const MarkerId('user_location'),
             position: location,
-            infoWindow: InfoWindow(
+            infoWindow: const InfoWindow(
               title: 'My Location',
             ),
             icon: myLocationIcon!,
@@ -97,7 +97,7 @@ class _MapViewState extends State<MapView> {
           }).toSet(),
         },
       ),
-    ) :  CircularProgressIndicator();
+    ) :  const CircularProgressIndicator();
   }
 }
 

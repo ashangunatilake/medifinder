@@ -35,20 +35,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SafeArea(child: SizedBox()),
+                const SafeArea(child: SizedBox()),
                 Container(
                   padding: const EdgeInsets.all(10.0),
                   width: MediaQuery.of(context).size.width - 20.0,
@@ -67,7 +67,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20.0,),
-                      Text(
+                      const Text(
                         "Forgot Password",
                         style: TextStyle(
                           fontSize: 18.0,
@@ -87,7 +87,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         validator: (value) => Validator.validateEmail(emailController.text),
                         controller: emailController,
                         decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                             border: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Color(0xFFCCC9C9),
@@ -115,7 +115,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               fontSize: 15.0,
                               color: Color(0xFFC4C4C4),
                             ),
-                            suffixIcon: Icon(
+                            suffixIcon: const Icon(
                               Icons.email_outlined,
                               color: Color(0xFFC4C4C4),
                             )

@@ -78,11 +78,11 @@ class Snackbars {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 Text(
                   message,
-                  style: TextStyle(fontSize: 14, color: Colors.white),
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ],
             ),

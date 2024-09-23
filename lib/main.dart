@@ -105,7 +105,7 @@ void main() async {
   if (message != null) {
     _saveNotification(message);
     print('Launched in terminated state');
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       navigatorKey.currentState!.pushNamedAndRemoveUntil(
         '/message',
             (route) => false,
@@ -134,7 +134,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/login': (context) => const LoginPage(),
         '/customer_home': (context) => const CustomerHome(),
-        '/pharmacy_home': (context) => Inventory(),
+        '/pharmacy_home': (context) => const Inventory(),
         '/search': (context) => const Search(),
         '/pharmacydetails': (context) => const PharmacyDetails(),
         '/reviews': (context) => const Reviews(),
@@ -142,11 +142,11 @@ class MyApp extends StatelessWidget {
         '/order': (context) => const Order(),
         '/profile': (context) => const Profile(),
         '/activities': (context) => const Activities(),
-        '/mapview': (context) => MapView(),
-        '/orders': (context) => Orders(),
-        '/order_details': (context) => OrderDetails(),
+        '/mapview': (context) => const MapView(),
+        '/orders': (context) => const Orders(),
+        '/order_details': (context) => const OrderDetails(),
         '/pharmacy_profile': (context) => const PharmacyProfile(),
-        '/adddrug': (context) => AddItem(),
+        '/adddrug': (context) => const AddItem(),
         '/changepassword': (context) => const ChangePassword(),
         '/forgotpassword': (context) => const ForgotPassword(),
         '/resetpassword': (context) => const ResetPassword(),

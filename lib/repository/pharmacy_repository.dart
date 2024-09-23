@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
-import 'package:medifinder/models/user_model.dart';
 
 ///// user repository to perform database operations
 

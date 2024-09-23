@@ -122,7 +122,7 @@ class _AddReviewState extends State<AddReview> {
                         children: [
                           Text(
                             data['Name'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20.0,
                             ),
                           ),
@@ -132,11 +132,11 @@ class _AddReviewState extends State<AddReview> {
                               children: [
                                 Text(
                                   overallRating.toStringAsFixed(1),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 15.0,
                                   ),
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.star,
                                   color: Colors.amber,
                                   size: 24.0,
@@ -146,20 +146,20 @@ class _AddReviewState extends State<AddReview> {
                           )
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15.0,
                       )
                     ],
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                   height: 19.0
               ),
               Expanded(
                   child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       width: MediaQuery.of(context).size.width,
                       decoration: const BoxDecoration(
                           color: Colors.white,
@@ -175,16 +175,16 @@ class _AddReviewState extends State<AddReview> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             height: 22.0,
                           ),
-                          Text(
+                          const Text(
                             "Ratings :",
                             style: TextStyle(
                               fontSize: 20.0,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10.0,
                           ),
                           RatingBar(
@@ -192,17 +192,17 @@ class _AddReviewState extends State<AddReview> {
                             direction: Axis.horizontal,
                             itemCount: 5,
                             itemSize: 30.0,
-                            itemPadding: EdgeInsets.only(right: 15.0),
+                            itemPadding: const EdgeInsets.only(right: 15.0),
                             ratingWidget: RatingWidget(
-                              full: Icon(
+                              full: const Icon(
                                 Icons.star,
                                 color: Colors.amber,
                               ),
-                              half: Icon(
+                              half: const Icon(
                                 Icons.star,
                                 color: Colors.amber,
                               ),
-                              empty: Icon(
+                              empty: const Icon(
                                 Icons.star,
                                 color: Colors.grey,
                               ),
@@ -219,7 +219,7 @@ class _AddReviewState extends State<AddReview> {
                           ),
                           Expanded(
                             child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 5.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 5.0),
                                 decoration: BoxDecoration(
                                     color: const Color(0xFFF9F9F9),
                                     borderRadius: BorderRadius.circular(9.0),
@@ -243,7 +243,7 @@ class _AddReviewState extends State<AddReview> {
                                 )
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10.0,
                           ),
                           Row(
@@ -271,7 +271,7 @@ class _AddReviewState extends State<AddReview> {
                               ),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10.0,
                           )
 
@@ -280,35 +280,12 @@ class _AddReviewState extends State<AddReview> {
                       )
                   )
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
             ],
-
           )
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: "Home",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.shopping_cart),
-      //       label: "Orders",
-      //     ),
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.person),
-      //         label: "Profile"
-      //     )
-      //   ],
-      //   currentIndex: 0,
-      //   onTap: (int n) {
-      //     if (n == 1) Navigator.pushNamed(context, '/activities');
-      //     if (n == 2) Navigator.pushNamed(context, '/profile');
-      //   },
-      //   selectedItemColor: const Color(0xFF12E7C0),
-      // ),
     );
   }
 }

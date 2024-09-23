@@ -34,7 +34,7 @@ class Validator {
     if (confirmPassword == null || confirmPassword.isEmpty) {
       return "Confirm Password is required";
     }
-    if (!("$password" == "$confirmPassword")) {
+    if (!("$password" == confirmPassword)) {
       return "Password do not match";
     }
     return null;

@@ -101,7 +101,7 @@ class _ReviewsState extends State<Reviews> {
                           children: [
                             Text(
                               data['Name'],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20.0,
                               ),
                             ),
@@ -111,11 +111,11 @@ class _ReviewsState extends State<Reviews> {
                                 children: [
                                   Text(
                                     overallRating.toStringAsFixed(1),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 15.0,
                                     ),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     Icons.star,
                                     color: Colors.amber,
                                     size: 24.0,
@@ -125,14 +125,14 @@ class _ReviewsState extends State<Reviews> {
                             )
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 15.0,
                         )
                       ],
                     )
                 )
             ),
-            SizedBox(
+            const SizedBox(
                 height: 19.0
             ),
             Padding(
@@ -152,7 +152,7 @@ class _ReviewsState extends State<Reviews> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: getColor(1, selected),
                         ),
-                        child: Text(
+                        child: const Text(
                           "Newest",
                           style: TextStyle(
                               fontSize: 14.0,
@@ -161,7 +161,7 @@ class _ReviewsState extends State<Reviews> {
                         ),
                       )
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 17.0,
                   ),
                   Expanded(
@@ -176,7 +176,7 @@ class _ReviewsState extends State<Reviews> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: getColor(2, selected),
                         ),
-                        child: Text(
+                        child: const Text(
                           "Highest",
                           style: TextStyle(
                               fontSize: 14.0,
@@ -185,7 +185,7 @@ class _ReviewsState extends State<Reviews> {
                         ),
                       )
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 17.0,
                   ),
                   Expanded(
@@ -199,7 +199,7 @@ class _ReviewsState extends State<Reviews> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: getColor(3, selected),
                         ),
-                        child: Text(
+                        child: const Text(
                           "Lowest",
                           style: TextStyle(
                               fontSize: 14.0,
@@ -226,7 +226,7 @@ class _ReviewsState extends State<Reviews> {
                         return ListView.builder(
                             itemCount: 5,
                             itemBuilder: (context, index) {
-                              return Column(
+                              return const Column(
                                 children: [
                                   ReviewItemSkeleton(),
                                 ],
@@ -235,7 +235,7 @@ class _ReviewsState extends State<Reviews> {
                         );
                       }
                       if (!snapshot.hasData || snapshot.data == null) {
-                        return Text('No data available');
+                        return const Text('No data available');
                       }
                       else{
                         List<UserReview> reviews = snapshot.data!.docs.map((doc) => doc.data()).toList();
@@ -258,7 +258,7 @@ class _ReviewsState extends State<Reviews> {
                               future: _userDatabaseServices.getUserDoc(review.id),
                               builder: (context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
                                 if (userSnapshot.connectionState == ConnectionState.waiting) {
-                                  return Column(
+                                  return const Column(
                                       children: [
                                         ReviewItemSkeleton(),
                                         SizedBox(height: 20.0),
@@ -266,7 +266,7 @@ class _ReviewsState extends State<Reviews> {
                                   );
                                 }
                                 if (userSnapshot.hasError) {
-                                  return ListTile(
+                                  return const ListTile(
                                     title: Text('Error loading data'),
                                   );
                                 }
@@ -279,18 +279,18 @@ class _ReviewsState extends State<Reviews> {
                                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                                         child: ReviewItem(userData: userData, review: review),
                                       ),
-                                      SizedBox(height: 20.0),
+                                      const SizedBox(height: 20.0),
                                     ],
                                   );
                                 }
                                 // Handle the case where snapshot has no data
-                                return ListTile(
+                                return const ListTile(
                                   title: Text('No data available'),
                                 );
                               },
                             );
                           },
-                        );;
+                        );
                       }
 
                     }
@@ -367,7 +367,7 @@ class ReviewItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
       decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -390,7 +390,7 @@ class ReviewItem extends StatelessWidget {
               children: [
                 Text(
                   userData.name, // Assuming UserModel has a 'name' property
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold
                   ),
@@ -401,17 +401,17 @@ class ReviewItem extends StatelessWidget {
                   direction: Axis.horizontal,
                   itemCount: 5,
                   itemSize: 24.0,
-                  itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 2.0),
                   ratingWidget: RatingWidget(
-                    full: Icon(
+                    full: const Icon(
                       Icons.star,
                       color: Colors.amber,
                     ),
-                    half: Icon(
+                    half: const Icon(
                       Icons.star,
                       color: Colors.amber,
                     ),
-                    empty: Icon(
+                    empty: const Icon(
                       Icons.star,
                       color: Colors.grey,
                     ),
@@ -426,11 +426,11 @@ class ReviewItem extends StatelessWidget {
           const SizedBox(height: 17.0),
           Text(
             review.comment,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14.0,
             ),
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
         ],
       ),
     );
@@ -446,7 +446,7 @@ class ReviewItemSkeleton extends StatelessWidget {
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.95, // Set a shorter width
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -470,13 +470,13 @@ class ReviewItemSkeleton extends StatelessWidget {
                     Shimmer.fromColors(
                       baseColor: Colors.grey[400]!,
                       highlightColor: Colors.grey[200]!,
-                      period: Duration(milliseconds: 800),
+                      period: const Duration(milliseconds: 800),
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.3, // Reduced width for the name
                         height: 14.0,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                     ),
@@ -487,13 +487,13 @@ class ReviewItemSkeleton extends StatelessWidget {
                           child: Shimmer.fromColors(
                             baseColor: Colors.grey[400]!,
                             highlightColor: Colors.grey[200]!,
-                            period: Duration(milliseconds: 800),
+                            period: const Duration(milliseconds: 800),
                             child: Container(
                               width: 24.0,
                               height: 24.0,
                               decoration: BoxDecoration(
                                 color: Colors.grey.withOpacity(0.2),
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderRadius: const BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                           ),
@@ -507,13 +507,13 @@ class ReviewItemSkeleton extends StatelessWidget {
               Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[200]!,
-                period: Duration(milliseconds: 800),
+                period: const Duration(milliseconds: 800),
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.87, // Adjusted to be shorter
                   height: 14.0,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),
@@ -529,7 +529,7 @@ class ReviewItemSkeleton extends StatelessWidget {
 Color getColor(int num, int selected){
   if (selected == num)
   {
-    return Color(0xFFCCC9C9);
+    return const Color(0xFFCCC9C9);
   }
   else
   {

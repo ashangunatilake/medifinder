@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/pages/locationpicker.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
@@ -10,7 +12,7 @@ import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-
+import 'package:badges/badges.dart' as badges;
 
 class PharmacyProfile extends StatefulWidget {
   const PharmacyProfile({super.key});
@@ -36,8 +38,9 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
   bool timeFieldModified = false;
   bool locationFieldModified = false;
   bool loaded = false;
-  LatLng location = LatLng(0, 0);
+  LatLng location = const LatLng(0, 0);
   late GeoPoint point;
+  final PharmacyController pharmacyController = Get.find();
 
   @override
   void initState() {
@@ -62,10 +65,11 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
       });
     });
     locationController.addListener(() {
-      if (locationController.text != "(${point.latitude.toStringAsFixed(4)},${point.longitude.toStringAsFixed(4)})")
-      setState(() {
+      if (locationController.text != "(${point.latitude.toStringAsFixed(4)},${point.longitude.toStringAsFixed(4)})") {
+        setState(() {
         locationFieldModified = true;
       });
+      }
     });
     openingTimeController.addListener(() {
       setState(() {
@@ -248,8 +252,8 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
                       const SizedBox(height: 20.0),
                       const CircleAvatar(
                         backgroundColor: Colors.grey,
-                        child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
                         radius: 75.0,
+                        child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
                       ),
                       const SizedBox(height: 30.0),
                       _buildTextFieldRow("Name", nameController, enabled),
@@ -276,11 +280,27 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Orders"),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications",),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(
+            icon: Obx(() => badges.Badge(
+              showBadge: pharmacyController.ordersCount.value > 0,
+              badgeContent: Text('${pharmacyController.ordersCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )),
+            label: "Orders",
+          ),
+          BottomNavigationBarItem(
+            icon: Obx(() => badges.Badge(
+              showBadge: pharmacyController.notificationCount.value > 0,
+              badgeContent: Text('${pharmacyController.notificationCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )),
+            label: "Notifications",
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         currentIndex: 3,
         onTap: (int n) {
@@ -299,7 +319,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: 110.0,
             child: Text(label, style: const TextStyle(fontSize: 16.0)),
           ),
@@ -446,13 +466,13 @@ class PharmacyProfileSkeleton extends StatelessWidget {
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 width: 200,
                 height: 30.0,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
@@ -460,21 +480,21 @@ class PharmacyProfileSkeleton extends StatelessWidget {
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 width: 100,
                 height: 30.0,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
             const SizedBox(height: 20.0),
             const CircleAvatar(
               backgroundColor: Colors.grey,
-              child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
               radius: 75.0,
+              child: Icon(Icons.local_pharmacy, size: 130.0, color: Colors.black),
             ),
             const SizedBox(height: 50.0),
             Row(
@@ -483,12 +503,12 @@ class PharmacyProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -502,12 +522,12 @@ class PharmacyProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -521,12 +541,12 @@ class PharmacyProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -540,12 +560,12 @@ class PharmacyProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -559,12 +579,12 @@ class PharmacyProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -578,12 +598,12 @@ class PharmacyProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),

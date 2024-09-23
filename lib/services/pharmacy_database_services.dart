@@ -39,7 +39,7 @@ class PharmacyDatabaseServices {
 
   Future<DocumentSnapshot> getCurrentPharmacyDoc() async {
     try {
-      User? user = await FirebaseAuth.instance.currentUser;
+      User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         String uid = user.uid;
         DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Pharmacies').doc(uid).get();
@@ -316,26 +316,24 @@ class PharmacyDatabaseServices {
   // Functions for pharmacy uis
   //////////////////////////////////////////////////////////////////////////////
 
-  Stream<List<DocumentSnapshot>> getUsersWithToAcceptOrders(String pharmacyID) async* {
-    try {
-      final userOrdersSnapshot = await _pharmaciesRef.doc(pharmacyID).collection('Orders').get();
+  Stream<List<DocumentSnapshot>> getUsersWithToAcceptOrders(String pharmacyID) {
+    return _pharmaciesRef.doc(pharmacyID).collection('Orders').snapshots().asyncMap((snapshot) async {
       List<DocumentSnapshot> allUsersWithToAcceptOrders = [];
-      print(userOrdersSnapshot.docs);
-      for (var userOrdersDoc in userOrdersSnapshot.docs) {
+      for (var userOrdersDoc in snapshot.docs) {
         final ordersSnapshot = await userOrdersDoc.reference.collection('UserOrders').get();
         for (var orderDoc in ordersSnapshot.docs) {
-          if(!orderDoc['Accepted'] && !orderDoc['Completed'])
-          {
+          if (!orderDoc['Accepted'] && !orderDoc['Completed']) {
             allUsersWithToAcceptOrders.add(userOrdersDoc);
-            break;
+            break; // Stop once a pending order is found for this user
           }
         }
       }
-      yield allUsersWithToAcceptOrders;
-    } catch (e) {
-      throw Exception('Error getting users with to-accept orders: $e');
-    }
+      return allUsersWithToAcceptOrders;
+    });
   }
+
+
+
 
   Stream<List<DocumentSnapshot>> getUsersWithAcceptedOrders(String pharmacyID) async* {
     try {

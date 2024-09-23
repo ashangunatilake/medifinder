@@ -17,7 +17,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
+  final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   PushNotifications pushNotifications = PushNotifications();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                       height: 53.0,
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 10.0),
+                      margin: const EdgeInsets.only(left: 10.0),
                       width: MediaQuery.of(context).size.width - 20.0,
                       decoration: const BoxDecoration(
                           color: Colors.white,
@@ -183,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                                         validator: (value) => Validator.validateEmptyText("Email Address", value),
                                         controller: emailcontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -210,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.email_outlined,
                                               color: Color(0xFFC4C4C4),
                                             )
@@ -221,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
                                         validator: (value) => Validator.validateEmptyText("Password", value),
                                         controller: passwordcontroller,
                                         decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 14.0),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
                                             border: OutlineInputBorder(
                                               borderSide: const BorderSide(
                                                 color: Color(0xFFCCC9C9),
@@ -248,7 +248,7 @@ class _LoginPageState extends State<LoginPage> {
                                               fontSize: 15.0,
                                               color: Color(0xFFC4C4C4),
                                             ),
-                                            suffixIcon: Icon(
+                                            suffixIcon: const Icon(
                                               Icons.lock_outline,
                                               color: Color(0xFFC4C4C4),
                                             )

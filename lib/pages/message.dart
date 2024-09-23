@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/controllers/customercontroller.dart';
+import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:badges/badges.dart' as badges;
 
@@ -14,6 +17,8 @@ class _NotificationMessageState extends State<NotificationMessage> {
   List<Map<String, dynamic>> notifications = [];
   late SharedPreferences prefs;
   String role = "";
+  PharmacyController? pharmacyController;
+  CustomerController? customerController;
 
   @override
   void initState() {
@@ -28,6 +33,11 @@ class _NotificationMessageState extends State<NotificationMessage> {
     role = prefs.getString('role') ?? 'customer';
     if (!isLoggedIn) {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+    if (role == 'customer') {
+      customerController = Get.put(CustomerController());
+    } else {
+      pharmacyController = Get.put(PharmacyController());
     }
   }
 
@@ -70,12 +80,12 @@ class _NotificationMessageState extends State<NotificationMessage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Notifications'),
+        title: const Text('Notifications'),
         backgroundColor: Colors.white38,
         elevation: 0.0,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
@@ -110,7 +120,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 5.0,
@@ -123,27 +133,27 @@ class _NotificationMessageState extends State<NotificationMessage> {
                       children: [
                         Text(
                           notification['title'],
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
-                        SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
                         Text(
                           notification['body'],
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16.0,
                             color: Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
                               _formatTimestamp(DateTime.parse(notification['timestamp'])),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14.0,
                                 color: Colors.grey,
                               ),
@@ -161,11 +171,47 @@ class _NotificationMessageState extends State<NotificationMessage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Activities"),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          (role == 'customer')
+              ? BottomNavigationBarItem(
+            icon: customerController != null ? Obx(() => badges.Badge(
+              showBadge: customerController!.activitiesCount.value > 0,
+              badgeContent: Text('${customerController!.activitiesCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )) : const Icon(Icons.shopping_cart),
+            label: "Activities",
+          )
+              : BottomNavigationBarItem(
+            icon: pharmacyController != null ? Obx(() => badges.Badge(
+              showBadge: pharmacyController!.ordersCount.value > 0,
+              badgeContent: Text('${pharmacyController!.ordersCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )) : const Icon(Icons.shopping_cart),
+            label: "Orders",
+          ),
+          (role == 'customer')
+              ? BottomNavigationBarItem(
+            icon: customerController != null ? Obx(() => badges.Badge(
+              showBadge: customerController!.notificationCount.value > 0,
+              badgeContent: Text('${customerController!.notificationCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )) : const Icon(Icons.notifications),
+            label: "Notifications",
+          )
+              : BottomNavigationBarItem(
+            icon: pharmacyController != null ? Obx(() => badges.Badge(
+              showBadge: pharmacyController!.notificationCount.value > 0,
+              badgeContent: Text('${pharmacyController!.notificationCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )) : const Icon(Icons.notifications),
+            label: "Notifications",
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         currentIndex: 2,
         onTap: (int n) {

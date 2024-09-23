@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/controllers/customercontroller.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 import 'package:medifinder/validators/validation.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:badges/badges.dart' as badges;
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -28,6 +30,7 @@ class _ProfileState extends State<Profile> {
   bool nameFieldModified = false;
   bool mobileFieldModified = false;
   bool loaded = false;
+  final CustomerController customerController = Get.find();
 
   @override
   void initState() {
@@ -134,8 +137,8 @@ class _ProfileState extends State<Profile> {
                       const SizedBox(height: 20.0),
                       const CircleAvatar(
                         backgroundColor: Colors.grey,
-                        child: Icon(Icons.person, size: 130.0, color: Colors.black),
                         radius: 75.0,
+                        child: Icon(Icons.person, size: 130.0, color: Colors.black),
                       ),
                       const SizedBox(height: 30.0),
                       _buildTextFieldRow("Name", nameController, enabled),
@@ -156,11 +159,27 @@ class _ProfileState extends State<Profile> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Activities"),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(
+            icon: Obx(() => badges.Badge(
+              showBadge: customerController.activitiesCount.value > 0,
+              badgeContent: Text('${customerController.activitiesCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )),
+            label: "Activities",
+          ),
+          BottomNavigationBarItem(
+            icon: Obx(() => badges.Badge(
+              showBadge: customerController.notificationCount.value > 0,
+              badgeContent: Text('${customerController.notificationCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )),
+            label: "Notifications",
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         currentIndex: 3,
         onTap: (int n) {
@@ -179,7 +198,7 @@ class _ProfileState extends State<Profile> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: 100.0,
             child: Text(label, style: const TextStyle(fontSize: 16.0)),
           ),
@@ -309,21 +328,21 @@ class ProfileSkeleton extends StatelessWidget {
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 width: 200,
                 height: 30.0,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
             const SizedBox(height: 20.0),
             const CircleAvatar(
               backgroundColor: Colors.grey,
-              child: Icon(Icons.person, size: 130.0, color: Colors.black),
               radius: 75.0,
+              child: Icon(Icons.person, size: 130.0, color: Colors.black),
             ),
             const SizedBox(height: 50.0),
             Row(
@@ -332,12 +351,12 @@ class ProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -351,12 +370,12 @@ class ProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -370,12 +389,12 @@ class ProfileSkeleton extends StatelessWidget {
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       height: 20.0,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -392,12 +411,12 @@ class ProfileSkeleton extends StatelessWidget {
                         child: Shimmer.fromColors(
                           baseColor: Colors.grey[400]!,
                           highlightColor: Colors.grey[200]!,
-                          period: Duration(milliseconds: 800),
+                          period: const Duration(milliseconds: 800),
                           child: Container(
                             height: 16.0,
                             decoration: BoxDecoration(
                               color: Colors.grey.withOpacity(0.2),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                         ),
@@ -412,12 +431,12 @@ class ProfileSkeleton extends StatelessWidget {
                         child: Shimmer.fromColors(
                           baseColor: Colors.grey[400]!,
                           highlightColor: Colors.grey[200]!,
-                          period: Duration(milliseconds: 800),
+                          period: const Duration(milliseconds: 800),
                           child: Container(
                             height: 30.0,
                             decoration: BoxDecoration(
                               color: Colors.grey.withOpacity(0.2),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                         ),
@@ -432,12 +451,12 @@ class ProfileSkeleton extends StatelessWidget {
                         child: Shimmer.fromColors(
                           baseColor: Colors.grey[400]!,
                           highlightColor: Colors.grey[200]!,
-                          period: Duration(milliseconds: 800),
+                          period: const Duration(milliseconds: 800),
                           child: Container(
                             height: 30.0,
                             decoration: BoxDecoration(
                               color: Colors.grey.withOpacity(0.2),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                         ),
@@ -452,12 +471,12 @@ class ProfileSkeleton extends StatelessWidget {
                         child: Shimmer.fromColors(
                           baseColor: Colors.grey[400]!,
                           highlightColor: Colors.grey[200]!,
-                          period: Duration(milliseconds: 800),
+                          period: const Duration(milliseconds: 800),
                           child: Container(
                             height: 30.0,
                             decoration: BoxDecoration(
                               color: Colors.grey.withOpacity(0.2),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                         ),

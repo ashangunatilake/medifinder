@@ -10,7 +10,7 @@ import 'package:shimmer/shimmer.dart';
 class DrugStock extends StatefulWidget {
   final DocumentSnapshot pharmacyDoc;
 
-  const DrugStock({Key? key, required this.pharmacyDoc}) : super(key: key);
+  const DrugStock({super.key, required this.pharmacyDoc});
 
   @override
   _DrugStockState createState() => _DrugStockState();
@@ -36,14 +36,14 @@ class _DrugStockState extends State<DrugStock> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this drug?'),
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this drug?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
@@ -64,7 +64,7 @@ class _DrugStockState extends State<DrugStock> {
                       message: "Error deleting drug", context: context);
                 }
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -98,34 +98,34 @@ class _DrugStockState extends State<DrugStock> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Edit Drug',
+                const Text('Edit Drug',
                     style:
                     TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextField(
                   controller: nameController,
-                  decoration: InputDecoration(labelText: 'Name'),
+                  decoration: const InputDecoration(labelText: 'Name'),
                   enabled: false,
                 ),
                 TextField(
                   controller: brandNameController,
-                  decoration: InputDecoration(labelText: 'Brand'),
+                  decoration: const InputDecoration(labelText: 'Brand'),
                   enabled: false,
                 ),
                 TextField(
                   controller: dosageController,
-                  decoration: InputDecoration(labelText: 'Dosage'),
+                  decoration: const InputDecoration(labelText: 'Dosage'),
                   enabled: false,
                 ),
                 TextField(
                   controller: quantityController,
-                  decoration: InputDecoration(labelText: 'Quantity'),
+                  decoration: const InputDecoration(labelText: 'Quantity'),
                 ),
                 TextField(
                   controller: unitPriceController,
-                  decoration: InputDecoration(labelText: 'Price'),
+                  decoration: const InputDecoration(labelText: 'Price'),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
                     try {
@@ -149,7 +149,7 @@ class _DrugStockState extends State<DrugStock> {
                           message: "Error updating drug", context: context);
                     }
                   },
-                  child: Text('Done'),
+                  child: const Text('Done'),
                 ),
               ],
             ),
@@ -174,7 +174,7 @@ class _DrugStockState extends State<DrugStock> {
             const TextStyle(fontSize: 18.0, color: Colors.black),
           ),
           body: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/background2.png'),
                 fit: BoxFit.cover,
@@ -191,7 +191,7 @@ class _DrugStockState extends State<DrugStock> {
                 Center(
                   child: Text(
                     pharmacyDoc['Name'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       color: Colors.white,
                       fontFamily: 'Poppins',
@@ -199,9 +199,9 @@ class _DrugStockState extends State<DrugStock> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TypeAheadField(
                     controller: searchController,
                     builder: (context, controller, focusNode) {
@@ -216,7 +216,7 @@ class _DrugStockState extends State<DrugStock> {
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 20,
                               vertical: 15,
                             ),
@@ -261,7 +261,7 @@ class _DrugStockState extends State<DrugStock> {
                       searchController.text = suggestion!;
                     },
                     suggestionsCallback: (textEditingValue) {
-                      if (textEditingValue != null && textEditingValue.length > 0) {
+                      if (textEditingValue.isNotEmpty) {
                         List<String> suggestions = drugNames.where((element) => element.toLowerCase().contains(textEditingValue.toLowerCase())).toList();
                         suggestions.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
                         return suggestions;
@@ -270,11 +270,11 @@ class _DrugStockState extends State<DrugStock> {
                       }
                     },
                     emptyBuilder: (context) {
-                      return SizedBox();
+                      return const SizedBox();
                     },
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Expanded(
                   child: StreamBuilder(
                     stream: (!searched) ? _pharmacyDatabaseServices.getDrugs(uid) : _pharmacyDatabaseServices.searchDrugs(uid, searchController.text.trim().toLowerCase()),
@@ -284,7 +284,7 @@ class _DrugStockState extends State<DrugStock> {
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           itemCount: 6, // Display 6 skeleton items
                           itemBuilder: (context, index) {
-                            return DrugItemSkeleton();
+                            return const DrugItemSkeleton();
                           },
                         );
                       }
@@ -292,13 +292,13 @@ class _DrugStockState extends State<DrugStock> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
                       if (!snapshot.hasData) {
-                        return Center(child: Text('No drugs available'));
+                        return const Center(child: Text('No drugs available'));
                       }
                       List<DocumentSnapshot> drugs = [];
                       List<dynamic> querySnapshot = snapshot.data!.toList();
-                      querySnapshot.forEach((query) {
+                      for (var query in querySnapshot) {
                         drugs.addAll(query.docs);
-                      });
+                      }
 
                       return ListView.builder(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -351,7 +351,7 @@ class DrugItem extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  DrugItem({
+  const DrugItem({super.key, 
     required this.name,
     required this.brandName,
     required this.dosage,
@@ -364,7 +364,7 @@ class DrugItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         height: 130, // Adjust the height of each box
         decoration: BoxDecoration(
@@ -381,7 +381,7 @@ class DrugItem extends StatelessWidget {
                 height: 110,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  image: DecorationImage(
+                  image: const DecorationImage(
                     image: AssetImage('assets/images/product_img.png'), // Replace with relevant image
                     fit: BoxFit.cover,
                   ),
@@ -389,21 +389,21 @@ class DrugItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 120, top: 10, right: 10),
+              padding: const EdgeInsets.only(left: 120, top: 10, right: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     name,
-                    style: TextStyle(fontSize: 18),
+                    style: const TextStyle(fontSize: 18),
                   ),
                   Text(
                     brandName,
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                   Text(
                     dosage,
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
@@ -416,11 +416,11 @@ class DrugItem extends StatelessWidget {
                 children: [
                   Text(
                     quantity.toString(),
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                   Text(
                     "Rs. $price",
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
@@ -454,6 +454,8 @@ class DrugItem extends StatelessWidget {
 }
 
 class DrugItemSkeleton extends StatelessWidget {
+  const DrugItemSkeleton({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -472,7 +474,7 @@ class DrugItemSkeleton extends StatelessWidget {
               child: Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[200]!,
-                period: Duration(milliseconds: 800),
+                period: const Duration(milliseconds: 800),
                 child: Container(
                   width: 100,
                   height: 110,
@@ -484,48 +486,48 @@ class DrugItemSkeleton extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 120, top: 10, right: 10),
+              padding: const EdgeInsets.only(left: 120, top: 10, right: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 150,
                       height: 20,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 120,
                       height: 18,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 100,
                       height: 18,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
@@ -541,27 +543,27 @@ class DrugItemSkeleton extends StatelessWidget {
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 50,
                       height: 18,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Container(
                       width: 50,
                       height: 18,
                       decoration: BoxDecoration(
                         color: Colors.grey.withOpacity(0.2),
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                   ),

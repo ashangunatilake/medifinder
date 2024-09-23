@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
 
@@ -34,18 +33,18 @@ class _ResetPasswordState extends State<ResetPassword> {
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background2.png'),
             fit: BoxFit.cover,
           ),
         ),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SafeArea(child: SizedBox()),
+              const SafeArea(child: SizedBox()),
               Container(
                 padding: const EdgeInsets.all(10.0),
                 width: MediaQuery.of(context).size.width - 20.0,
@@ -64,11 +63,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 10.0,),
-                    Image(
+                    const Image(
                       image: AssetImage('assets/images/resetpassword.png')
                     ),
                     const SizedBox(height: 10.0,),
-                    Text(
+                    const Text(
                       "Password Reset Email Sent",
                       style: TextStyle(
                           fontSize: 18.0,
@@ -79,7 +78,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     const SizedBox(height: 20.0,),
                     Text(
                       "We have sent you a secure link to reset your password. Please check your email $email",
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 14.0
                       ),
                     ),
@@ -92,7 +91,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(218, 3, 240, 212),
+                              backgroundColor: const Color.fromARGB(218, 3, 240, 212),
                             ),
                             child: const Text(
                               "Done",

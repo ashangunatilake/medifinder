@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:medifinder/controllers/customercontroller.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/services/database_services.dart';
+import 'package:badges/badges.dart' as badges;
 
 class CustomerHome extends StatefulWidget {
-  const CustomerHome({Key? key}) : super(key: key);
+  const CustomerHome({super.key});
 
   @override
   State<CustomerHome> createState() => _CustomerHomeState();
@@ -15,17 +18,18 @@ class CustomerHome extends StatefulWidget {
 
 class _CustomerHomeState extends State<CustomerHome> {
   final UserDatabaseServices _databaseServices = UserDatabaseServices();
-  Location _locationController = Location();
+  final Location _locationController = Location();
   LatLng? currentP;
   LatLng? source;
   GoogleMapController? _controller;
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
   bool markerPlaced = false;
   bool mapLoaded = false;
   BitmapDescriptor? myLocationIcon;
   StreamSubscription<LocationData>? _locationSubscription;
 
   late Future<Map<String, dynamic>> _userDataFuture;
+  final customerController = Get.put(CustomerController());
 
   @override
   void initState() {
@@ -44,7 +48,7 @@ class _CustomerHomeState extends State<CustomerHome> {
 
   Future<void> loadCustomMarker() async {
     final BitmapDescriptor markerIcon = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(size: Size(200, 200)),
+      const ImageConfiguration(size: Size(200, 200)),
       'assets/images/location-pin.png',
     );
     setState(() {
@@ -53,20 +57,20 @@ class _CustomerHomeState extends State<CustomerHome> {
   }
 
   void getLocationUpdates() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-    _serviceEnabled = await _locationController.serviceEnabled();
-    if (_serviceEnabled) {
-      _serviceEnabled = await _locationController.requestService();
+    serviceEnabled = await _locationController.serviceEnabled();
+    if (serviceEnabled) {
+      serviceEnabled = await _locationController.requestService();
     } else {
       return;
     }
 
-    _permissionGranted = await _locationController.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await _locationController.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await _locationController.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _locationController.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
@@ -159,13 +163,13 @@ class _CustomerHomeState extends State<CustomerHome> {
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             markers: _markers,
-            onCameraMove: (CameraPosition _position) {
-              currentP = LatLng(_position.target.latitude, _position.target.longitude);
+            onCameraMove: (CameraPosition position) {
+              currentP = LatLng(position.target.latitude, position.target.longitude);
               setState(() {
                 _markers.clear();
                 _markers.add(
                   Marker(
-                    markerId: MarkerId('marker_id'),
+                    markerId: const MarkerId('marker_id'),
                     position: currentP!,
                     icon: myLocationIcon!,
                   ),
@@ -178,7 +182,7 @@ class _CustomerHomeState extends State<CustomerHome> {
             left: 10.0,
             child: SafeArea(
               child: Container(
-                padding: EdgeInsets.fromLTRB(14.0, 40.0, 14.0, 15.0),
+                padding: const EdgeInsets.fromLTRB(14.0, 40.0, 14.0, 15.0),
                 width: MediaQuery.of(context).size.width - 20,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -189,24 +193,24 @@ class _CustomerHomeState extends State<CustomerHome> {
                   children: [
                     Text(
                       "Welcome ${userData['Name']}",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 20.0,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5.0,
                     ),
-                    Text(
+                    const Text(
                       "Set location on map",
                       style: TextStyle(
                         fontSize: 12.0,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5.0,
                     ),
                     if (currentP != null) Text(locationString(currentP!)),
-                    SizedBox(
+                    const SizedBox(
                       height: 10.0,
                     ),
                     Row(
@@ -256,17 +260,27 @@ class _CustomerHomeState extends State<CustomerHome> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: Obx(() => badges.Badge(
+              showBadge: customerController.activitiesCount.value > 0,
+              badgeContent: Text('${customerController.activitiesCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )),
             label: "Activities",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
+            icon: Obx(() => badges.Badge(
+              showBadge: customerController.notificationCount.value > 0,
+              badgeContent: Text('${customerController.notificationCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )),
             label: "Notifications",
           ),
           BottomNavigationBarItem(

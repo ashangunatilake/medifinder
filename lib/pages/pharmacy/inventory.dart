@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:medifinder/pages/pharmacy/add_item.dart';
 import 'package:medifinder/pages/pharmacy/drugs_stock.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
+import 'package:badges/badges.dart' as badges;
 
 class Inventory extends StatefulWidget {
+  const Inventory({super.key});
+
   @override
   State<Inventory> createState() => _InventoryState();
 }
 
 class _InventoryState extends State<Inventory> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
+  final pharmacyController = Get.put(PharmacyController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Inventory Management'),
+        title: const Text('Inventory Management'),
         backgroundColor: Colors.white38,
         elevation: 0.0,
       ),
@@ -31,11 +37,11 @@ class _InventoryState extends State<Inventory> {
             return _buildLoadingSkeleton();
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return Text('No data available');
+            return const Text('No data available');
           } else {
             var docs = snapshot.data!;
             return Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/images/background2.png'),
                   fit: BoxFit.cover,
@@ -47,17 +53,17 @@ class _InventoryState extends State<Inventory> {
                   mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SafeArea(child: SizedBox()),
+                    const SafeArea(child: SizedBox()),
                     Text(
                       docs['Name'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 28,
                         color: Colors.white,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Expanded(
                       child: GridView.count(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -70,7 +76,7 @@ class _InventoryState extends State<Inventory> {
                               context,
                               'Drugs In Store',
                               Icons.local_pharmacy,
-                              Color.fromRGBO(21, 201, 180, 1),
+                              const Color.fromRGBO(21, 201, 180, 1),
                               DrugStock(pharmacyDoc: docs)
                           ),
                           _buildCard(
@@ -78,7 +84,7 @@ class _InventoryState extends State<Inventory> {
                             'Add New Drug',
                             Icons.add,
                             Colors.white,
-                            AddItem(),
+                            const AddItem(),
                           ),
                         ],
                       ),
@@ -92,20 +98,30 @@ class _InventoryState extends State<Inventory> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: Obx(() => badges.Badge(
+              showBadge: pharmacyController.ordersCount.value > 0,
+              badgeContent: Text('${pharmacyController.ordersCount.value}',
+              style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )),
             label: "Orders",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
+            icon: Obx(() => badges.Badge(
+              showBadge: pharmacyController.notificationCount.value > 0,
+              badgeContent: Text('${pharmacyController.notificationCount.value}',
+              style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )),
             label: "Notifications",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: "Profile"
           )
@@ -123,7 +139,7 @@ class _InventoryState extends State<Inventory> {
 
   Widget _buildLoadingSkeleton() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage('assets/images/background2.png'),
           fit: BoxFit.cover,
@@ -135,21 +151,21 @@ class _InventoryState extends State<Inventory> {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SafeArea(child: SizedBox()),
+            const SafeArea(child: SizedBox()),
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
               highlightColor: Colors.grey[200]!,
-              period: Duration(milliseconds: 800),
+              period: const Duration(milliseconds: 800),
               child: Container(
                 height: 28,
                 width: 150,
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: GridView.count(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -161,7 +177,7 @@ class _InventoryState extends State<Inventory> {
                   return Shimmer.fromColors(
                     baseColor: Colors.grey[400]!,
                     highlightColor: Colors.grey[200]!,
-                    period: Duration(milliseconds: 800),
+                    period: const Duration(milliseconds: 800),
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -169,7 +185,7 @@ class _InventoryState extends State<Inventory> {
                       elevation: 5,
                       color: Colors.grey.withOpacity(0.2),
                       child: Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                       ),
                     ),
                   );
@@ -196,7 +212,7 @@ class _InventoryState extends State<Inventory> {
         elevation: 5,
         color: color,
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -204,17 +220,17 @@ class _InventoryState extends State<Inventory> {
                 icon,
                 size: 50,
                 color: color == Colors.white
-                    ? Color.fromRGBO(21, 201, 180, 1)
+                    ? const Color.fromRGBO(21, 201, 180, 1)
                     : Colors.white,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
                   color: color == Colors.white
-                      ? Color.fromRGBO(21, 201, 180, 1)
+                      ? const Color.fromRGBO(21, 201, 180, 1)
                       : Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

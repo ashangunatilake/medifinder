@@ -44,7 +44,7 @@ class UserReview {
     Timestamp? timestamp,
   }) {
     return UserReview(
-      id: this.id,
+      id: id,
       rating: rating ?? this.rating,
       comment: comment ?? this.comment,
       timestamp: timestamp ?? this.timestamp,

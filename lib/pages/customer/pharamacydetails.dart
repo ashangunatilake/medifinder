@@ -79,12 +79,12 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                 children: [
                   Text(
                     overallRating.toStringAsFixed(1),
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.w500
                     ),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.star,
                     color: Colors.amber,
                     size: 26.0,
@@ -138,13 +138,13 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                       children: [
                         Text(
                           "${drugData['BrandName'].toString().capitalize} ${drugData['Dosage']}",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20.0,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 12.0,
                     ),
                     Row(
@@ -152,25 +152,25 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                       children: [
                         Text(
                           "Rs. ${drugData['UnitPrice'].toString()}",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20.0,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5.0,
                     )
                   ],
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10.0,
             ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.fromLTRB(10.0, 0, 10.0, 5.0),
+                margin: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 5.0),
                 width: MediaQuery.of(context).size.width,
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -232,7 +232,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                   return ListView.builder(
                                       itemCount: 5,
                                       itemBuilder: (context, index) {
-                                        return Column(
+                                        return const Column(
                                           children: [
                                             LatestReviewItemSkeleton(),
                                           ],
@@ -241,7 +241,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                   );
                                 }
                                 if (!snapshot.hasData || snapshot.data == null) {
-                                  return Text('No data available');
+                                  return const Text('No data available');
                                 } else {
                                   List<UserReview> reviews = snapshot.data!.docs
                                       .map((doc) => doc.data())
@@ -260,7 +260,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                               userSnapshot) {
                                             if (userSnapshot.connectionState ==
                                                 ConnectionState.waiting) {
-                                              return Column(
+                                              return const Column(
                                                   children: [
                                                     LatestReviewItemSkeleton(),
                                                     SizedBox(height: 5.0),
@@ -268,7 +268,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                               );
                                             }
                                             if (userSnapshot.hasError) {
-                                              return ListTile(
+                                              return const ListTile(
                                                 title: Text('Error loading data'),
                                               );
                                             }
@@ -285,7 +285,7 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                                   ]
                                               );
                                             } else {
-                                              return ListTile(
+                                              return const ListTile(
                                                 title: Text('No data'),
                                               );
                                             }
@@ -446,7 +446,7 @@ class LatestReviewItem extends StatelessWidget {
                   top: 9.0),
               child: Text(
                 userData.name,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 14.0,
                     fontWeight:
                     FontWeight
@@ -462,19 +462,19 @@ class LatestReviewItem extends StatelessWidget {
               itemCount: 5,
               itemSize: 24.0,
               itemPadding:
-              EdgeInsets.symmetric(
+              const EdgeInsets.symmetric(
                   horizontal: 2.0),
               ratingWidget:
               RatingWidget(
-                full: Icon(
+                full: const Icon(
                   Icons.star,
                   color: Colors.amber,
                 ),
-                half: Icon(
+                half: const Icon(
                   Icons.star,
                   color: Colors.amber,
                 ),
-                empty: Icon(
+                empty: const Icon(
                   Icons.star,
                   color: Colors.grey,
                 ),
@@ -493,7 +493,7 @@ class LatestReviewItem extends StatelessWidget {
               horizontal: 9.0),
           child: Text(
             review.comment,
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 14.0),
           ),
         ),
@@ -522,18 +522,18 @@ class LatestReviewItemSkeleton extends StatelessWidget {
               child: Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[200]!,
-                period: Duration(milliseconds: 800),
+                period: const Duration(milliseconds: 800),
                 child: Container(
                   width: 100.0, // Adjust width as necessary
                   height: 14.0,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),
             ),
-            Container(
+            SizedBox(
               height: 24.0,
               child: Row(
                 children: List.generate(5, (index) {
@@ -542,13 +542,13 @@ class LatestReviewItemSkeleton extends StatelessWidget {
                     child: Shimmer.fromColors(
                       baseColor: Colors.grey[400]!,
                       highlightColor: Colors.grey[200]!,
-                      period: Duration(milliseconds: 800),
+                      period: const Duration(milliseconds: 800),
                       child: Container(
                         width: 24.0,
                         height: 24.0,
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.2),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                     ),
@@ -564,13 +564,13 @@ class LatestReviewItemSkeleton extends StatelessWidget {
           child: Shimmer.fromColors(
             baseColor: Colors.grey[400]!,
             highlightColor: Colors.grey[200]!,
-            period: Duration(milliseconds: 800),
+            period: const Duration(milliseconds: 800),
             child: Container(
               width: double.infinity,
               height: 14.0,
               decoration: BoxDecoration(
                 color: Colors.grey.withOpacity(0.2),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
             ),
           ),
@@ -592,14 +592,14 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Delivery :",
                 style: TextStyle(
                   fontSize: 20.0,
                 ),
               ),
               if(data['DeliveryServiceAvailability'] && radius == 5.0)
-                Text(
+                const Text(
                   "Available",
                   style: TextStyle(
                       fontSize: 16.0,
@@ -607,7 +607,7 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
                   ),
                 ),
               if(data['DeliveryServiceAvailability'] && radius == 10.0)
-                Text(
+                const Text(
                   "Not-Available",
                   style: TextStyle(
                       fontSize: 16.0,
@@ -615,17 +615,17 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
                   ),
                 ),
               if(!data['DeliveryServiceAvailability'])
-                Text(
+                const Text(
                   "Not-Available",
                   style: TextStyle(
                       fontSize: 16.0,
                       color: Color(0xFFFF0F0F)
                   ),
                 ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
-              Text(
+              const Text(
                   "Note :\nPrescription should be uploaded"
               ),
             ],
@@ -652,7 +652,7 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 14.0,
                 ),
                 Expanded(
@@ -680,7 +680,6 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
             )
           ],
         );
-
       }
   );
 }

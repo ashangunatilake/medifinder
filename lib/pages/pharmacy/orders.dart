@@ -1,11 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:medifinder/controllers/pharmacycontroller.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/services/pharmacy_database_services.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:badges/badges.dart' as badges;
 
 class Orders extends StatefulWidget {
+  const Orders({super.key});
+
   @override
   State<Orders> createState() => _OrdersState();
 }
@@ -14,6 +19,7 @@ class _OrdersState extends State<Orders> {
   final PharmacyDatabaseServices _databaseServices = PharmacyDatabaseServices();
   final UserDatabaseServices _userDatabaseServices = UserDatabaseServices();
   User? user = FirebaseAuth.instance.currentUser;
+  final PharmacyController pharmacyController = Get.find();
 
   bool accepted = false;
 
@@ -31,9 +37,9 @@ class _OrdersState extends State<Orders> {
           child: Column(
             children: [
               Container(
-                margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
+                margin: const EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -48,17 +54,17 @@ class _OrdersState extends State<Orders> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                         height:20.0
                     ),
-                    Text(
+                    const Text(
                       "Customer Orders",
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 30.0,
                     ),
                     Row(
@@ -71,16 +77,16 @@ class _OrdersState extends State<Orders> {
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
-                                        color: !accepted ? Colors.grey : Color(0xFFFFFFFF),
+                                        color: !accepted ? Colors.grey : const Color(0xFFFFFFFF),
                                         width: 2.0,
                                       )
                                   )
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Pending",
                                 style: TextStyle(
                                     fontSize: 14.0
@@ -98,16 +104,16 @@ class _OrdersState extends State<Orders> {
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 5.0),
+                              padding: const EdgeInsets.symmetric(vertical: 5.0),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
-                                        color: accepted ? Colors.grey : Color(0xFFFFFFFF),
+                                        color: accepted ? Colors.grey : const Color(0xFFFFFFFF),
                                         width: 2.0,
                                       )
                                   )
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Accepted",
                                 style: TextStyle(
                                     fontSize: 14.0
@@ -123,7 +129,7 @@ class _OrdersState extends State<Orders> {
                 ),
               ),
               Expanded(
-                child: Container(
+                child: SizedBox(
                   //margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                   width: MediaQuery.of(context).size.width,
                   child: StreamBuilder<List<DocumentSnapshot>>(
@@ -141,7 +147,7 @@ class _OrdersState extends State<Orders> {
                           );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
-                          return Text('No data available');
+                          return const Text('No data available');
                         }
                         else {
                           var docs = snapshot.data!;
@@ -162,7 +168,7 @@ class _OrdersState extends State<Orders> {
                                       }
                                       if (!snapshot.hasData ||
                                           snapshot.data == null) {
-                                        return Text('No data available');
+                                        return const Text('No data available');
                                       }
                                       var userDoc = snapshot.data!;
                                       return Padding(
@@ -181,7 +187,7 @@ class _OrdersState extends State<Orders> {
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius: BorderRadius.circular(10),
-                                              boxShadow: [
+                                              boxShadow: const [
                                                 BoxShadow(
                                                   color: Colors.black26,
                                                   blurRadius: 4.0,
@@ -192,7 +198,7 @@ class _OrdersState extends State<Orders> {
                                             padding: const EdgeInsets.all(16.0),
                                             child: Text(
                                               userDoc['Name'],
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 18.0,
                                               ),
@@ -215,20 +221,30 @@ class _OrdersState extends State<Orders> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: Obx(() => badges.Badge(
+              showBadge: pharmacyController.ordersCount.value > 0,
+              badgeContent: Text('${pharmacyController.ordersCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.shopping_cart),
+            )),
             label: "Orders",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
+            icon: Obx(() => badges.Badge(
+              showBadge: pharmacyController.notificationCount.value > 0,
+              badgeContent: Text('${pharmacyController.notificationCount.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),),
+              child: const Icon(Icons.notifications),
+            )),
             label: "Notifications",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: "Profile"
           )
@@ -256,7 +272,7 @@ class OrdersSkeleton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 4.0,
@@ -271,12 +287,12 @@ class OrdersSkeleton extends StatelessWidget {
               child: Shimmer.fromColors(
                 baseColor: Colors.grey[400]!,
                 highlightColor: Colors.grey[200]!,
-                period: Duration(milliseconds: 800),
+                period: const Duration(milliseconds: 800),
                 child: Container(
                   height: 20.0,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
                   ),
                 ),
               ),

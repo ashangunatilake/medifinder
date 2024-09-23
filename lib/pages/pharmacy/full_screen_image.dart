@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class FullScreenImagePage extends StatelessWidget {
   final String imageUrl;
 
-  FullScreenImagePage({required this.imageUrl});
+  const FullScreenImagePage({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Prescription"),
+        title: const Text("Prescription"),
         backgroundColor: const Color(0xFF399479),
         elevation: 0.0,
         titleTextStyle: const TextStyle(
