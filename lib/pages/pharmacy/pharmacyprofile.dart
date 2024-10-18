@@ -29,6 +29,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
   late TextEditingController openingTimeController;
   late TextEditingController closingTimeController;
   late TextEditingController locationController;
+  late TextEditingController deliveryRateController;
   final _formkey = GlobalKey<FormState>();
   bool enabled = false;
   bool nameFieldModified = false;
@@ -36,7 +37,10 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
   bool timeFieldModified = false;
   bool locationFieldModified = false;
   bool loaded = false;
+  bool deliveryFieldModified = false;
+  bool deliveryRateFieldModified = false;
   LatLng location = const LatLng(0, 0);
+  bool delivery = true;
   late GeoPoint point;
 
   @override
@@ -48,6 +52,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
     openingTimeController = TextEditingController();
     closingTimeController = TextEditingController();
     locationController = TextEditingController();
+    deliveryRateController = TextEditingController();
 
     _fetchUserData();
 
@@ -64,8 +69,8 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
     locationController.addListener(() {
       if (locationController.text != "(${point.latitude.toStringAsFixed(4)},${point.longitude.toStringAsFixed(4)})") {
         setState(() {
-          locationFieldModified = true;
-        });
+        locationFieldModified = true;
+      });
       }
     });
     openingTimeController.addListener(() {
@@ -78,8 +83,12 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
         timeFieldModified = true;
       });
     });
-
-
+    deliveryRateController.addListener(() {
+      print("delivery rate changed");
+      setState(() {
+        deliveryRateFieldModified = true;
+      });
+    });
   }
 
   Future<void> _fetchUserData() async {
@@ -95,6 +104,8 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
           closingTimeController.text = userData['HoursOfOperation'].split(' - ')[1];
           point = userData['Position']['geopoint'];
           locationController.text = "(${point.latitude.toStringAsFixed(4)},${point.longitude.toStringAsFixed(4)})";
+          delivery = userData['DeliveryServiceAvailability'];
+          deliveryRateController.text = userData['DeliveryRate'].toString();
         });
       }
     } catch (e) {
@@ -175,6 +186,19 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
     if (locationFieldModified) {
       GeoFirePoint pharmacyLocation = geo.point(latitude: location.latitude, longitude: location.longitude);
       updatedUser = updatedUser.copyWith(position: pharmacyLocation);
+    }
+    if (deliveryFieldModified) {
+      updatedUser = updatedUser.copyWith(isDeliveryAvailable: delivery);
+      if (!delivery) {
+        deliveryRateController.text = "0.0";
+      }
+    }
+    if (deliveryRateFieldModified) {
+      var rate = double.tryParse(deliveryRateController.text.trim());
+      if (rate == null) {
+        print("Delivery rate not a number");
+      }
+      updatedUser = updatedUser.copyWith(deliveryRate: rate);
     }
     return updatedUser;
   }
@@ -263,6 +287,57 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
                       const SizedBox(height: 10.0),
                       _buildTextFieldRow("Closing Time", closingTimeController, enabled),
                       const SizedBox(height: 10.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 110.0,
+                              child: Text("Delivery", style: TextStyle(fontSize: 16.0)),
+                            ),
+                            const SizedBox(height: 16.0),
+                            Expanded(
+                              child: DropdownButton(
+                                onChanged: enabled? (bool? selectedValue) {
+                                  setState(() {
+                                    delivery = selectedValue!;
+                                    deliveryFieldModified = true;
+                                  }); 
+                                } : null,
+                                isExpanded: true,
+                                value: delivery,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: true,
+                                    child: Text(
+                                      "Available",
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: false,
+                                    child: Text(
+                                      "Not Available",
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal
+                                      ),
+                                    )
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        )
+                      ),
+                      (enabled)? _buildTextFieldRow("Delivery Rate (Rs.)", deliveryRateController, enabled) : const SizedBox(height: 0),
+                      (enabled)? const SizedBox(height: 10.0) : const SizedBox(height: 0),
                       _buildTextFieldRow("Location", locationController, enabled),
                       const SizedBox(height: 30.0),
                       _buildActionButtons(context),
@@ -276,7 +351,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
         ),
       ),
     );
-  }
+}
 
   Widget _buildTextFieldRow(String label, TextEditingController controller, bool enabled) {
     return Padding(
@@ -291,10 +366,11 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
           const SizedBox(height: 16.0),
           Expanded(
             child: TextFormField(
-              enabled: enabled,
+              enabled: (label == "Delivery Rate (Rs.)") ? ((delivery && enabled) ? true : false) : enabled,
               readOnly: (label == "Opening Time" || label == "Closing Time" || label == "Location") ? true : false,
               controller: controller,
-              validator: (value) => (label == "Opening Time" || label == "Closing Time" || label == "Location" || label == "Name") ? Validator.validateEmptyText(label, value) : (label == "Mobile No." ? Validator.validateMobileNumber(value) : null),
+              validator: (value) => (label == "Opening Time" || label == "Closing Time" || label == "Location" || label == "Name") ? Validator.validateEmptyText(label, value) : (label == "Delivery Rate (Rs.)" ? Validator.validateDeliveryRate(value) : (label == "Mobile No." ? Validator.validateMobileNumber(value) : null)),
+              keyboardType: label == "Delivery Rate (Rs.)" ? TextInputType.number : TextInputType.text,
               style: const TextStyle(fontSize: 14.0, color: Colors.black),
               onTap: () {
                 if ((label == "Opening Time" || label == "Closing Time") && enabled) {
@@ -376,7 +452,7 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
               //   mobileFieldModified = false;
               // });
               Snackbars.successSnackBar(message: "Updated successfully", context: context);
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView(index: 3)), (route) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const PharmacyView(index: 3)), (route) => false);
             },
           ),
       ],

@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lottie/lottie.dart';
@@ -205,99 +203,99 @@ class _SearchState extends State<Search> {
               )
             else if (searched && !waiting)
               (filteredPharmacies.isEmpty && radius == 5.0) ?
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: 1,
-                    padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          const SizedBox(height: 10.0,),
-                          Container(
-                            width: MediaQuery.of(context).size.width,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0x40FFFFFF),
-                                  blurRadius: 4.0,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 14.0, right: 14.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Lottie.network('https://lottie.host/76a6dd18-442e-4c72-b74b-621f93a5c093/dUL4MzxPZc.json'),
-                                  const SizedBox(height: 20.0),
-                                  Text(
-                                    "No nearby pharmacies found within 5 km radius with the drug ${searchController.text.toString().capitalize}. Do you want to extend your search to 10 km radius?",
-                                    style: const TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold
-                                    ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: 1,
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        const SizedBox(height: 10.0,),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0x40FFFFFF),
+                                blurRadius: 4.0,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 14.0, right: 14.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Lottie.network('https://lottie.host/76a6dd18-442e-4c72-b74b-621f93a5c093/dUL4MzxPZc.json'),
+                                const SizedBox(height: 20.0),
+                                Text(
+                                  "No nearby pharmacies found within 5 km radius with the drug ${searchController.text.toString().capitalize}. Do you want to extend your search to 10 km radius?",
+                                  style: const TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold
                                   ),
-                                  const SizedBox(height: 10.0,),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          setState(() {
-                                            waiting = true;
-                                          });
-                                          print(searchController.text.trim().toLowerCase());
-                                          radius = 10.0;
-                                          filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase(), radius);
-                                          setState(() {
-                                            searched = true;
-                                            waiting = false;
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF0CAC8F),
-                                            padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0)
-                                        ),
-                                        child: const Text(
-                                          "Extend",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
+                                ),
+                                const SizedBox(height: 10.0,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          waiting = true;
+                                        });
+                                        print(searchController.text.trim().toLowerCase());
+                                        radius = 10.0;
+                                        filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase(), radius);
+                                        setState(() {
+                                          searched = true;
+                                          waiting = false;
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF0CAC8F),
+                                          padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0)
+                                      ),
+                                      child: const Text(
+                                        "Extend",
+                                        style: TextStyle(
+                                          color: Colors.white,
                                         ),
                                       ),
-                                      ElevatedButton(
-                                        onPressed: ()
-                                        {
-                                          setState(() {
-                                            radius = 10.0;
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFFFFFFFF),
-                                            padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
-                                            side: const BorderSide(color: Color(0xFF0CAC8F))
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: ()
+                                      {
+                                        setState(() {
+                                          radius = 10.0;
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFFFFFFFF),
+                                          padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                          side: const BorderSide(color: Color(0xFF0CAC8F))
+                                      ),
+                                      child: const Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                          color: Color(0xFF0CAC8F),
                                         ),
-                                        child: const Text(
-                                          "Cancel",
-                                          style: TextStyle(
-                                            color: Color(0xFF0CAC8F),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ],
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ): (filteredPharmacies.isEmpty && radius == 10.0) ?
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ): (filteredPharmacies.isEmpty && radius == 10.0) ?
               Column(
                 children: [
                   const SizedBox(height: 10.0,),
@@ -328,7 +326,7 @@ class _SearchState extends State<Search> {
                   ),
                 ],
               ) :
-              
+
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -546,7 +544,6 @@ class PharmacyItemSkeleton extends StatelessWidget {
     );
   }
 }
-
 
 
 

@@ -58,4 +58,21 @@ class Validator {
     return null;
   }
 
+  static String? validateDeliveryRate(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Delivery rate is required";
+    }
+
+    var rate = double.tryParse(value);
+    if (rate == null) {
+      return "Delivery rate is not a number";
+    }
+
+    if (rate == 0) {
+      return "Delivery rate cannot be zero";
+    }
+
+    return null;
+  }
+
 }

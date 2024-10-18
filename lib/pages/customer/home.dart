@@ -8,6 +8,8 @@ import 'package:location/location.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
+import 'package:medifinder/strings.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -29,8 +31,9 @@ class _CustomerHomeState extends State<CustomerHome> {
   StreamSubscription<LocationData>? _locationSubscription;
   final searchController = TextEditingController();
   List<dynamic> listOfLocations = [];
-  final String token = '1234567890';
-
+  final String _sessionToken = const Uuid().v4();
+  var data;
+  bool locationEnabled = false;
   late Future<Map<String, dynamic>> _userDataFuture;
 
   @override
@@ -62,21 +65,38 @@ class _CustomerHomeState extends State<CustomerHome> {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
 
+    // Check if the location service is enabled
     serviceEnabled = await _locationController.serviceEnabled();
-    if (serviceEnabled) {
-      serviceEnabled = await _locationController.requestService();
-    } else {
+    if (!serviceEnabled) {
+      // Show a non-blocking message to inform the user that location is disabled
+      setState(() {
+        locationEnabled = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Location is disabled. Please enable it for full functionality.')
+        ),
+      );
       return;
     }
 
+    // Proceed to check for location permission only after the service is enabled
     permissionGranted = await _locationController.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await _locationController.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
-        return;
+        return; // Stop if the user denies permission
       }
     }
 
+    // If both location service and permissions are enabled, update the state
+    setState(() {
+      locationEnabled = true;
+      getLocationUpdates();
+    });
+
+    // Subscribe to location changes only if service is enabled and permission is granted
     _locationSubscription = _locationController.onLocationChanged.listen((LocationData currentLocation) {
       if (currentLocation.latitude != null && currentLocation.longitude != null) {
         source = LatLng(currentLocation.latitude!, currentLocation.longitude!);
@@ -184,7 +204,7 @@ class _CustomerHomeState extends State<CustomerHome> {
             left: 10.0,
             child: SafeArea(
               child: Container(
-                padding: const EdgeInsets.fromLTRB(14.0, 40.0, 14.0, 15.0),
+                padding: const EdgeInsets.fromLTRB(14.0, 20.0, 14.0, 15.0),
                 width: MediaQuery.of(context).size.width - 20,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -209,7 +229,109 @@ class _CustomerHomeState extends State<CustomerHome> {
                       ),
                     ),
                     const SizedBox(
-                      height: 5.0,
+                      height: 10.0,
+                    ),
+                    TypeAheadField(
+                      controller: searchController,
+                      builder: (context, controller, focusNode) {
+                        return TextField(
+                          controller: searchController,
+                          focusNode: focusNode,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Color(0xFFCCC9C9),
+                              ),
+                              borderRadius: BorderRadius.circular(9.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                color: Color(0xFFCCC9C9),
+                              ),
+                              borderRadius: BorderRadius.circular(9.0),
+                            ),
+                            hintText: "Seach for a location"
+                          ),
+                        );
+                      },
+                      itemBuilder: (context, dynamic suggestion) {
+                        return ListTile(
+                          title: Text(suggestion),
+                        );
+                      },
+                      onSelected: (dynamic suggestion) async {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        searchController.text = "";
+                        final selectedSuggestion = data.firstWhere(
+                          (location) => location['description'] == suggestion,
+                          orElse: () => null,
+                        );
+                        if (selectedSuggestion != null) {
+                          print(selectedSuggestion['place_id']);
+                          try {
+                            String baseUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+                            String placeId = selectedSuggestion['place_id'];
+                            print(placeId);
+                            String request = "$baseUrl?place_id=$placeId&key=$apiKey";
+                            print(request);
+                            var response = await http.get(Uri.parse(request));
+                            if (response.statusCode == 200) {
+                              var result = json.decode(response.body);
+                              print(result["results"][0]["geometry"]["location"]["lat"]);
+                              currentP = LatLng(result["results"][0]["geometry"]["location"]["lat"], result["results"][0]["geometry"]["location"]["lng"]);
+                              if (currentP != null && _controller != null) {
+                                _controller!.animateCamera(
+                                  CameraUpdate.newCameraPosition(
+                                    CameraPosition(
+                                      target: currentP!,
+                                      zoom: 18,
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                            else {
+                              print(response.statusCode);
+                            }
+                          } catch (e) {
+                            print("hi");
+                            print(e.toString());
+                          }
+                        }
+                      },
+                      suggestionsCallback: (textEditingValue) async {
+                        listOfLocations = [];
+                        if (textEditingValue.isNotEmpty) {
+                          try {
+                            String baseUrl = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
+                            String request = "$baseUrl?input=$textEditingValue&components=country:lk&sessiontoken=$_sessionToken&key=$apiKey";
+                            var response = await http.get(Uri.parse(request));
+                            if (response.statusCode == 200) {
+                              data = json.decode(response.body)['predictions'];
+                              for (var location in data) {
+                                listOfLocations.add(location['description']);
+                              }
+                              return listOfLocations;
+                            }
+                            else {
+                              return [];
+                            }
+                          } catch (e) {
+                            print(e.toString());
+                            return [];
+                          }
+                        }
+                        else {
+                          return [];
+                        }
+                      },
+                      emptyBuilder: (context) {
+                        return const SizedBox();
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10.0,
                     ),
                     if (currentP != null) Text(locationString(currentP!)),
                     const SizedBox(
@@ -263,4 +385,5 @@ class _CustomerHomeState extends State<CustomerHome> {
     );
   }
 }
+
 

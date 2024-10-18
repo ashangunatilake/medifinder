@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:label="MediFinder"
         android:name="${applicationName}"
@@ -38,7 +39,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAGXh6d3Nnu_0ZwJ2dqgsjJmxOe6H0yglg" />
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCKItpQhQn0Dei9TKIzDn8hJ7stefyG6gg" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and

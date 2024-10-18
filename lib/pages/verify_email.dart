@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:medifinder/controllers/verifyemailcontroller.dart';
 
@@ -84,7 +82,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                     const SizedBox(height: 10.0,),
                     Text(
                       email,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16.0
                       ),
                     ),

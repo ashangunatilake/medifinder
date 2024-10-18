@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:medifinder/controllers/customercontroller.dart';
 import 'package:medifinder/pages/customer/customerview.dart';
 import 'package:medifinder/services/push_notofications.dart';
 import 'package:medifinder/snackbars/snackbar.dart';
@@ -10,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medifinder/services/database_services.dart';
 import 'package:medifinder/models/user_model.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:badges/badges.dart' as badges;
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -246,7 +243,7 @@ class _ProfileState extends State<Profile> {
               //   mobileFieldModified = false;
               // });
               Snackbars.successSnackBar(message: "Updated successfully", context: context);
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView(index: 3)), (route) => false);
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const CustomerView(index: 3)), (route) => false);
             },
           ),
       ],

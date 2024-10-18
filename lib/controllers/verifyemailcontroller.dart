@@ -46,7 +46,7 @@ class VerifyEmailController extends GetxController {
   checkEmailVerificationStatus() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     currentUser!.reload();
-    if (currentUser != null && currentUser.emailVerified) {
+    if (currentUser.emailVerified) {
       Snackbars.successSnackBar(message: "Email verified successfully.", context: context);
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }

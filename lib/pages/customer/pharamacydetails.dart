@@ -63,50 +63,15 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  pharmacyData['Name'], //"Pharmacy 1"
-                  style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w500
-                  ),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        overallRating.toStringAsFixed(1),
-                        style: const TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w500
-                        ),
-                      ),
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 26.0,
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Text(
-              "Hours of Operation - ${pharmacyData['HoursOfOperation']}",
-              style: const TextStyle(
-                  fontSize: 14.0
-              ),
-            )
-          ],
+        title: const Text(
+          "Pharmacy details"
         ),
         backgroundColor: Colors.white38,
         elevation: 0.0,
+        titleTextStyle: const TextStyle(
+            fontSize: 18.0,
+            color: Colors.black
+        ),
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -123,6 +88,73 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
               child: SizedBox(
                 height: 21.0,
               ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x40FFFFFF),
+                    blurRadius: 4.0,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 16.0, bottom: 10.0, left: 14.0, right: 14.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          pharmacyData['Name'], //"Pharmacy 1"
+                          style: const TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500
+                          ),
+                        ),
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                overallRating.toStringAsFixed(1),
+                                style: const TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500
+                                ),
+                              ),
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 26.0,
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 12.0,
+                    ),
+                    Text(
+                      "Hours of Operation - ${pharmacyData['HoursOfOperation']}",
+                      style: const TextStyle(
+                          fontSize: 16.0
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
             ),
             Container(
               margin: const EdgeInsets.only(left: 10.0, right: 10.0),
@@ -288,11 +320,11 @@ class _PharmacyDetailsState extends State<PharmacyDetails> {
                                               userSnapshot.data!.data()
                                               as UserModel;
                                               return Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    LatestReviewItem(userData: userData, review: review),
-                                                    //SizedBox(height: 5.0),
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  LatestReviewItem(userData: userData, review: review),
+                                                  //SizedBox(height: 5.0),
                                                   ]
                                               );
                                             } else {
@@ -610,12 +642,19 @@ Future<void> continueDialog(context, DocumentSnapshot pharmacyDoc, DocumentSnaps
                 ),
               ),
               if(data['DeliveryServiceAvailability'] && radius == 5.0)
-                const Text(
-                  "Available",
-                  style: TextStyle(
-                      fontSize: 16.0,
-                      color: Color(0xFF008000)
-                  ),
+                Row(
+                  children: [
+                    const Text(
+                      "Available\t",
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: Color(0xFF008000)
+                      ),
+                    ),
+                    Text(
+                      "(Rs. ${data['DeliveryRate']} per km)",
+                    )
+                  ],
                 ),
               if(data['DeliveryServiceAvailability'] && radius == 10.0)
                 const Text(

@@ -7,7 +7,9 @@ import 'package:medifinder/models/drugs_model.dart';
 import 'package:medifinder/models/user_order_model.dart';
 import 'package:medifinder/models/user_review_model.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:medifinder/services/push_notofications.dart';
 import 'exception_handling_services.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 const String PHARMACIES_COLLECTION_REFERENCE = 'Pharmacies';
 
@@ -15,6 +17,7 @@ class PharmacyDatabaseServices {
   final firestore = FirebaseFirestore.instance;
 
   late final CollectionReference _pharmaciesRef;
+  final PushNotifications _pushNotifications = PushNotifications();
 
   PharmacyDatabaseServices() {
     ///// _firestore -> firestore
@@ -266,6 +269,20 @@ class PharmacyDatabaseServices {
   //   }
   // }
 
+  Future<DocumentSnapshot> getDrugById(String drugID, String pharmacyID) async {
+    try {
+      CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
+      DocumentSnapshot drugDoc = await drugsRef.doc(drugID).get();
+      if (drugDoc.exists) {
+        return drugDoc;
+      } else {
+        throw DrugNameException('Drug not found');
+      }
+    } catch (e) {
+      throw Exception('Error getting drug by id: $e');
+    }
+  }
+
   Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
     try {
       CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
@@ -462,7 +479,7 @@ class PharmacyDatabaseServices {
     }
   }
 
-  Future<void> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
+  Future<int> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
     try {
       final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
       final drugSnapshot = await drugDoc.get();
@@ -475,6 +492,8 @@ class PharmacyDatabaseServices {
         }
 
         await drugDoc.update({'Quantity': newQuantity});
+
+        return newQuantity;
       } else {
         throw DrugNameException('Drug not found.');
       }
@@ -482,5 +501,20 @@ class PharmacyDatabaseServices {
       throw Exception('Error updating drug quantity: $e');
     }
   }
+
+  Future<void> deleteImage(String imageUrl) async {
+    try {
+      final refPath = Uri.decodeFull(imageUrl.split('?').first.split('/o/').last);
+
+      final ref = FirebaseStorage.instance.ref().child(refPath);
+
+      await ref.delete();
+
+      print('File successfully deleted.');
+    } catch (e) {
+      print('Error deleting file: $e');
+    }
+  }
+
 }
 

@@ -140,15 +140,15 @@ class _ActivitiesState extends State<Activities> {
                         }
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return ListView.builder(
-                              itemCount: 5,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    ActivitiesItemSkeleton(ongoing),
-                                    const SizedBox(height: 10.0)
-                                  ],
-                                );
-                              }
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                children: [
+                                  ActivitiesItemSkeleton(ongoing),
+                                  const SizedBox(height: 10.0)
+                                ],
+                              );
+                            }
                           );
                         }
                         if (!snapshot.hasData || snapshot.data == null) {
@@ -193,9 +193,9 @@ class _ActivitiesState extends State<Activities> {
                                                         borderRadius: BorderRadius.all(Radius.circular(10)),
                                                         boxShadow: [
                                                           BoxShadow(
-                                                              color: Color(0x40FFFFFF),
-                                                              blurRadius: 4.0,
-                                                              offset: Offset(0, 4)
+                                                            color: Color(0x40FFFFFF),
+                                                            blurRadius: 4.0,
+                                                            offset: Offset(0, 4)
                                                           )
                                                         ]
                                                     ),
@@ -238,7 +238,7 @@ class _ActivitiesState extends State<Activities> {
                                                         Text(
                                                           "Pharmacy Open Hours - ${pharmacyDoc['HoursOfOperation']}",
                                                           style: const TextStyle(
-                                                              fontSize: 16.0
+                                                            fontSize: 16.0
                                                           ),
                                                         ),
                                                         const SizedBox(
@@ -356,7 +356,29 @@ class _ActivitiesState extends State<Activities> {
                                                               ),
                                                             )
                                                           ],
-                                                        ) : const SizedBox(height: 0)
+                                                        ) : Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.pushNamed(context, '/pdf', arguments: {'pharmacy': pharmacyDoc, 'userOrder': docs[index]});
+                                                                },
+                                                                style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: const Color(0xFFFFFFFF),
+                                                                    padding: const EdgeInsets.fromLTRB(45.0, 13.0, 45.0, 11.0),
+                                                                    side: const BorderSide(
+                                                                        color: Color(0xFF0CAC8F))
+                                                                ),
+                                                                child: const Text(
+                                                                  "View Invoice",
+                                                                  style: TextStyle(
+                                                                    color: Color(0xFF0CAC8F),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        )
                                                       ],
                                                     )
                                                 ),
@@ -503,15 +525,15 @@ class ActivitiesItemSkeleton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10.0),
       decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          boxShadow: [
-            BoxShadow(
-                color: Color(0x40FFFFFF),
-                blurRadius: 4.0,
-                offset: Offset(0, 4)
-            )
-          ]
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x40FFFFFF),
+            blurRadius: 4.0,
+            offset: Offset(0, 4)
+          )
+        ]
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -550,7 +572,7 @@ class ActivitiesItemSkeleton extends StatelessWidget {
               ],
             ),
             const SizedBox(
-                height: 20.0
+              height: 20.0
             ),
             Shimmer.fromColors(
               baseColor: Colors.grey[400]!,
@@ -662,4 +684,5 @@ class ActivitiesItemSkeleton extends StatelessWidget {
     );
   }
 }
+
 

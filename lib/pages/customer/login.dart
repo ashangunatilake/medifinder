@@ -61,14 +61,14 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setStringList('notifications', []);
           Navigator.pop(context);
           Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView()), (route) => false);
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const CustomerView()), (route) => false);
         }
         else if(userRole == 'pharmacy') {
           await pushNotifications.addDeviceToken(userRole, userUid);
           await prefs.setStringList('notifications', []);
           Navigator.pop(context);
           Future.delayed(Duration.zero).then((value) => Snackbars.successSnackBar(message: "Login successful", context: context));
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView()), (route) => false);
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const PharmacyView()), (route) => false);
         }
         else
         {

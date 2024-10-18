@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
@@ -309,6 +308,40 @@ class PushNotifications {
       } else {
         print('Failed, to send FCM message: ${response.statusCode}');
       }
+    }
+  }
+
+  void notifyLowStock(String deviceToken, String drugName) async {
+    final String serverAccessTokenKey = await getAccessToken();
+    String endpointFirebaseCloudMessaging = 'https://fcm.googleapis.com/v1/projects/medifinder-564fa/messages:send';
+
+    final Map<String, dynamic> message =
+    {
+      'message':
+      {
+        'token': deviceToken,
+        'notification':
+        {
+          'title': "Low Stock Alert",
+          'body': "The stock for $drugName is running low. Please restock soon."
+        }
+      }
+    };
+
+    final http.Response response = await http.post(
+      Uri.parse(endpointFirebaseCloudMessaging),
+      headers: <String, String>
+      {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $serverAccessTokenKey'
+      },
+      body: jsonEncode(message),
+    );
+
+    if(response.statusCode == 200) {
+      print('Notification sent successfully.');
+    } else {
+      print('Failed, to send FCM message: ${response.statusCode}');
     }
   }
 }

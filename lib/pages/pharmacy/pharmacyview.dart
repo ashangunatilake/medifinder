@@ -9,7 +9,7 @@ import 'package:badges/badges.dart' as badges;
 
 class PharmacyView extends StatefulWidget {
   final int index;
-  PharmacyView({Key? key, this.index = 0}) : super(key: key);
+  const PharmacyView({super.key, this.index = 0});
 
   @override
   State<PharmacyView> createState() => _PharmacyViewState();
@@ -27,6 +27,13 @@ class _PharmacyViewState extends State<PharmacyView> {
     super.initState();
     pagecontroller = PageController(initialPage: widget.index);
     currentIndex = widget.index;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    Get.delete<PharmacyController>();
   }
 
   @override

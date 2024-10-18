@@ -9,7 +9,7 @@ import 'package:badges/badges.dart' as badges;
 
 class CustomerView extends StatefulWidget {
   final int index;
-  CustomerView({Key? key, this.index = 0}) : super(key: key);
+  const CustomerView({super.key, this.index = 0});
 
   @override
   State<CustomerView> createState() => _CustomerViewState();
@@ -28,6 +28,13 @@ class _CustomerViewState extends State<CustomerView> {
     super.initState();
     pagecontroller = PageController(initialPage: widget.index);
     currentIndex = widget.index;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    Get.delete<CustomerController>();
   }
 
   @override
@@ -69,7 +76,7 @@ class _CustomerViewState extends State<CustomerView> {
             )),
             label: "Notifications",
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: "Profile",
           ),

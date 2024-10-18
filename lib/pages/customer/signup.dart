@@ -33,6 +33,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController openingtimecontroller = TextEditingController();
   TextEditingController closingtimecontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
+  TextEditingController deliveryratecontroller = TextEditingController();
   TimeOfDay openingTime = TimeOfDay.now();
   TimeOfDay closingTime = TimeOfDay.now();
   LatLng location = const LatLng(0, 0);
@@ -108,6 +109,7 @@ class _SignUpPageState extends State<SignUpPage> {
     String mobile = mobilecontroller.text.trim();
     String operationHours = '${formatTimeOfDay(openingTime)} - ${formatTimeOfDay(closingTime)}';
     bool delivery = deliveryAvailable;
+    double deliveryRate = (deliveryAvailable) ? double.parse(deliveryratecontroller.text.trim()) : 0.0;
     GeoFirePoint pharmacyLocation = geo.point(latitude: location.latitude, longitude: location.longitude);
     String password = passwordcontroller.text;
 
@@ -117,14 +119,14 @@ class _SignUpPageState extends State<SignUpPage> {
       });
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-      PharmacyModel pharmacy = PharmacyModel(id: userCredential.user!.uid, name: name, address: email, contact: mobile, ratings: 0, isDeliveryAvailable: delivery, operationHours: operationHours, position: pharmacyLocation);
+      PharmacyModel pharmacy = PharmacyModel(id: userCredential.user!.uid, name: name, address: email, contact: mobile, ratings: 0, isDeliveryAvailable: delivery, deliveryRate: deliveryRate, operationHours: operationHours, position: pharmacyLocation);
       print('User registered');
       await _pharmacyDatabaseServices.addPharmacy(userCredential.user!.uid, pharmacy);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('role', 'pharmacy');
       print("Pharmacy account created");
       Snackbars.successSnackBar(message: "Account created", context: context);
-      Navigator.pushNamed(context, "/login");
+      Navigator.pushNamed(context, '/emailverification', arguments: {'email': email});
     } on FirebaseAuthException catch (e) {
       setState(() {
         pressed = false;
@@ -300,9 +302,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       });
                                     },
                                     style: ButtonStyle(
-                                      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
-                                      backgroundColor: MaterialStateProperty.all<Color>(isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
-                                      shape: MaterialStateProperty.all<OutlinedBorder>(
+                                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
+                                      backgroundColor: WidgetStateProperty.all<Color>(isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
+                                      shape: WidgetStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(10.0),
                                         ),
@@ -335,9 +337,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       });
                                     },
                                     style: ButtonStyle(
-                                      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
-                                      backgroundColor: MaterialStateProperty.all<Color>(!isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
-                                      shape: MaterialStateProperty.all<OutlinedBorder>(
+                                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
+                                      backgroundColor: WidgetStateProperty.all<Color>(!isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
+                                      shape: WidgetStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(10.0),
                                         ),
@@ -613,6 +615,53 @@ class _SignUpPageState extends State<SignUpPage> {
                                               ),
                                             ],
                                           ),
+                                          const SizedBox(height: 5.0),
+                                          (deliveryAvailable) ? const Text(
+                                            "Delivery Rate (Rs. per km)",
+                                            style: TextStyle(
+                                                fontSize: 15.0
+                                            ),
+                                          ) : const SizedBox(height: 0),
+                                          (deliveryAvailable) ? const SizedBox(height: 5.0) : const SizedBox(height: 0),
+                                          (deliveryAvailable) ? TextFormField(
+                                            controller: deliveryratecontroller,
+                                            validator: (value) => (deliveryAvailable) ? Validator.validateDeliveryRate(value) : null,
+                                            keyboardType: TextInputType.number,
+                                            enabled: deliveryAvailable,
+                                            decoration: InputDecoration(
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 14.0),
+                                                border: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                errorBorder: OutlineInputBorder(
+                                                  borderSide: const BorderSide(
+                                                    color: Color(0xFFCCC9C9),
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(9.0),
+                                                ),
+                                                filled: true,
+                                                fillColor: const Color(0xFFF9F9F9),
+                                                hintText: "Delivery rate",
+                                                hintStyle: const TextStyle(
+                                                  fontFamily: "Poppins",
+                                                  fontSize: 15.0,
+                                                  color: Color(0xFFC4C4C4),
+                                                ),
+                                                suffixIcon: const Icon(
+                                                  Icons.money,
+                                                  color: Color(0xFFC4C4C4),
+                                                )
+                                            ),
+                                          ) : const SizedBox(height: 0),
                                           const SizedBox(height: 5.0),
                                           const Text(
                                             "Location",

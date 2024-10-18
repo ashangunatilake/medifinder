@@ -398,7 +398,7 @@ class _OrderState extends State<Order> {
                         value: true,
                         enabled: (pharmacyData['DeliveryServiceAvailability'] && radius == 5.0) ? true : false,
                         child: Text(
-                          "Deliver",
+                          "Deliver (${pharmacyData['DeliveryRate']} per km)",
                           style: (pharmacyData['DeliveryServiceAvailability'] && radius == 5.0) ? const TextStyle(fontSize: 14.0)
                               : const TextStyle(
                               fontSize: 14.0,
@@ -485,7 +485,7 @@ class _OrderState extends State<Order> {
                   const SizedBox(height: 19.0),
                   GestureDetector(
                     onTap: () {
-                      showOptions(pharmacyData['Name'], userData['Name']);
+                      showOptions(pharmacyDoc.id, userDoc.id);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
@@ -560,7 +560,7 @@ class _OrderState extends State<Order> {
                                   }
                                 }
                                 Snackbars.successSnackBar(message: "Order placed successfully", context: context);
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView(index: 1,)), (route) => false);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const CustomerView(index: 1,)), (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
                                   Snackbars.errorSnackBar(message: e.message, context: context);
@@ -583,7 +583,7 @@ class _OrderState extends State<Order> {
                                   }
                                 }
                                 Snackbars.successSnackBar(message: "Order placed successfully", context: context);
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => CustomerView(index: 1,)), (route) => false);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const CustomerView(index: 1,)), (route) => false);
                               } catch (e) {
                                 if (e is InsufficientQuantityException) {
                                   Snackbars.errorSnackBar(message: e.message, context: context);

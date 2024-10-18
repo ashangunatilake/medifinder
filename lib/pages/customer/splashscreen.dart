@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medifinder/pages/customer/customerview.dart';
-import 'package:medifinder/pages/customer/home.dart';
 import 'package:medifinder/pages/customer/loading.dart';
 import 'package:medifinder/pages/customer/login.dart';
-import 'package:medifinder/pages/pharmacy/inventory.dart';
 import 'package:medifinder/pages/pharmacy/pharmacyview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,10 +30,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (isLoggedIn) {
       if(role == 'customer') {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomerView()),);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const CustomerView()),);
       }
       else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PharmacyView(),));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PharmacyView(),));
       }
 
     }

@@ -34,7 +34,24 @@ class _OrderDetailsState extends State<OrderDetails> {
     UserOrder updatedOrder = UserOrder.fromSnapshot(orderDoc);
     updatedOrder = updatedOrder.copyWith(isAccepted: true);
     await _pharmacyDatabaseServices.updatePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id, updatedOrder);
-    await _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, updatedOrder.did, updatedOrder.quantity);
+    final int drugQuantity = await _pharmacyDatabaseServices.updateDrugQuantity(pharmacyDoc.id, updatedOrder.did, updatedOrder.quantity);
+    if (drugQuantity < 10) {
+      try {
+        Map<String, dynamic> pharmacyData = pharmacyDoc.data() as Map<String, dynamic>;
+        print('Pharmacy: ${pharmacyData['FCMTokens']}');
+        if (pharmacyData['FCMTokens'] != null) {
+          List<String> tokens = List<String>.from(pharmacyData['FCMTokens']);
+          if (tokens.isNotEmpty) {
+            for (var token in tokens) {
+              print(token);
+              _pushNotifications.notifyLowStock(token, updatedOrder.drugName);
+            }
+          }
+        }
+      } catch (e) {
+        Exception('Error getting FCM token: $e');
+      }
+    }
     print('Order Accepted');
 
     try {
@@ -52,7 +69,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
     Future.delayed(Duration.zero, () {
       Snackbars.successSnackBar(message: "Order accepted successfully", context: context);
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PharmacyView(index: 1,)), (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const PharmacyView(index: 1,)), (route) => false);
     });
   }
 

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore_interface;
 import 'package:firebase_core/firebase_core.dart';
@@ -18,6 +17,7 @@ import 'package:medifinder/pages/customer/signup.dart';
 import 'package:medifinder/pages/customer/login.dart';
 import 'package:medifinder/pages/customer/splashscreen.dart';
 import 'package:medifinder/pages/forgotpassword.dart';
+import 'package:medifinder/pages/pdfpage.dart';
 import 'package:medifinder/pages/pharmacy/add_item.dart';
 import 'package:medifinder/pages/pharmacy/pharmacyprofile.dart';
 import 'package:medifinder/pages/pharmacy/inventory.dart';
@@ -154,6 +154,7 @@ class MyApp extends StatelessWidget {
         '/resetpassword': (context) => const ResetPassword(),
         '/message': (context) => const NotificationMessage(),
         '/emailverification': (context) => const VerifyEmail(),
+        '/pdf': (context) => const PDFViewer(),
       },
     );
   }
