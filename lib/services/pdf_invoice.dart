@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 import 'package:medifinder/models/user_model.dart';
@@ -94,14 +93,6 @@ class PdfInvoiceApi {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           buildSupplierAddress(invoice.pharmacy, pharmacyAddress, fontBold, fontRegular),
-          // pw.Container(
-          //   height: 50,
-          //   width: 50,
-          //   child: pw.BarcodeWidget(
-          //     barcode: pw.Barcode.qrCode(),
-          //     data: invoice.info.number,
-          //   ),
-          // ),
         ],
       ),
       pw.SizedBox(height: 1 * PdfPageFormat.cm),
@@ -124,14 +115,6 @@ class PdfInvoiceApi {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           buildSupplierAddress(invoice.pharmacy, pharmacyAddress, fontBold, fontRegular),
-          // pw.Container(
-          //   height: 50,
-          //   width: 50,
-          //   child: pw.BarcodeWidget(
-          //     barcode: pw.Barcode.qrCode(),
-          //     data: invoice.info.number,
-          //   ),
-          // ),
         ],
       ),
     ],
@@ -235,7 +218,6 @@ class PdfInvoiceApi {
     final netTotal = invoice.items
         .map((item) => item.unitPrice * item.quantity)
         .reduce((item1, item2) => item1 + item2);
-    //const serviceFee = 150.0 * 0.18;
     final deliveryFee = distance * 51.20;
     final total = netTotal + deliveryFee; // + serviceFee
 
@@ -255,12 +237,6 @@ class PdfInvoiceApi {
                   font: fontBold,
                   unite: true,
                 ),
-                // buildText(
-                //   title: 'Service fee (VAT included)',
-                //   value: Utils.formatPrice(serviceFee),
-                //   font: fontBold,
-                //   unite: true,
-                // ),
                 buildText(
                   title: 'Delivery fee (VAT included)',
                   value: Utils.formatPrice(deliveryFee),
@@ -286,7 +262,6 @@ class PdfInvoiceApi {
     final netTotal = invoice.items
         .map((item) => item.unitPrice * item.quantity)
         .reduce((item1, item2) => item1 + item2);
-    //const serviceFee = 150.0 * 0.18;
     final total = netTotal; // + serviceFee
 
     return pw.Container(
@@ -305,12 +280,6 @@ class PdfInvoiceApi {
                   font: fontBold,
                   unite: true,
                 ),
-                // buildText(
-                //   title: 'Service fee (VAT included)',
-                //   value: Utils.formatPrice(serviceFee),
-                //   font: fontBold,
-                //   unite: true,
-                // ),
                 pw.Divider(),
                 buildText(
                   title: 'Amount charged',

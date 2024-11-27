@@ -112,6 +112,7 @@ class _SearchState extends State<Search> {
                               });
                               radius = 5.0;
                               filteredPharmacies = await _pharmacyDatabaseServices.getNearbyPharmacies(location, searchController.text.trim().toLowerCase(), radius);
+                              print("done");
                               setState(() {
                                 searched = true;
                                 waiting = false;

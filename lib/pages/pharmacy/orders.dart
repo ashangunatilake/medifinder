@@ -126,7 +126,6 @@ class _OrdersState extends State<Orders> {
               ),
               Expanded(
                 child: SizedBox(
-                  //margin: EdgeInsets.fromLTRB(10.0,10.0,10.0,10.0),
                   width: MediaQuery.of(context).size.width,
                   child: StreamBuilder<List<DocumentSnapshot>>(
                       stream: !accepted ? _databaseServices.getUsersWithToAcceptOrders(user!.uid) : _databaseServices.getUsersWithAcceptedOrders(user!.uid),

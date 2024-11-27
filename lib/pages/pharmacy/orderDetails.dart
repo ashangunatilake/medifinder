@@ -52,7 +52,6 @@ class _OrderDetailsState extends State<OrderDetails> {
         Exception('Error getting FCM token: $e');
       }
     }
-    print('Order Accepted');
 
     try {
       UserModel userData = userDoc.data() as UserModel;
@@ -103,22 +102,14 @@ class _OrderDetailsState extends State<OrderDetails> {
               onPressed: () async {
                 final reason = reasonController.text;
                 if (reason.isNotEmpty) {
-                  //Navigator.of(context).pop(); // Close the dialog
-                  print('Order Cancelled with reason: $reason');
-
-                  // This is where you would call the backend to cancel the order
                   await _pharmacyDatabaseServices.deletePharmacyOrder(pharmacyID, userDoc.id, orderDoc.id);
-                  print('Order Cancelled');
-
                   Future.delayed(Duration.zero, () {
                     Snackbars.successSnackBar(message: "Order cancelled successfully", context: context);
                     Navigator.pushNamedAndRemoveUntil(context, '/orders', (route) => false);
                   });
 
-                  print(userDoc['FCMTokens']);
                   try {
                     UserModel userData = userDoc.data() as UserModel;
-                    print(userData.tokens);
                     List<String> tokens = List<String>.from(userData.tokens);
                     if(tokens.isNotEmpty) {
                       for(var token in tokens) {
@@ -149,11 +140,9 @@ class _OrderDetailsState extends State<OrderDetails> {
     try {
       pharmacyID = await _userDatabaseServices.getCurrentUserUid();
       pharmacyDoc = await _pharmacyDatabaseServices.getCurrentPharmacyDoc();
-      print("!!! $pharmacyDoc['Name']");
       final args = ModalRoute.of(context)!.settings.arguments as Map?;
       if (args != null) {
         userDoc = args['selectedUser'] as DocumentSnapshot;
-        print("!!! $userDoc['Name']");
         accepted = args['accepted'] as bool;
         user.add(userDoc);
       }
@@ -304,8 +293,6 @@ class _OrderDetailsState extends State<OrderDetails> {
                                     if (!accepted) ElevatedButton(
                                       onPressed: () {
                                         _acceptOrder(docs[index] as DocumentSnapshot<Map<String, dynamic>>);
-                                        // Send a notification to the user
-                                        
                                       },
                                       style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color.fromARGB(255, 69, 255, 236)
@@ -318,9 +305,6 @@ class _OrderDetailsState extends State<OrderDetails> {
                                     if (!accepted) ElevatedButton(
                                         onPressed: () {
                                           _cancelOrder(context, docs[index] as DocumentSnapshot<Map<String, dynamic>>);
-
-                                          // Send a notification to the user with the reason
-
                                         },
                                         style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color.fromARGB(245, 72, 70, 70)

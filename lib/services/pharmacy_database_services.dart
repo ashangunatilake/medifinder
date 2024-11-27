@@ -20,7 +20,6 @@ class PharmacyDatabaseServices {
   final PushNotifications _pushNotifications = PushNotifications();
 
   PharmacyDatabaseServices() {
-    ///// _firestore -> firestore
     _pharmaciesRef = firestore.collection(PHARMACIES_COLLECTION_REFERENCE).withConverter<PharmacyModel>(
         fromFirestore: (snapshots, _) => PharmacyModel.fromSnapshot(
           snapshots,),
@@ -112,14 +111,6 @@ class PharmacyDatabaseServices {
       toFirestore: (review, _) => review.toJson(),
     ).snapshots();
   }
-
-  // Future<void> addPharmacyReview(String pharmacyID, String reviewID, UserReview review) async {
-  //   try {
-  //     await _pharmaciesRef.doc(pharmacyID).collection('Reviews').doc(reviewID).set(review.toJson());
-  //   } catch (e) {
-  //     throw Exception('Error adding pharmacy review: $e');
-  //   }
-  // }
 
   Future<void> addPharmacyReview(String pharmacyID, String reviewID, UserReview review) async {
     try {
@@ -227,19 +218,23 @@ class PharmacyDatabaseServices {
         QuerySnapshot drugsSnapshotName = await drugsCollection.where('Name', isEqualTo: medication).get();
         if (drugsSnapshotName.docs.isNotEmpty) {
           for (var drug in drugsSnapshotName.docs) {
-            filteredPharmacies.add({
-              'pharmacy': pharmacy,
-              'drug': drug,
-            });
+            if (drug['Quantity'] > 0) {
+              filteredPharmacies.add({
+                'pharmacy': pharmacy,
+                'drug': drug,
+              });
+            }
           }
         } else {
           QuerySnapshot drugsSnapshotBrandName = await drugsCollection.where('BrandName', isEqualTo: medication).get();
           if (drugsSnapshotBrandName.docs.isNotEmpty) {
             for (var drug in drugsSnapshotBrandName.docs) {
-              filteredPharmacies.add({
-                'pharmacy': pharmacy,
-                'drug': drug,
-              });
+              if ((drug['Quantity']) > 0) {
+                filteredPharmacies.add({
+                  'pharmacy': pharmacy,
+                  'drug': drug,
+                });
+              }
             }
           }
         }
@@ -249,25 +244,6 @@ class PharmacyDatabaseServices {
       throw Exception('Error filtering pharmacies by medication: $e');
     }
   }
-
-  // Future<DocumentSnapshot> getDrugByName(String name, String pharmacyID) async {
-  //   try {
-  //     CollectionReference drugsRef = _pharmaciesRef.doc(pharmacyID).collection('Drugs');
-  //     QuerySnapshot querySnapshotName = await drugsRef.where('Name', isEqualTo: name).get();
-  //     if (querySnapshotName.docs.isNotEmpty) {
-  //       return querySnapshotName.docs.first;
-  //     } else {
-  //       QuerySnapshot querySnapshotBrandName = await drugsRef.where('BrandName', isEqualTo: name).get();
-  //       if (querySnapshotBrandName.docs.isNotEmpty) {
-  //         return querySnapshotBrandName.docs.first;
-  //       } else{
-  //         throw Exception('No such document.');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Error getting drug by name: $e');
-  //   }
-  // }
 
   Future<DocumentSnapshot> getDrugById(String drugID, String pharmacyID) async {
     try {
@@ -464,7 +440,7 @@ class PharmacyDatabaseServices {
       final drugDoc = _pharmaciesRef.doc(pharmacyID).collection('Drugs').doc(drugID);
       final drugSnapshot = await drugDoc.get();
 
-      if(drugSnapshot.exists) {
+      if (drugSnapshot.exists) {
         final currentQuantity = drugSnapshot.data()?['Quantity'] ?? 0.0;
         final newQuantity = currentQuantity - quantity;
 
@@ -475,9 +451,14 @@ class PharmacyDatabaseServices {
         throw DrugNameException('Drug not found.');
       }
     } catch (e) {
-      throw Exception('Error updating drug quantity: $e');
+      if (e is! InsufficientQuantityException && e is! DrugNameException) {
+        throw Exception('Error updating drug quantity: $e');
+      }
+      rethrow;
     }
   }
+
+
 
   Future<int> updateDrugQuantity(String pharmacyID, String drugID, int quantity) async {
     try {

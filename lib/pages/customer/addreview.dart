@@ -275,9 +275,7 @@ class _AddReviewState extends State<AddReview> {
                           const SizedBox(
                             height: 10.0,
                           )
-
                         ],
-
                       )
                   )
               ),

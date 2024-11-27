@@ -41,14 +41,6 @@ class FullScreenImagePage extends StatelessWidget {
                 )
                     : Image.asset(imageUrl),
               ),
-              // Positioned(
-              //   top: 40,
-              //   right: 20,
-              //   child: IconButton(
-              //     icon: Icon(Icons.close, color: Colors.black, size: 30),
-              //     onPressed: () => Navigator.of(context).pop(),
-              //   ),
-              // ),
             ],
           ),
         ),

@@ -25,7 +25,6 @@ class VerifyEmailController extends GetxController {
       print("success");
       Snackbars.successSnackBar(message: "Email sent. Please check your inbox and verify your email.", context: context);
     } catch (e) {
-      print("hello $e");
       Snackbars.errorSnackBar(message: "An error occurred. Please try again later", context: context);
     }
   }
@@ -33,7 +32,6 @@ class VerifyEmailController extends GetxController {
   setTimerForAutoRedirect() {
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       await FirebaseAuth.instance.currentUser?.reload();
-      print("Timer");
       final user = FirebaseAuth.instance.currentUser;
       if (user?.emailVerified ?? false) {
         timer.cancel();

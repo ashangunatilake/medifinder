@@ -42,18 +42,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formkey = GlobalKey<FormState>();
   bool pressed = false;
 
-  // Future<void> storeUserData(String userID) async {
-  //   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   UserModel user = UserModel(
-  //     id: userID,
-  //     name: namecontroller.text,
-  //     email: emailcontroller.text,
-  //     mobile: mobilecontroller.text,
-  //   );
-  //   String userdata = jsonEncode(user);
-  //   sharedPreferences.setString('userdata', userdata);
-  // }
-
   Future<void> userSignUp() async {
 
     if (!_formkey.currentState!.validate()) {
@@ -81,8 +69,6 @@ class _SignUpPageState extends State<SignUpPage> {
       await _userDatabaseServices.addUser(userCredential.user!.uid, user);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('role', 'customer');
-      //storeUserData(userCredential.user!.uid);
-      print("User account created");
       Snackbars.successSnackBar(message: "Account created", context: context);
       Navigator.pushNamed(context, '/emailverification', arguments: {'email': email});
     } on FirebaseAuthException catch (e) {
@@ -302,9 +288,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       });
                                     },
                                     style: ButtonStyle(
-                                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
-                                      backgroundColor: WidgetStateProperty.all<Color>(isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
-                                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                                      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
+                                      backgroundColor: MaterialStateProperty.all<Color>(isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
+                                      shape: MaterialStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(10.0),
                                         ),
@@ -327,9 +313,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                       ],
                                     )
                                 ),
-                                // const SizedBox(
-                                //   width: 51.0,
-                                // ),
                                 ElevatedButton(
                                     onPressed: () {
                                       setState(() {
@@ -337,9 +320,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                       });
                                     },
                                     style: ButtonStyle(
-                                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
-                                      backgroundColor: WidgetStateProperty.all<Color>(!isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
-                                      shape: WidgetStateProperty.all<OutlinedBorder>(
+                                      overlayColor: MaterialStateProperty.all<Color>(Colors.transparent), // Remove default overlay color
+                                      backgroundColor: MaterialStateProperty.all<Color>(!isPressedUser ? const Color(0xFFE2D7D7): Colors.white), // Change background color based on pressed state
+                                      shape: MaterialStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(10.0),
                                         ),

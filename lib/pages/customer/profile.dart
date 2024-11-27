@@ -208,7 +208,6 @@ class _ProfileState extends State<Profile> {
             "Log out",
                 () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              //prefs.remove('isLoggedIn');
               await prefs.clear();
 
               final String? deviceToken = await _pushNotifications.getDeviceToken();
@@ -236,12 +235,6 @@ class _ProfileState extends State<Profile> {
                 return;
               }
               await _userDatabaseServices.updateUser(userDoc.id, _updateUserProfile(userDoc));
-              print('Updated successfully!');
-              // setState(() {
-              //   enabled = false;
-              //   nameFieldModified = false;
-              //   mobileFieldModified = false;
-              // });
               Snackbars.successSnackBar(message: "Updated successfully", context: context);
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const CustomerView(index: 3)), (route) => false);
             },

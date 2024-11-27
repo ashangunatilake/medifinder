@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -173,7 +172,6 @@ class _OrderState extends State<Order> {
     final lastIndex = path.lastIndexOf(RegExp(r'.png|.jp'));
     final fileName = path.substring(0,lastIndex);
     final outputPath = "${fileName}_out${path.substring(lastIndex)}";
-    print(outputPath);
     if (lastIndex == path.lastIndexOf(RegExp(r'.png'))) {
       final compressedImage = await FlutterImageCompress.compressAndGetFile(
           path,
@@ -195,7 +193,6 @@ class _OrderState extends State<Order> {
       );
       return compressedImage;
     }
-
   }
 
   //Image Picker function to get image from gallery
@@ -271,7 +268,6 @@ class _OrderState extends State<Order> {
         location: location,
       );
       await _pharmacyDatabaseServices.addPharmacyOrder(pid, uid, order);
-      print('User order added successfully!');
     } catch (e) {
       Snackbars.errorSnackBar(message: "Error placing the order", context: context);
     }

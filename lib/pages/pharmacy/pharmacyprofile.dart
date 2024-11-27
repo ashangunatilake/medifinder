@@ -109,7 +109,6 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
         });
       }
     } catch (e) {
-      // Handle error
       print('Error fetching user data: $e');
     }
     setState(() {
@@ -445,12 +444,6 @@ class _PharmacyProfileState extends State<PharmacyProfile> {
                 return;
               }
               await _pharmacyDatabaseServices.updatePharmacy(pharmacyDoc.id, _updatePharmacyProfile(pharmacyDoc));
-              print('Updated successfully!');
-              // setState(() {
-              //   enabled = false;
-              //   nameFieldModified = false;
-              //   mobileFieldModified = false;
-              // });
               Snackbars.successSnackBar(message: "Updated successfully", context: context);
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const PharmacyView(index: 3)), (route) => false);
             },

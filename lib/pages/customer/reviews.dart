@@ -32,8 +32,7 @@ class _ReviewsState extends State<Reviews> {
       data = pharmacyDoc.data() as Map<String, dynamic>;
       listenToOverallRating(pharmacyDoc.id);
     } else {
-      // Handle the case where args are null (optional)
-      // You might want to throw an error or use default values
+
     }
   }
 
@@ -194,7 +193,6 @@ class _ReviewsState extends State<Reviews> {
                           setState(() {
                             selected = 3;
                           });
-
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: getColor(3, selected),
@@ -328,28 +326,6 @@ class _ReviewsState extends State<Reviews> {
           ],
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: "Home",
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.shopping_cart),
-      //       label: "Orders",
-      //     ),
-      //     BottomNavigationBarItem(
-      //         icon: Icon(Icons.person),
-      //         label: "Profile"
-      //     )
-      //   ],
-      //   currentIndex: 0,
-      //   onTap: (int n) {
-      //     if (n == 1) Navigator.pushNamed(context, '/activities');
-      //     if (n == 2) Navigator.pushNamed(context, '/profile');
-      //   },
-      //   selectedItemColor: const Color(0xFF12E7C0),
-      // ),
     );
   }
 }

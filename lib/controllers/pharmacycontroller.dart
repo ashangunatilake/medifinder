@@ -30,7 +30,6 @@ class PharmacyController extends GetxController {
           _updateOrdersCount();
 
           ordersCollection.doc(change.doc.id).collection('UserOrders').snapshots().listen((subEvent) {
-            print("Listening to 'UserOrders' subcollection changes inside ${change.doc.id}");
             for (var subChange in subEvent.docChanges) {
               if (subChange.type == DocumentChangeType.modified || subChange.type == DocumentChangeType.added || subChange.type == DocumentChangeType.removed) {
                 _updateOrdersCount();
@@ -47,7 +46,6 @@ class PharmacyController extends GetxController {
     // Fetch and update the orders count
     _pharmacyDatabaseServices.getUsersWithToAcceptOrders(user!.uid).listen((orders) {
       ordersCount.value = orders.length;
-      print('Orders count updated: ${ordersCount.value}');
     });
   }
 

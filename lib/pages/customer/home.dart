@@ -114,30 +114,6 @@ class _CustomerHomeState extends State<CustomerHome> {
     });
   }
 
-  // Future<LatLng> getLocation() async {
-  //   bool _serviceEnabled = await _locationController.serviceEnabled();
-  //   if (!_serviceEnabled) {
-  //     _serviceEnabled = await _locationController.requestService();
-  //     if (!_serviceEnabled) {
-  //       throw Exception("Location service not enabled");
-  //     }
-  //   }
-  //
-  //   PermissionStatus _permissionGranted = await _locationController.hasPermission();
-  //   if (_permissionGranted == PermissionStatus.denied) {
-  //     _permissionGranted = await _locationController.requestPermission();
-  //     if (_permissionGranted != PermissionStatus.granted) {
-  //       throw Exception("Location permission not granted");
-  //     }
-  //   }
-  //
-  //   LocationData locationData = await _locationController.getLocation();
-  //   if (locationData.latitude == null || locationData.longitude == null) {
-  //     throw Exception("Failed to get location");
-  //   }
-  //   return LatLng(locationData.latitude!, locationData.longitude!);
-  // }
-  //
   Future<Map<String, dynamic>> getUserData() async {
     DocumentSnapshot userDoc = await _databaseServices.getCurrentUserDoc();
     return userDoc.data() as Map<String, dynamic>;
@@ -268,17 +244,13 @@ class _CustomerHomeState extends State<CustomerHome> {
                           orElse: () => null,
                         );
                         if (selectedSuggestion != null) {
-                          print(selectedSuggestion['place_id']);
                           try {
                             String baseUrl = "https://maps.googleapis.com/maps/api/geocode/json";
                             String placeId = selectedSuggestion['place_id'];
-                            print(placeId);
                             String request = "$baseUrl?place_id=$placeId&key=$apiKey";
-                            print(request);
                             var response = await http.get(Uri.parse(request));
                             if (response.statusCode == 200) {
                               var result = json.decode(response.body);
-                              print(result["results"][0]["geometry"]["location"]["lat"]);
                               currentP = LatLng(result["results"][0]["geometry"]["location"]["lat"], result["results"][0]["geometry"]["location"]["lng"]);
                               if (currentP != null && _controller != null) {
                                 _controller!.animateCamera(

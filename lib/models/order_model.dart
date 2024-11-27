@@ -1,5 +1,3 @@
-// lib/models/order_model.dart
-
 class OrderItem {
   final String itemName;
   final int quantity;

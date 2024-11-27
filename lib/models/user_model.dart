@@ -32,7 +32,7 @@ class UserModel {
       return UserModel.empty();
     }
   }
-  ///////////////////////////////////////////////////////////////////////////////
+
   UserModel.fromJson(String userID, Map<String, Object?> json)
       : this(
     id: userID,
@@ -41,7 +41,6 @@ class UserModel {
     mobile: json['Mobile']?.toString() ?? '',
     tokens: (json['FCMTokens'] as List<dynamic>?)?.map((token) => token.toString()).toList() ?? [],
   );
-  ///////////////////////////////////////////////////////////////////////////////
 
   // create a new instance of UserModel with modified/updated properties
   UserModel copyWith({

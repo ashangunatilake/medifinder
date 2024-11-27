@@ -79,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context);
       print(e.code);
       if (e.code == "user-not-found" || e.code == "wrong-password" || e.code == "invalid-credential") {
-        print("User not found");
         Snackbars.errorSnackBar(message: "Incorrect email or password", context: context);
       }
       if (e.code == "too-many-requests") {
@@ -288,7 +287,6 @@ class _LoginPageState extends State<LoginPage> {
                                             }
                                       )
                                   ),
-
                                 ],
                               ),
                             ),
@@ -341,9 +339,6 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-
-
-
                     ),
                     const SizedBox(height: 10.0,)
                   ],

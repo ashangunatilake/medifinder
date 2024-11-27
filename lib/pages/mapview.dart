@@ -29,8 +29,6 @@ class _MapViewState extends State<MapView> {
       }
       pharmacies = uniquePharmacies.toList() ;
     } else {
-      // Handle the case where args are null (optional)
-      // You might want to throw an error or use default values
       location = const LatLng(0.0, 0.0); // Default location
       pharmacies = [];
       print('No arguments passed');

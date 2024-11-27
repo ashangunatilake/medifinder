@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medifinder/models/pharmacy_model.dart';
 
-///// user repository to perform database operations
-
 
 class PharmacyRepository extends GetxController {
   static PharmacyRepository get instance => Get.find();

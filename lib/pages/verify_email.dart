@@ -122,7 +122,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
                           child: Center(
                             child: GestureDetector(
                               onTap: () async {
-                                print("hello");
                                 controller.sendEmailVerification();
                               },
                               child: const Text(

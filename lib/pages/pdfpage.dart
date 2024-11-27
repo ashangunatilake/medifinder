@@ -18,7 +18,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../strings.dart';
 import 'package:uuid/uuid.dart';
-import '../strings.dart';
 
 class PDFViewer extends StatefulWidget {
   const PDFViewer({super.key});
@@ -162,10 +161,6 @@ class _PDFViewerState extends State<PDFViewer> {
     } else {
       pdfFile = await PdfInvoiceApi.generateNonDeliverPdf(invoice, pharmacyLocation);
     }
-    //const LatLng pharmacyLocation = LatLng(7.488755, 80.361993);
-    //const LatLng customerLocation = LatLng(7.499818, 80.348637);
-
-
     setState(() {
       _pdfPath = pdfFile.path;
       _pdfController = PdfController(

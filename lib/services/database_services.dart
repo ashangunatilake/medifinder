@@ -100,7 +100,6 @@ class UserDatabaseServices {
 
   Future<String> getUserRole(String userID) async {
     try {
-      //String userUid = await getCurrentUserUid();
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('Users').doc(userID).get();
       if(userDoc.exists) {
         return 'customer';
@@ -180,38 +179,6 @@ class UserDatabaseServices {
     }
   }
 
-  // Pick/Capture an image
-  // Upload the image to Firebase storage
-  // Get the URL of the uploaded image
-  // Store the image ULR inside the corresponidng databse doc
-  // Future<String> uploadPrescription(String pName, String uName) async {
-  //   ImagePicker imagePicker = ImagePicker();
-  //   XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
-  //
-  //   if (image != null) {
-  //     String imageName = DateTime.now().microsecondsSinceEpoch.toString();
-  //
-  //     Reference referenceRoot = FirebaseStorage.instance.ref(); // Get a reference to storage root
-  //     Reference referencePharmacyDir = referenceRoot.child(pName); // Create a reference to the pharmacy directory
-  //     Reference referenceUserDir = referencePharmacyDir.child(uName); // Create a reference to the user directory inside the pharmacy directory
-  //     Reference referenceImage = referenceUserDir.child(imageName); // Create a reference to the image inside the user's directory
-  //
-  //     try {
-  //       await referenceImage.putFile(File(image.path)); // Upload the image to Firebase Storage
-  //       String imageUrl = await referenceImage.getDownloadURL(); // Optionally, you can get the download URL of the uploaded image
-  //       print('Image uploaded successfully!');
-  //       return imageUrl;
-  //       // to access the image use Image.network('url');
-  //     } catch (e) {
-  //       print('Error uploading image: $e');
-  //       return 'Error uploading image: $e';
-  //     }
-  //   } else {
-  //     print('No image selected.');
-  //     return 'No image selected.';
-  //   }
-  // }
-
   Future<String> uploadPrescription(XFile image, String pName, String uName) async {
     String imageName = DateTime.now().microsecondsSinceEpoch.toString();
 
@@ -221,11 +188,11 @@ class UserDatabaseServices {
     Reference referenceImage = referenceUserDir.child(imageName); // Create a reference to the image inside the user's directory
 
     try {
+      print(referenceImage.fullPath);
       await referenceImage.putFile(File(image.path)); // Upload the image to Firebase Storage
       String imageUrl = await referenceImage.getDownloadURL(); // Optionally, you can get the download URL of the uploaded image
       print('Image uploaded successfully!');
       return imageUrl;
-      // to access the image use Image.network('url');
     } catch (e) {
       throw Exception('Error uploading image: $e');
     }
